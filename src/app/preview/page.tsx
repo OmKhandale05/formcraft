@@ -16,12 +16,12 @@ export default function PreviewPage() {
   return (
     <AppShell>
       <main className="min-h-screen p-4 sm:p-6">
-        <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="soft-panel mb-5 flex flex-wrap items-center gap-3 rounded-2xl p-5">
           <div>
-            <h1 className="text-xl font-semibold text-[#15161a]">Preview</h1>
-            <p className="mt-1 text-sm text-[#68707d]">Render the current JSON schema as an accessible, validated form.</p>
+            <h1 className="text-xl font-semibold text-[#111418]">Preview</h1>
+            <p className="mt-1 text-sm text-[#667085]">Render the current JSON schema as an accessible, validated form.</p>
           </div>
-          <div className="ml-auto flex rounded-lg border border-[#dce1e8] bg-white p-1">
+          <div className="ml-auto flex rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-sm">
             <Button type="button" variant={device === "desktop" ? "primary" : "ghost"} size="sm" onClick={() => setDevice("desktop")}>
               <Monitor size={16} />
               Desktop
@@ -32,7 +32,7 @@ export default function PreviewPage() {
             </Button>
           </div>
         </div>
-        <div className="rounded-2xl border border-[#dce1e8] bg-[#eef2f7] p-3 sm:p-8">
+        <div className="rounded-3xl border border-[#d8e0ea] bg-white/54 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur sm:p-8">
           <div className={cn("mx-auto transition-all", device === "mobile" ? "max-w-[390px]" : "max-w-3xl")}>
             <FormRenderer form={form} onSubmit={addSubmission} />
           </div>

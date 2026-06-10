@@ -24,32 +24,32 @@ export default function SubmissionsPage() {
   return (
     <AppShell>
       <main className="min-h-screen p-4 sm:p-6">
-        <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="soft-panel mb-5 flex flex-wrap items-center gap-3 rounded-2xl p-5">
           <div>
-            <h1 className="text-xl font-semibold text-[#15161a]">Submissions</h1>
-            <p className="mt-1 text-sm text-[#68707d]">Review locally stored mock submissions from the preview form.</p>
+            <h1 className="text-xl font-semibold text-[#111418]">Submissions</h1>
+            <p className="mt-1 text-sm text-[#667085]">Review locally stored mock submissions from the preview form.</p>
           </div>
           <Button className="ml-auto" variant="secondary" onClick={() => downloadFile("formcraft-submissions.csv", toCsv(submissions.map((item) => ({ id: item.id, submittedAt: item.submittedAt, ...item.values }))), "text/csv")}>
             <Download size={16} />
             Export CSV
           </Button>
         </div>
-        <div className="rounded-xl border border-[#dce1e8] bg-white shadow-sm">
-          <div className="flex items-center gap-2 border-b border-[#e7ebf0] p-4">
-            <Search size={18} className="text-[#68707d]" />
+        <div className="overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white/88 shadow-[0_18px_50px_rgba(17,24,39,0.08)]">
+          <div className="flex items-center gap-2 border-b border-[#e7ebf0] bg-white/80 p-4">
+            <Search size={18} className="text-[#667085]" />
             <Input placeholder="Search responses..." value={query} onChange={(event) => setQuery(event.target.value)} className="border-transparent shadow-none" />
           </div>
           {rows.length === 0 ? (
             <div className="p-12 text-center">
               <h2 className="text-lg font-semibold text-[#1f2937]">No submissions yet</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#68707d]">
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#667085]">
                 Submit the preview form to populate this dashboard with searchable responses and CSV export.
               </p>
             </div>
           ) : (
             <div className="formcraft-scrollbar overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="bg-[#f8fafc] text-xs uppercase tracking-[0.12em] text-[#68707d]">
+                <thead className="bg-[#f6f8fb] text-xs uppercase tracking-[0.12em] text-[#667085]">
                   <tr>
                     <th className="px-4 py-3">Submitted</th>
                     <th className="px-4 py-3">Response summary</th>
@@ -72,12 +72,12 @@ export default function SubmissionsPage() {
           )}
         </div>
         {selected && (
-          <div className="fixed inset-0 z-50 bg-black/20" onClick={() => setSelected(null)}>
-            <aside className="ml-auto h-full w-full max-w-md bg-white p-5 shadow-xl" onClick={(event) => event.stopPropagation()}>
+          <div className="fixed inset-0 z-50 bg-black/24 backdrop-blur-sm" onClick={() => setSelected(null)}>
+            <aside className="ml-auto h-full w-full max-w-md border-l border-[#d8e0ea] bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold">Submission detail</h2>
-                  <p className="text-sm text-[#68707d]">{formatTimestamp(selected.submittedAt)}</p>
+                  <p className="text-sm text-[#667085]">{formatTimestamp(selected.submittedAt)}</p>
                 </div>
                 <Button size="icon" variant="ghost" onClick={() => setSelected(null)} aria-label="Close drawer">
                   <X size={18} />

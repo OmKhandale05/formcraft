@@ -56,12 +56,12 @@ export default function BuilderPage() {
     <AppShell>
       <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="flex h-screen flex-col">
-          <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-[#dce1e8] bg-white px-4 sm:px-5">
+          <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-[#d8e0ea] bg-white/82 px-4 backdrop-blur-xl sm:px-5">
             <Input
               aria-label="Form name"
               value={form.name}
               onChange={(event) => setFormMeta({ name: event.target.value })}
-              className="h-9 max-w-[260px] border-transparent bg-[#f1f4f8] font-semibold"
+              className="h-9 max-w-[260px] border-transparent bg-[#eef2f7] font-semibold shadow-none"
             />
             <p className="hidden text-xs text-[#68707d] sm:block">Saved locally · {formatTimestamp(form.updatedAt)}</p>
             <div className="ml-auto flex flex-wrap gap-2">
@@ -84,7 +84,7 @@ export default function BuilderPage() {
               </Link>
             </div>
           </header>
-          <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_340px]">
+          <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_360px]">
             <div className="hidden min-h-0 lg:block">
               <FieldSidebar />
             </div>

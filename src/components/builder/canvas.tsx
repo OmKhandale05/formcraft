@@ -12,22 +12,28 @@ export function BuilderCanvas() {
   const form = useFormStore((state) => state.form);
 
   return (
-    <div className="formcraft-scrollbar h-full overflow-y-auto bg-[#f7f8fb] p-4 sm:p-6">
+    <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-5 rounded-xl border border-[#dce1e8] bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#68707d]">Canvas</p>
-          <h1 className="mt-2 text-2xl font-semibold text-[#15161a]">{form.title}</h1>
-          <p className="mt-2 text-sm leading-6 text-[#68707d]">{form.description}</p>
+        <div className="soft-panel mb-5 rounded-2xl p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#667085]">Canvas</p>
+            <div className="flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-white px-3 py-1 text-xs font-medium text-[#465366]">
+              <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
+              {form.fields.length} fields
+            </div>
+          </div>
+          <h1 className="text-2xl font-semibold text-[#111418]">{form.title}</h1>
+          <p className="mt-2 text-sm leading-6 text-[#667085]">{form.description}</p>
         </div>
         <SortableContext items={form.fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
-          <div className="min-h-[480px] rounded-xl border border-dashed border-[#cbd5e1] bg-white p-3 shadow-sm">
+          <div className="min-h-[480px] rounded-2xl border border-dashed border-[#bfcadc] bg-white/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur">
             {form.fields.length === 0 ? (
               <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#eef4ff] text-[#1749ba]">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-xl">
                   <GripVertical size={24} />
                 </div>
                 <h2 className="text-lg font-semibold text-[#1f2937]">Start building your form</h2>
-                <p className="mt-2 max-w-sm text-sm leading-6 text-[#68707d]">
+                <p className="mt-2 max-w-sm text-sm leading-6 text-[#667085]">
                   Drag fields from the sidebar to compose a schema-driven form with validation and preview support.
                 </p>
               </div>
@@ -58,8 +64,8 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "group rounded-xl border bg-white p-4 shadow-sm transition",
-        selected ? "border-[var(--accent)] ring-2 ring-blue-100" : "border-[#e1e6ee] hover:border-[#cbd5e1]",
+        "group card-hover rounded-xl border bg-white p-4 shadow-sm",
+        selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
         isDragging && "opacity-50"
       )}
       onClick={() => setSelectedField(field.id)}
@@ -70,16 +76,16 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
         </button>
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-md bg-[#eef2f7] px-2 py-1 text-xs font-medium text-[#4b5563]">Step {field.step ?? 1}</span>
-            <span className="rounded-md bg-[#f1f5f9] px-2 py-1 text-xs font-medium text-[#64748b]">{field.type}</span>
+            <span className="rounded-md bg-[#e9f7f5] px-2 py-1 text-xs font-semibold text-[#0f766e]">Step {field.step ?? 1}</span>
+            <span className="rounded-md bg-[#f1f4f8] px-2 py-1 text-xs font-semibold text-[#64748b]">{field.type}</span>
             <span className="text-xs text-[#9aa3af]">#{index + 1}</span>
           </div>
           {field.type === "divider" ? (
-            <div className="my-3 h-px bg-[#dce1e8]" />
+            <div className="my-3 h-px bg-[#d8e0ea]" />
           ) : field.type === "section" ? (
             <div>
               <h3 className="text-base font-semibold text-[#15161a]">{field.label}</h3>
-              {field.helperText && <p className="mt-1 text-sm text-[#68707d]">{field.helperText}</p>}
+              {field.helperText && <p className="mt-1 text-sm text-[#667085]">{field.helperText}</p>}
             </div>
           ) : (
             <div>
@@ -87,11 +93,11 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
                 {field.label}
                 {field.required && <span className="ml-1 text-[#dc2626]">*</span>}
               </p>
-              {field.placeholder && <p className="mt-1 text-sm text-[#9aa3af]">{field.placeholder}</p>}
+              {field.placeholder && <p className="mt-1 text-sm text-[#98a2b3]">{field.placeholder}</p>}
               {field.options?.length ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {field.options.map((option) => (
-                    <span key={option} className="rounded-md border border-[#dce1e8] px-2.5 py-1 text-xs text-[#4b5563]">
+                    <span key={option} className="rounded-md border border-[#d8e0ea] bg-[#fbfcfe] px-2.5 py-1 text-xs font-medium text-[#465366]">
                       {option}
                     </span>
                   ))}

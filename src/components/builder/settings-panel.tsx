@@ -15,9 +15,9 @@ export function FieldSettingsPanel() {
 
   if (!field) {
     return (
-      <aside className="h-full border-l border-[#dce1e8] bg-white p-5">
+      <aside className="h-full border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
         <p className="text-sm font-semibold text-[#1f2937]">Field settings</p>
-        <div className="mt-5 rounded-xl border border-dashed border-[#cbd5e1] bg-[#f8fafc] p-5 text-sm leading-6 text-[#68707d]">
+        <div className="mt-5 rounded-2xl border border-dashed border-[#bfcadc] bg-white/70 p-5 text-sm leading-6 text-[#667085] shadow-sm">
           Select a field on the canvas to edit labels, validation, steps and options.
         </div>
       </aside>
@@ -29,11 +29,11 @@ export function FieldSettingsPanel() {
   const optionText = field.options?.join("\n") ?? "";
 
   return (
-    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#dce1e8] bg-white p-5">
-      <div className="mb-5 flex items-center justify-between">
+    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
+      <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
         <div>
           <p className="text-sm font-semibold text-[#1f2937]">Field settings</p>
-          <p className="text-xs text-[#68707d]">{field.type}</p>
+          <p className="text-xs text-[#667085]">{field.type}</p>
         </div>
         <div className="flex gap-1">
           <Button size="icon" variant="ghost" onClick={() => duplicateField(field.id)} aria-label="Duplicate field">
@@ -69,7 +69,7 @@ export function FieldSettingsPanel() {
             <Input id="field-step" type="number" min={1} className="mt-2" value={field.step ?? 1} onChange={(event) => updateField(field.id, { step: Number(event.target.value) || 1 })} />
           </div>
           {!["section", "divider", "file"].includes(field.type) && (
-            <label className="mt-7 flex h-10 items-center gap-2 rounded-lg border border-[#dce1e8] px-3 text-sm text-[#1f2937]">
+            <label className="mt-7 flex h-10 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-medium text-[#1f2937] shadow-sm">
               <input type="checkbox" checked={Boolean(field.required)} onChange={(event) => updateField(field.id, { required: event.target.checked })} />
               Required
             </label>
@@ -91,11 +91,11 @@ export function FieldSettingsPanel() {
                 })
               }
             />
-            <p className="mt-1 text-xs text-[#68707d]">One option per line.</p>
+            <p className="mt-1 text-xs text-[#667085]">One option per line.</p>
           </div>
         )}
         {!["section", "divider", "file"].includes(field.type) && (
-          <div className="rounded-xl border border-[#e1e6ee] bg-[#fbfcfe] p-4">
+          <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
             <p className="mb-3 text-sm font-semibold text-[#1f2937]">Validation</p>
             {field.type === "number" ? (
               <div className="grid grid-cols-2 gap-3">

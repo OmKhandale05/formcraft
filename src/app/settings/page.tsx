@@ -17,14 +17,14 @@ export default function SettingsPage() {
   return (
     <AppShell>
       <main className="grid min-h-screen gap-6 p-4 sm:p-6 xl:grid-cols-[420px_minmax(0,1fr)]">
-        <section className="rounded-xl border border-[#dce1e8] bg-white p-5 shadow-sm">
+        <section className="soft-panel rounded-2xl p-5">
           <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef4ff] text-[#1749ba]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#111418] text-white shadow-lg">
               <Palette size={20} />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-[#15161a]">Theme and settings</h1>
-              <p className="text-sm text-[#68707d]">Tune the published form experience.</p>
+              <h1 className="text-lg font-semibold text-[#111418]">Theme and settings</h1>
+              <p className="text-sm text-[#667085]">Tune the published form experience.</p>
             </div>
           </div>
           <div className="space-y-5">
@@ -44,7 +44,7 @@ export default function SettingsPage() {
                     key={color}
                     type="button"
                     aria-label={`Use ${color}`}
-                    className="h-10 w-10 rounded-lg border-2 border-white shadow ring-offset-2"
+                    className="h-10 w-10 rounded-xl border-2 border-white shadow ring-offset-2 transition hover:scale-105"
                     style={{ background: color, boxShadow: form.theme.accentColor === color ? `0 0 0 3px ${color}33` : undefined }}
                     onClick={() => setTheme({ accentColor: color })}
                   />
@@ -82,8 +82,8 @@ export default function SettingsPage() {
         </section>
         <section>
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-[#15161a]">Live theme preview</h2>
-            <p className="mt-1 text-sm text-[#68707d]">The same renderer powers preview and submission capture.</p>
+            <h2 className="text-lg font-semibold text-[#111418]">Live theme preview</h2>
+            <p className="mt-1 text-sm text-[#667085]">The same renderer powers preview and submission capture.</p>
           </div>
           <div className="max-w-3xl">
             <FormRenderer form={form} compact />
