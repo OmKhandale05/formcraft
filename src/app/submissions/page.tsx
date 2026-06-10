@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { downloadFile, toCsv } from "@/lib/utils";
+import { downloadFile, formatTimestamp, toCsv } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { Submission } from "@/types/form";
 
@@ -59,7 +59,7 @@ export default function SubmissionsPage() {
                 <tbody className="divide-y divide-[#e7ebf0]">
                   {rows.map((submission) => (
                     <tr key={submission.id} className="hover:bg-[#fbfcfe]">
-                      <td className="px-4 py-4 text-[#4b5563]">{new Date(submission.submittedAt).toLocaleString()}</td>
+                      <td className="px-4 py-4 text-[#4b5563]">{formatTimestamp(submission.submittedAt)}</td>
                       <td className="px-4 py-4 text-[#1f2937]">{Object.entries(submission.values).slice(0, 3).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`).join(" · ")}</td>
                       <td className="px-4 py-4 text-right">
                         <Button size="sm" onClick={() => setSelected(submission)}>View</Button>
@@ -77,7 +77,7 @@ export default function SubmissionsPage() {
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold">Submission detail</h2>
-                  <p className="text-sm text-[#68707d]">{new Date(selected.submittedAt).toLocaleString()}</p>
+                  <p className="text-sm text-[#68707d]">{formatTimestamp(selected.submittedAt)}</p>
                 </div>
                 <Button size="icon" variant="ghost" onClick={() => setSelected(null)} aria-label="Close drawer">
                   <X size={18} />

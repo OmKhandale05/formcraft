@@ -6,6 +6,8 @@ const theme = {
   mode: "light" as const
 };
 
+const initialUpdatedAt = "2026-06-10T00:00:00.000Z";
+
 export const templates: Array<FormSchema & { category: string; summary: string }> = [
   {
     id: "template-contact",
@@ -14,7 +16,7 @@ export const templates: Array<FormSchema & { category: string; summary: string }
     description: "Capture qualified inbound messages from prospects and partners.",
     category: "Support",
     summary: "Name, email, company, message and priority routing.",
-    updatedAt: new Date().toISOString(),
+    updatedAt: initialUpdatedAt,
     theme,
     fields: [
       { id: "name", type: "text", label: "Full name", placeholder: "Alex Morgan", required: true, step: 1 },
@@ -30,7 +32,7 @@ export const templates: Array<FormSchema & { category: string; summary: string }
     description: "Collect applicant details, links, experience and resume uploads.",
     category: "Hiring",
     summary: "Candidate profile with role, portfolio and resume placeholder.",
-    updatedAt: new Date().toISOString(),
+    updatedAt: initialUpdatedAt,
     theme: { ...theme, accentColor: "#0f766e" },
     fields: [
       { id: "candidate", type: "text", label: "Candidate name", required: true, step: 1 },
@@ -47,7 +49,7 @@ export const templates: Array<FormSchema & { category: string; summary: string }
     description: "Manage registrations for workshops, launches and community events.",
     category: "Events",
     summary: "Guest info, date preference, attendee count and interests.",
-    updatedAt: new Date().toISOString(),
+    updatedAt: initialUpdatedAt,
     theme: { ...theme, accentColor: "#d97706" },
     fields: [
       { id: "guest", type: "text", label: "Guest name", required: true, step: 1 },
@@ -64,7 +66,7 @@ export const templates: Array<FormSchema & { category: string; summary: string }
     description: "Gather structured product feedback after a feature release.",
     category: "Product",
     summary: "Satisfaction, feature feedback and follow-up permission.",
-    updatedAt: new Date().toISOString(),
+    updatedAt: initialUpdatedAt,
     theme: { ...theme, accentColor: "#7c3aed" },
     fields: [
       { id: "satisfaction", type: "radio", label: "How was your experience?", required: true, options: ["Excellent", "Good", "Needs work"], step: 1 },
@@ -80,7 +82,7 @@ export const templates: Array<FormSchema & { category: string; summary: string }
     description: "Qualify prospects by team size, budget and urgency.",
     category: "Sales",
     summary: "B2B lead capture with budget and timeline questions.",
-    updatedAt: new Date().toISOString(),
+    updatedAt: initialUpdatedAt,
     theme: { ...theme, accentColor: "#db2777" },
     fields: [
       { id: "lead_name", type: "text", label: "Name", required: true, step: 1 },
@@ -97,7 +99,7 @@ export const defaultForm: FormSchema = {
   name: "Untitled form",
   title: "New customer intake",
   description: "Collect the details your team needs to qualify and respond quickly.",
-  updatedAt: new Date().toISOString(),
+  updatedAt: initialUpdatedAt,
   theme,
   fields: [
     { id: "intro", type: "section", label: "Contact details", helperText: "Step 1", step: 1 },

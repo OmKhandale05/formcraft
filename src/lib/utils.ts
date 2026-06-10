@@ -15,6 +15,17 @@ export function downloadFile(filename: string, content: string, type = "applicat
   URL.revokeObjectURL(url);
 }
 
+export function formatTimestamp(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not saved yet";
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC"
+  }).format(date);
+}
+
 export function toCsv(rows: Record<string, unknown>[]) {
   if (!rows.length) return "";
   const keys = Array.from(

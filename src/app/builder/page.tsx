@@ -12,7 +12,7 @@ import { FieldSidebar } from "@/components/builder/field-sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createField } from "@/lib/field-catalog";
-import { downloadFile } from "@/lib/utils";
+import { downloadFile, formatTimestamp } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormSchema } from "@/types/form";
 
@@ -63,7 +63,7 @@ export default function BuilderPage() {
               onChange={(event) => setFormMeta({ name: event.target.value })}
               className="h-9 max-w-[260px] border-transparent bg-[#f1f4f8] font-semibold"
             />
-            <p className="hidden text-xs text-[#68707d] sm:block">Saved locally · {new Date(form.updatedAt).toLocaleString()}</p>
+            <p className="hidden text-xs text-[#68707d] sm:block">Saved locally · {formatTimestamp(form.updatedAt)}</p>
             <div className="ml-auto flex flex-wrap gap-2">
               <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
                 <FileUp size={16} />
