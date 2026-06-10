@@ -102,8 +102,8 @@ export default function BuilderPage() {
   return (
     <AppShell>
       <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="flex h-screen flex-col">
-          <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-[#d8e0ea] bg-white/82 px-4 backdrop-blur-xl sm:px-5">
+        <div className="flex h-screen max-h-screen flex-col overflow-hidden">
+          <header className="flex min-h-16 shrink-0 flex-wrap items-center gap-3 border-b border-[#d8e0ea] bg-white/82 px-4 backdrop-blur-xl sm:px-5">
             <Input
               aria-label="Form name"
               value={form.name}
@@ -163,12 +163,12 @@ export default function BuilderPage() {
               </Link>
             </div>
           </header>
-          <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)_320px]">
-            <div className="hidden min-h-0 lg:block">
+          <div className="grid min-h-0 flex-1 overflow-hidden grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+            <div className="hidden min-h-0 overflow-hidden lg:block">
               <FieldSidebar />
             </div>
             <BuilderCanvas />
-            <div className="hidden min-h-0 2xl:block">
+            <div className="hidden min-h-0 overflow-hidden 2xl:block">
               <FieldSettingsPanel />
             </div>
           </div>
