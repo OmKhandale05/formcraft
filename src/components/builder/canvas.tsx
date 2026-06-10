@@ -1,5 +1,6 @@
 "use client";
 
+import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Copy, GripVertical, Trash2 } from "lucide-react";
@@ -10,6 +11,10 @@ import type { FormField } from "@/types/form";
 
 export function BuilderCanvas() {
   const form = useFormStore((state) => state.form);
+  const { isOver, setNodeRef } = useDroppable({
+    id: "builder-canvas",
+    data: { type: "canvas" }
+  });
 
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
@@ -26,7 +31,14 @@ export function BuilderCanvas() {
           <p className="mt-2 text-sm leading-6 text-[#667085]">{form.description}</p>
         </div>
         <SortableContext items={form.fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
-          <div className="min-h-[480px] rounded-2xl border border-dashed border-[#bfcadc] bg-white/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur">
+          <div
+            ref={setNodeRef}
+            data-testid="builder-canvas-dropzone"
+            className={cn(
+              "min-h-[480px] rounded-2xl border border-dashed border-[#bfcadc] bg-white/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur transition",
+              isOver && "border-[#3157d5] bg-[#f8faff] ring-4 ring-[#3157d5]/10"
+            )}
+          >
             {form.fields.length === 0 ? (
               <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-xl">
@@ -62,6 +74,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
   return (
     <div
       ref={setNodeRef}
+      data-testid="builder-canvas-field"
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
         "group card-hover rounded-xl border bg-white p-4 shadow-sm",

@@ -36,6 +36,8 @@ export default function BuilderPage() {
       return;
     }
 
+    if (over.id === "builder-canvas") return;
+
     if (active.id !== over.id) {
       const oldIndex = form.fields.findIndex((field) => field.id === active.id);
       const newIndex = form.fields.findIndex((field) => field.id === over.id);
