@@ -12,7 +12,7 @@ import { FieldSettingsPanel } from "@/components/builder/settings-panel";
 import { FieldSidebar } from "@/components/builder/field-sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { exportHtml, exportPdf, exportReactComponent, exportTypescriptType, exportZodSchema } from "@/lib/exporters";
+import { exportHtml, exportReactComponent, exportTypescriptType, exportZodSchema } from "@/lib/exporters";
 import { createField } from "@/lib/field-catalog";
 import { downloadFile, formatTimestamp, slugify } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
@@ -23,8 +23,7 @@ const exportOptions = [
   { label: "HTML", description: "Standalone embeddable form", extension: "html" },
   { label: "React Component", description: "Ready TSX component", extension: "tsx" },
   { label: "Zod Schema", description: "Validation schema", extension: "ts" },
-  { label: "TypeScript Type", description: "Response type definition", extension: "ts" },
-  { label: "PDF", description: "Printable form summary", extension: "pdf" }
+  { label: "TypeScript Type", description: "Response type definition", extension: "ts" }
 ] as const;
 
 type ExportExtension = (typeof exportOptions)[number]["extension"];
@@ -97,9 +96,7 @@ export default function BuilderPage() {
       return;
     }
 
-    if (extension === "pdf") {
-      downloadFile(`${filename}.pdf`, exportPdf(form), "application/pdf");
-    }
+    void extension;
   };
 
   return (
