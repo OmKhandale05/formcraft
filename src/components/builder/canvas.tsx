@@ -3,7 +3,8 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Copy, GripVertical, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Copy, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
@@ -27,8 +28,19 @@ export function BuilderCanvas() {
               {form.fields.length} fields
             </div>
           </div>
-          <h1 className="text-2xl font-semibold text-[#111418]">{form.title}</h1>
-          <p className="mt-2 text-sm leading-6 text-[#667085]">{form.description}</p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-semibold text-[#111418]">{form.title}</h1>
+              <p className="mt-2 text-sm leading-6 text-[#667085]">{form.description}</p>
+            </div>
+            <Link
+              href="/settings"
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-semibold text-[#20242b] shadow-sm transition hover:border-[#c5d0dc] hover:bg-white"
+            >
+              <Pencil size={15} />
+              Edit
+            </Link>
+          </div>
         </div>
         <SortableContext items={form.fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
           <div
