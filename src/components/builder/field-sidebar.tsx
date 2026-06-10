@@ -8,7 +8,7 @@ import type { FieldType } from "@/types/form";
 export function FieldSidebar() {
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto border-r border-[#d8e0ea] bg-white/74 p-4 backdrop-blur-xl">
-      <div className="sticky top-0 z-10 mb-4 rounded-xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+      <div className="mb-4 rounded-xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
         <p className="text-sm font-semibold text-[#1f2937]">Field blocks</p>
         <p className="mt-1 text-xs leading-5 text-[#667085]">Drag components into the canvas.</p>
       </div>
