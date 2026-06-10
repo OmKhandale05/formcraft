@@ -19,7 +19,7 @@ export function BuilderCanvas() {
 
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         <div className="soft-panel mb-5 rounded-2xl p-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#667085]">Canvas</p>

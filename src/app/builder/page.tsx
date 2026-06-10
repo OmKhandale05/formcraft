@@ -163,12 +163,12 @@ export default function BuilderPage() {
               </Link>
             </div>
           </header>
-          <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_360px]">
+          <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)_320px]">
             <div className="hidden min-h-0 lg:block">
               <FieldSidebar />
             </div>
             <BuilderCanvas />
-            <div className="hidden min-h-0 xl:block">
+            <div className="hidden min-h-0 2xl:block">
               <FieldSettingsPanel />
             </div>
           </div>
