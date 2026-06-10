@@ -200,35 +200,189 @@ function wrapText(text: string, max = 84) {
 }
 
 export function exportPdf(form: FormSchema) {
-  const lines = [
-    form.title,
-    form.description,
-    "",
-    ...form.fields.flatMap((field, index) => [
-      `${index + 1}. ${field.label} (${field.type}${field.required ? ", required" : ""})`,
-      field.helperText ? `   ${field.helperText}` : "",
-      field.options?.length ? `   Options: ${field.options.join(", ")}` : ""
-    ])
-  ].flatMap((line) => wrapText(line)).filter(Boolean);
+  const pageWidth = 612;
+  const pageHeight = 792;
+  const margin = 54;
+  const fieldWidth = pageWidth - margin * 2;
+  const pages: string[] = [];
+  let ops: string[] = [];
+  let y = 720;
 
-  const content = [
-    "BT",
-    "/F1 18 Tf",
-    "72 760 Td",
-    ...lines.flatMap((line, index) => [
-      index === 1 ? "/F1 11 Tf" : index === 3 ? "/F1 12 Tf" : "",
-      `(${pdfEscape(line)}) Tj`,
-      "0 -18 Td"
-    ]),
-    "ET"
-  ].filter(Boolean).join("\n");
+  const text = (value: string, x: number, textY: number, size = 11, color = "0.07 0.08 0.09") => {
+    ops.push(`${color} rg`);
+    ops.push("BT");
+    ops.push(`/F1 ${size} Tf`);
+    ops.push(`${x} ${textY} Td`);
+    ops.push(`(${pdfEscape(value)}) Tj`);
+    ops.push("ET");
+  };
+
+  const rect = (x: number, rectY: number, width: number, height: number, fill = "1 1 1", stroke = "0.84 0.88 0.92") => {
+    ops.push(`${fill} rg`);
+    ops.push(`${x} ${rectY} ${width} ${height} re f`);
+    ops.push(`${stroke} RG`);
+    ops.push(`${x} ${rectY} ${width} ${height} re S`);
+  };
+
+  const divider = (lineY: number) => {
+    ops.push("0.84 0.88 0.92 RG");
+    ops.push(`${margin} ${lineY} ${fieldWidth} 0.5 re f`);
+  };
+
+  const drawPageShell = () => {
+    rect(38, 34, 536, 724, "1 1 1", "0.84 0.88 0.92");
+  };
+
+  const finishPage = (startNext = false) => {
+    pages.push(ops.join("\n"));
+    ops = [];
+    y = 720;
+    if (startNext) {
+      drawPageShell();
+      text(`${form.title} continued`, margin, y, 12, "0.40 0.44 0.52");
+      y -= 30;
+    }
+  };
+
+  const ensureSpace = (height: number) => {
+    if (y - height < 64) finishPage(true);
+  };
+
+  const drawHeader = () => {
+    drawPageShell();
+    text(form.title, margin, y, 22);
+    y -= 30;
+    wrapText(form.description, 78).forEach((line) => {
+      text(line, margin, y, 11, "0.40 0.44 0.52");
+      y -= 16;
+    });
+    y -= 8;
+    divider(y);
+    y -= 26;
+  };
+
+  const drawLabel = (field: FormField) => {
+    text(`${field.label}${field.required ? " *" : ""}`, margin, y, 11);
+    y -= 16;
+  };
+
+  const drawHelper = (field: FormField) => {
+    if (!field.helperText) return;
+    wrapText(field.helperText, 78).forEach((line) => {
+      text(line, margin, y, 9, "0.40 0.44 0.52");
+      y -= 12;
+    });
+    y -= 4;
+  };
+
+  const drawInput = (field: FormField) => {
+    ensureSpace(74);
+    drawLabel(field);
+    rect(margin, y - 34, fieldWidth, 34, "0.98 0.99 1", "0.84 0.88 0.92");
+    if (field.placeholder) text(field.placeholder, margin + 12, y - 22, 10, "0.58 0.64 0.70");
+    y -= 46;
+    drawHelper(field);
+  };
+
+  const drawTextarea = (field: FormField) => {
+    ensureSpace(126);
+    drawLabel(field);
+    rect(margin, y - 86, fieldWidth, 86, "0.98 0.99 1", "0.84 0.88 0.92");
+    if (field.placeholder) text(field.placeholder, margin + 12, y - 22, 10, "0.58 0.64 0.70");
+    y -= 98;
+    drawHelper(field);
+  };
+
+  const drawOptions = (field: FormField, mark: "square" | "circle") => {
+    const options = field.options?.length ? field.options : ["Option one", "Option two"];
+    ensureSpace(42 + options.length * 24);
+    drawLabel(field);
+    options.forEach((option) => {
+      if (mark === "circle") {
+        ops.push("0.84 0.88 0.92 RG");
+        ops.push(`${margin} ${y - 10} 10 10 re S`);
+      } else {
+        rect(margin, y - 10, 10, 10, "1 1 1", "0.84 0.88 0.92");
+      }
+      text(option, margin + 18, y - 8, 10);
+      y -= 24;
+    });
+    drawHelper(field);
+  };
+
+  drawHeader();
+
+  form.fields.forEach((field) => {
+    if (field.type === "section") {
+      ensureSpace(54);
+      text(field.label, margin, y, 14);
+      y -= 18;
+      drawHelper(field);
+      return;
+    }
+
+    if (field.type === "divider") {
+      ensureSpace(24);
+      divider(y);
+      y -= 24;
+      return;
+    }
+
+    if (field.type === "textarea") {
+      drawTextarea(field);
+      return;
+    }
+
+    if (field.type === "dropdown") {
+      ensureSpace(74);
+      drawLabel(field);
+      rect(margin, y - 34, fieldWidth, 34, "0.98 0.99 1", "0.84 0.88 0.92");
+      text("Select an option", margin + 12, y - 22, 10, "0.58 0.64 0.70");
+      text("v", margin + fieldWidth - 18, y - 22, 10, "0.40 0.44 0.52");
+      y -= 46;
+      drawHelper(field);
+      return;
+    }
+
+    if (field.type === "radio") {
+      drawOptions(field, "circle");
+      return;
+    }
+
+    if (field.type === "checkbox") {
+      drawOptions(field, "square");
+      return;
+    }
+
+    if (field.type === "file") {
+      ensureSpace(76);
+      drawLabel(field);
+      rect(margin, y - 38, fieldWidth, 38, "0.98 0.99 1", "0.72 0.78 0.86");
+      text("Choose file", margin + 12, y - 24, 10, "0.40 0.44 0.52");
+      y -= 50;
+      drawHelper(field);
+      return;
+    }
+
+    drawInput(field);
+  });
+
+  finishPage();
+
+  const pageObjects = pages.map((content, index) => {
+    const pageObjectId = 4 + index * 2;
+    const contentObjectId = pageObjectId + 1;
+    return {
+      page: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObjectId} 0 R >>`,
+      content: `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
+    };
+  });
 
   const objects = [
-    "<< /Type /Catalog /Pages 2 0 R >>",
-    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+    `<< /Type /Catalog /Pages 2 0 R >>`,
+    `<< /Type /Pages /Kids [${pageObjects.map((_, index) => `${4 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>`,
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
+    ...pageObjects.flatMap((item) => [item.page, item.content])
   ];
 
   let pdf = "%PDF-1.4\n";
