@@ -54,7 +54,7 @@ export default function BuilderPage() {
 
   return (
     <AppShell>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="flex h-screen flex-col">
           <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-[#dce1e8] bg-white px-4 sm:px-5">
             <Input
