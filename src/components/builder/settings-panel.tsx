@@ -3,7 +3,30 @@
 import { Copy, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { fieldCatalog } from "@/lib/field-catalog";
 import { useFormStore } from "@/store/form-store";
+import type { FieldType, FormField, ValidationRule } from "@/types/form";
+
+const optionFieldTypes: FieldType[] = ["dropdown", "radio", "checkbox"];
+const inputFieldTypes: FieldType[] = ["text", "email", "phone", "textarea", "number", "dropdown", "radio", "checkbox", "date"];
+
+function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partial<FormField> {
+  const usesOptions = optionFieldTypes.includes(nextType);
+  const supportsPlaceholder = !["section", "divider", "file"].includes(nextType);
+  const supportsRequired = !["section", "divider", "file"].includes(nextType);
+  const supportsValidation = inputFieldTypes.includes(nextType);
+  const nextValidation: ValidationRule = nextType === "number"
+    ? { min: field.validation?.min, max: field.validation?.max }
+    : { minLength: field.validation?.minLength, maxLength: field.validation?.maxLength };
+
+  return {
+    type: nextType,
+    placeholder: supportsPlaceholder ? field.placeholder || "Enter response" : undefined,
+    required: supportsRequired ? Boolean(field.required) : false,
+    options: usesOptions ? field.options?.length ? field.options : ["Option one", "Option two", "Option three"] : undefined,
+    validation: supportsValidation ? nextValidation : {}
+  };
+}
 
 export function FieldSettingsPanel() {
   const form = useFormStore((state) => state.form);
@@ -124,9 +147,19 @@ export function FieldSettingsPanel() {
         )}
         <div>
           <Label htmlFor="field-type">Field type</Label>
-          <Select id="field-type" className="mt-2" value={field.type} disabled>
-            <option>{field.type}</option>
+          <Select
+            id="field-type"
+            className="mt-2"
+            value={field.type}
+            onChange={(event) => updateField(field.id, normalizeFieldTypeChange(field, event.target.value as FieldType))}
+          >
+            {fieldCatalog.map((item) => (
+              <option key={item.type} value={item.type}>
+                {item.label}
+              </option>
+            ))}
           </Select>
+          <p className="mt-1 text-xs text-[#667085]">Converts this field while preserving compatible settings.</p>
         </div>
       </div>
     </aside>
