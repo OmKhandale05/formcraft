@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function downloadFile(filename: string, content: string, type = "application/json") {
+export function downloadFile(filename: string, content: BlobPart, type = "application/json") {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -13,6 +13,14 @@ export function downloadFile(filename: string, content: string, type = "applicat
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+export function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "formcraft-form";
 }
 
 export function formatTimestamp(value: string) {
