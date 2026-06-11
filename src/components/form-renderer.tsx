@@ -7,9 +7,9 @@ import { useMemo, useRef, useState, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { currencyCodes } from "@/lib/currencies";
 import type { FormField, FormSchema } from "@/types/form";
 
 function schemaForField(field: FormField) {
@@ -79,7 +79,10 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
       else if (field.type === "matrix") values[field.id] = {};
       else if (field.type === "slider") values[field.id] = field.settings?.sliderMin ?? 0;
       else if (field.type === "hidden") values[field.id] = field.settings?.hiddenValue ?? "";
-      else values[field.id] = "";
+      else {
+        values[field.id] = "";
+        if (field.type === "payment") values[`${field.id}_currency`] = field.settings?.currency ?? "USD";
+      }
       return values;
     }, {})
   });
@@ -274,13 +277,12 @@ function RenderedField({
       {field.type === "matrix" && <MatrixField field={field} register={register} dark={dark} />}
       {field.type === "payment" && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
-          <Select aria-label={`${field.label} currency`} className={inputClass} defaultValue={field.settings?.currency ?? "USD"} {...register(`${field.id}_currency`)}>
-            {currencyCodes.map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </Select>
+          <input type="hidden" {...register(`${field.id}_currency`)} />
+          <CurrencySelect
+            value={String(watch(`${field.id}_currency`) || field.settings?.currency || "USD")}
+            dark={dark}
+            onChange={(currency) => setValue(`${field.id}_currency`, currency, { shouldDirty: true, shouldValidate: true })}
+          />
           <Input id={field.id} type="number" min={0} step="0.01" placeholder="0.00" className={inputClass} {...register(field.id)} />
           <p className={cn("flex items-center gap-1 text-xs sm:col-span-2", dark ? "text-white/50" : "text-[#667085]")}>
             <CreditCard size={13} />

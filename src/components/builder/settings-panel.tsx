@@ -2,8 +2,8 @@
 
 import { Copy, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
-import { currencyCodes } from "@/lib/currencies";
 import { fieldCatalog } from "@/lib/field-catalog";
 import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
@@ -231,13 +231,11 @@ export function FieldSettingsPanel() {
         {field.type === "payment" && (
           <div>
             <Label htmlFor="currency">Currency</Label>
-            <Select id="currency" className="mt-2" value={field.settings?.currency ?? "USD"} onChange={(event) => updateField(field.id, { settings: { ...field.settings, currency: event.target.value } })}>
-              {currencyCodes.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </Select>
+            <CurrencySelect
+              value={field.settings?.currency ?? "USD"}
+              className="mt-2"
+              onChange={(currency) => updateField(field.id, { settings: { ...field.settings, currency } })}
+            />
           </div>
         )}
         {!["section", "divider", "file", "rating", "signature", "daterange", "slider", "matrix", "hidden", "payment"].includes(field.type) && (
