@@ -430,7 +430,7 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     { command: "insertUnorderedList", label: "Bullet list", icon: List },
     { command: "insertOrderedList", label: "Numbered list", icon: ListOrdered },
     { command: "quoteText", label: "Quote", icon: Quote },
-    { command: "removeFormat", label: "Clear", icon: Eraser }
+    { command: "clearText", label: "Clear", icon: Eraser }
   ];
 
   const runCommand = (command: string, value?: string) => {
@@ -438,6 +438,12 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     if (!editor) return;
 
     editor.focus();
+    if (command === "clearText") {
+      editor.innerHTML = "";
+      setValue(field.id, "", { shouldDirty: true, shouldValidate: true });
+      return;
+    }
+
     if (command === "quoteText") {
       const selection = window.getSelection()?.toString();
       if (selection) {
