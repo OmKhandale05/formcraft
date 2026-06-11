@@ -16,7 +16,7 @@ import { exportHtml, exportReactComponent, exportTypescriptType, exportZodSchema
 import { createField } from "@/lib/field-catalog";
 import { downloadFile, formatTimestamp, slugify } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
-import type { FieldType, FormSchema } from "@/types/form";
+import type { FieldLayoutPreference, FieldType, FormSchema } from "@/types/form";
 
 const exportOptions = [
   { label: "Form JSON", description: "Reusable FormCraft schema", extension: "json" },
@@ -55,7 +55,7 @@ export default function BuilderPage() {
 
     if (active.data.current?.source === "catalog") {
       const targetIndex = form.fields.findIndex((field) => field.id === over.id);
-      addField(createField(active.data.current.type as FieldType), targetIndex >= 0 ? targetIndex : undefined);
+      addField(createField(active.data.current.type as FieldType, active.data.current.layoutPreference as FieldLayoutPreference), targetIndex >= 0 ? targetIndex : undefined);
       return;
     }
 

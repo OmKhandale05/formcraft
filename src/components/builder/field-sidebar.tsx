@@ -1,32 +1,72 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { GripVertical } from "lucide-react";
+import { Columns2, GripVertical, Rows3 } from "lucide-react";
+import { useState } from "react";
 import { fieldCatalog } from "@/lib/field-catalog";
-import type { FieldType } from "@/types/form";
+import { cn } from "@/lib/utils";
+import type { FieldLayoutPreference, FieldType } from "@/types/form";
+
+const layoutOptions: Array<{
+  value: FieldLayoutPreference;
+  label: string;
+  description: string;
+  icon: typeof Rows3;
+}> = [
+  { value: "auto", label: "Auto", description: "Smart default", icon: Rows3 },
+  { value: "full", label: "Full", description: "1 per row", icon: Rows3 },
+  { value: "half", label: "Half", description: "2 per row", icon: Columns2 }
+];
 
 export function FieldSidebar() {
+  const [layoutPreference, setLayoutPreference] = useState<FieldLayoutPreference>("auto");
+
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto border-r border-[#d8e0ea] bg-white/74 p-4 backdrop-blur-xl">
       <div className="mb-4 rounded-xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
         <p className="text-sm font-semibold text-[#1f2937]">Field blocks</p>
         <p className="mt-1 text-xs leading-5 text-[#667085]">Drag components into the canvas.</p>
       </div>
+      <div className="mb-4 rounded-2xl border border-[#d8e0ea] bg-[#f8fafc] p-2 shadow-sm">
+        <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Add layout</p>
+        <div className="grid grid-cols-3 gap-1.5">
+          {layoutOptions.map((option) => {
+            const Icon = option.icon;
+            const active = layoutPreference === option.value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={cn(
+                  "rounded-xl border px-2 py-2 text-left transition",
+                  active ? "border-[#3157d5] bg-white text-[#3157d5] shadow-sm" : "border-transparent text-[#465366] hover:bg-white"
+                )}
+                onClick={() => setLayoutPreference(option.value)}
+              >
+                <Icon size={15} />
+                <span className="mt-1 block text-xs font-bold">{option.label}</span>
+                <span className="block text-[10px] font-medium text-[#667085]">{option.description}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div className="grid gap-2">
         {fieldCatalog.map((field) => (
-          <DraggableField key={field.type} type={field.type} />
+          <DraggableField key={field.type} type={field.type} layoutPreference={layoutPreference} />
         ))}
       </div>
     </div>
   );
 }
 
-function DraggableField({ type }: { type: FieldType }) {
+function DraggableField({ type, layoutPreference }: { type: FieldType; layoutPreference: FieldLayoutPreference }) {
   const field = fieldCatalog.find((item) => item.type === type)!;
   const Icon = field.icon;
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `catalog-${type}`,
-    data: { source: "catalog", type }
+    data: { source: "catalog", type, layoutPreference }
   });
 
   return (

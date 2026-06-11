@@ -20,6 +20,9 @@ export type FieldType =
   | "section"
   | "divider";
 
+export type FieldLayout = "full" | "half";
+export type FieldLayoutPreference = FieldLayout | "auto";
+
 export type ValidationRule = {
   minLength?: number;
   maxLength?: number;
@@ -37,6 +40,7 @@ export type FormField = {
   required?: boolean;
   options?: string[];
   step?: number;
+  layout?: FieldLayout;
   validation?: ValidationRule;
   settings?: {
     ratingStyle?: "stars" | "emoji";

@@ -122,6 +122,12 @@ function renderHtmlField(field: FormField) {
   return `<label>${label}<input type="${type}" name="${id}" placeholder="${placeholder}"${required} /></label>${helper}`;
 }
 
+function renderHtmlFieldWithLayout(field: FormField) {
+  if (field.type === "hidden") return renderHtmlField(field);
+  const layoutClass = (field.layout ?? "full") === "half" ? "field field-half" : "field field-full";
+  return `<div class="${layoutClass}">${renderHtmlField(field)}</div>`;
+}
+
 export function exportHtml(form: FormSchema) {
   return `<!doctype html>
 <html lang="en">
@@ -132,7 +138,11 @@ export function exportHtml(form: FormSchema) {
   <style>
     body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #f4f6f8; color: #111418; }
     main { max-width: 720px; margin: 48px auto; padding: 32px; background: #fff; border: 1px solid #d8e0ea; border-radius: 18px; }
-    label, fieldset { display: grid; gap: 8px; margin-top: 18px; font-weight: 650; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .field-full { grid-column: 1 / -1; }
+    .field-half { grid-column: span 1; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .field-half { grid-column: 1 / -1; } }
+    label, fieldset { display: grid; gap: 8px; font-weight: 650; }
     input, textarea, select { width: 100%; border: 1px solid #d8e0ea; border-radius: 12px; padding: 11px 12px; font: inherit; }
     textarea { min-height: 120px; }
     .choice { display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -148,7 +158,9 @@ export function exportHtml(form: FormSchema) {
     <h1>${escapeHtml(form.title)}</h1>
     <p>${escapeHtml(form.description)}</p>
     <form>
-      ${form.fields.map(renderHtmlField).join("\n      ")}
+      <div class="form-grid">
+        ${form.fields.map(renderHtmlFieldWithLayout).join("\n        ")}
+      </div>
       <button type="submit">Submit</button>
     </form>
   </main>
@@ -169,17 +181,23 @@ export function ${toIdentifier(form.name || "FormCraftForm")}() {
   const [values, setValues] = useState<Partial<FormValues>>({});
 
   return (
-    <form className="space-y-5" onSubmit={(event) => event.preventDefault()}>
-      <div>
+    <form className="grid grid-cols-1 gap-5 sm:grid-cols-2" onSubmit={(event) => event.preventDefault()}>
+      <div className="sm:col-span-2">
         <h1>${escapeHtml(form.title)}</h1>
         <p>${escapeHtml(form.description)}</p>
       </div>
-${form.fields.map(renderReactField).join("\n")}
-      <button type="submit">Submit</button>
+${form.fields.map(renderReactFieldWithLayout).join("\n")}
+      <button className="sm:col-span-2" type="submit">Submit</button>
     </form>
   );
 }
 `;
+}
+
+function renderReactFieldWithLayout(field: FormField) {
+  if (field.type === "hidden") return renderReactField(field);
+  const className = (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2";
+  return `      <div className="${className}">\n${renderReactField(field)}\n      </div>`;
 }
 
 function renderReactField(field: FormField) {

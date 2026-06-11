@@ -184,18 +184,19 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         </div>
       )}
 
-      <div className="space-y-5">
+      <div className="grid gap-5 sm:grid-cols-2">
         {currentStepFields.map((field) => (
-          <RenderedField
-            key={field.id}
-            field={field}
-            register={register}
-            setValue={setValue}
-            watch={watch}
-            error={errors[field.id]?.message as string | undefined}
-            dark={isDark}
-            rounded={rounded}
-          />
+          <div key={field.id} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
+            <RenderedField
+              field={field}
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              error={errors[field.id]?.message as string | undefined}
+              dark={isDark}
+              rounded={rounded}
+            />
+          </div>
         ))}
       </div>
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3">

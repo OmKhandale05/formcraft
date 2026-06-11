@@ -5,8 +5,9 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import type { MouseEvent } from "react";
-import { Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Trash2 } from "lucide-react";
+import { Columns2, Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Rows3, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
 import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { FormField } from "@/types/form";
@@ -80,7 +81,7 @@ export function BuilderCanvas() {
                 </p>
               </div>
             ) : (
-              <div className="relative z-10 grid gap-3">
+              <div className="relative z-10 grid gap-3 sm:grid-cols-2">
                 {form.fields.map((field, index) => (
                   <CanvasField key={field.id} field={field} index={index} />
                 ))}
@@ -101,6 +102,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
   const duplicateField = useFormStore((state) => state.duplicateField);
   const deleteField = useFormStore((state) => state.deleteField);
   const selected = selectedFieldId === field.id || selectedFieldIds.includes(field.id);
+  const layout = field.layout ?? "full";
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id });
   const handleSelect = (event: MouseEvent<HTMLDivElement>) => {
     if (event.shiftKey) {
@@ -118,6 +120,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
         "group card-hover relative cursor-grab rounded-xl border bg-white p-4 shadow-sm active:cursor-grabbing",
+        layout === "half" ? "sm:col-span-1" : "sm:col-span-2",
         selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
         isDragging && "opacity-50"
       )}
@@ -139,6 +142,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-[#e9f7f5] px-2 py-1 text-xs font-semibold text-[#0f766e]">Step {field.step ?? 1}</span>
             <span className="rounded-md bg-[#f1f4f8] px-2 py-1 text-xs font-semibold text-[#64748b]">{field.type}</span>
+            <span className="rounded-md bg-[#eef3ff] px-2 py-1 text-xs font-semibold text-[#3157d5]">{layout === "half" ? "1/2 row" : "full row"}</span>
             <span className="text-xs text-[#9aa3af]">#{index + 1}</span>
           </div>
           {field.type === "divider" ? (
@@ -186,11 +190,16 @@ function BulkSelectionToolbar() {
   const duplicateSelectedFields = useFormStore((state) => state.duplicateSelectedFields);
   const deleteSelectedFields = useFormStore((state) => state.deleteSelectedFields);
   const updateSelectedFields = useFormStore((state) => state.updateSelectedFields);
+  const updateField = useFormStore((state) => state.updateField);
   const selectedFields = form.fields.filter((field) => selectedFieldIds.includes(field.id));
 
   if (selectedFields.length < 2) return null;
 
   const allRequired = selectedFields.every((field) => field.required);
+  const selectedFieldsWithHalfLayout = selectedFields.filter((field) => !fullWidthOnlyFieldTypes.includes(field.type));
+  const updateHalfLayout = () => {
+    selectedFieldsWithHalfLayout.forEach((field) => updateField(field.id, { layout: "half" }));
+  };
 
   return (
     <div className="relative z-20 mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-[#c8d4e4] bg-white/95 p-2 shadow-[0_18px_45px_rgba(17,24,39,0.14)] backdrop-blur">
@@ -205,6 +214,14 @@ function BulkSelectionToolbar() {
       </Button>
       <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ required: !allRequired })}>
         {allRequired ? "Make optional" : "Mark required"}
+      </Button>
+      <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ layout: "full" })}>
+        <Rows3 size={15} />
+        Full row
+      </Button>
+      <Button type="button" size="sm" variant="secondary" onClick={updateHalfLayout} disabled={selectedFieldsWithHalfLayout.length === 0}>
+        <Columns2 size={15} />
+        Two columns
       </Button>
       <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ step: 1 })}>
         Step 1

@@ -20,7 +20,10 @@ import {
   Table2,
   Type
 } from "lucide-react";
-import type { FieldType, FormField } from "@/types/form";
+import type { FieldLayoutPreference, FieldType, FormField } from "@/types/form";
+
+export const compactFieldTypes: FieldType[] = ["text", "email", "phone", "number", "dropdown", "date", "rating", "slider", "payment"];
+export const fullWidthOnlyFieldTypes: FieldType[] = ["section", "divider", "signature", "matrix", "richtext", "textarea", "file", "hidden"];
 
 export const fieldCatalog: Array<{
   type: FieldType;
@@ -50,7 +53,13 @@ export const fieldCatalog: Array<{
   { type: "divider", label: "Divider", description: "Visual separator", icon: Divide }
 ];
 
-export function createField(type: FieldType): FormField {
+export function resolveFieldLayout(type: FieldType, preference: FieldLayoutPreference = "auto") {
+  if (fullWidthOnlyFieldTypes.includes(type)) return "full";
+  if (preference === "full" || preference === "half") return preference;
+  return compactFieldTypes.includes(type) ? "half" : "full";
+}
+
+export function createField(type: FieldType, layoutPreference: FieldLayoutPreference = "auto"): FormField {
   const base = fieldCatalog.find((field) => field.type === type);
   const id = `${type}-${crypto.randomUUID()}`;
   const optionDefaults = ["Product", "Design", "Engineering"];
@@ -66,6 +75,7 @@ export function createField(type: FieldType): FormField {
     required: !["section", "divider", "file", "hidden"].includes(type),
     options: ["dropdown", "radio", "checkbox"].includes(type) ? optionDefaults : undefined,
     step: 1,
+    layout: resolveFieldLayout(type, layoutPreference),
     validation: {},
     settings: {
       ratingStyle: "stars",

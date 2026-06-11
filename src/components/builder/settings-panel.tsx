@@ -4,7 +4,7 @@ import { Copy, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
-import { fieldCatalog } from "@/lib/field-catalog";
+import { fieldCatalog, fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
 import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
@@ -40,6 +40,7 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
     type: nextType,
     placeholder: supportsPlaceholder ? field.placeholder || "Enter response" : undefined,
     required: supportsRequired ? Boolean(field.required) : false,
+    layout: fullWidthOnlyFieldTypes.includes(nextType) ? "full" : field.layout ?? "full",
     options: usesOptions ? field.options?.length ? field.options : ["Option one", "Option two", "Option three"] : undefined,
     validation: supportsValidation ? nextValidation : {},
     settings: {
@@ -137,6 +138,39 @@ export function FieldSettingsPanel() {
             </label>
           )}
         </div>
+        {!["hidden"].includes(field.type) && (
+          <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <Label htmlFor="field-layout">Layout</Label>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                className={`rounded-xl border px-3 py-2 text-left text-sm font-semibold transition ${
+                  (field.layout ?? "full") === "full"
+                    ? "border-[#3157d5] bg-[#eef3ff] text-[#3157d5]"
+                    : "border-[#d8e0ea] bg-white text-[#465366] hover:border-[#bfcadc]"
+                }`}
+                onClick={() => updateField(field.id, { layout: "full" })}
+              >
+                <span className="block">Single row</span>
+                <span className="mt-1 block text-xs font-medium text-[#667085]">1 field per row</span>
+              </button>
+              <button
+                type="button"
+                disabled={fullWidthOnlyFieldTypes.includes(field.type)}
+                className={`rounded-xl border px-3 py-2 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                  field.layout === "half"
+                    ? "border-[#3157d5] bg-[#eef3ff] text-[#3157d5]"
+                    : "border-[#d8e0ea] bg-white text-[#465366] hover:border-[#bfcadc]"
+                }`}
+                onClick={() => updateField(field.id, { layout: "half" })}
+              >
+                <span className="block">Two columns</span>
+                <span className="mt-1 block text-xs font-medium text-[#667085]">2 fields in 1 row</span>
+              </button>
+            </div>
+            {fullWidthOnlyFieldTypes.includes(field.type) && <p className="mt-2 text-xs text-[#667085]">This field type stays full-width for readability.</p>}
+          </div>
+        )}
         {hasOptions && (
           <div>
             <Label htmlFor="field-options">Options</Label>
