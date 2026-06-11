@@ -445,10 +445,23 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     }
 
     if (command === "quoteText") {
-      const selection = window.getSelection()?.toString();
+      const activeSelection = window.getSelection();
+      const selection = activeSelection?.toString() ?? "";
       if (selection) {
+        const trimmedSelection = selection.trim();
+        if (trimmedSelection.startsWith("\"") && trimmedSelection.endsWith("\"")) return;
         document.execCommand("insertText", false, `"${selection}"`);
       } else {
+        if (activeSelection?.rangeCount) {
+          const range = activeSelection.getRangeAt(0);
+          if (range.startContainer.nodeType === Node.TEXT_NODE) {
+            const text = range.startContainer.textContent ?? "";
+            const before = text.at(range.startOffset - 1);
+            const after = text.at(range.startOffset);
+            if (before === "\"" && after === "\"") return;
+          }
+        }
+
         document.execCommand("insertText", false, "\"\"");
         const nextSelection = window.getSelection();
         if (nextSelection?.rangeCount) {
