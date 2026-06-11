@@ -17,6 +17,7 @@
 
 * {
   box-sizing: border-box;
+  user-select: none;
 }
 
 html,
@@ -40,6 +41,13 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  user-select: text;
 }
 
 button:focus-visible,
