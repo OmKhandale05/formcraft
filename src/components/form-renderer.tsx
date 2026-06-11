@@ -412,7 +412,6 @@ function FormulaField({
         </span>
       </div>
       <p className={cn("mt-3 text-2xl font-semibold", dark ? "text-white" : "text-[#111418]")}>{formattedValue}</p>
-      {field.settings?.formulaExpression && <p className={cn("mt-2 font-mono text-xs", dark ? "text-white/45" : "text-[#667085]")}>{field.settings.formulaExpression}</p>}
       {result.error && <p className="mt-2 text-xs font-medium text-[#dc2626]">{result.error}</p>}
     </div>
   );
