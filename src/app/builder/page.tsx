@@ -4,6 +4,7 @@ import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useS
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
 import { Download, Eye, FileUp, Save, Trash2 } from "lucide-react";
+import type { CSSProperties, PointerEvent } from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppShell } from "@/components/app-shell";
@@ -27,6 +28,7 @@ const exportOptions = [
 ] as const;
 
 type ExportExtension = (typeof exportOptions)[number]["extension"];
+type ResizePane = "left" | "right";
 
 const snapToGrid: Modifier = ({ transform }) => {
   const grid = 8;
@@ -37,6 +39,8 @@ const snapToGrid: Modifier = ({ transform }) => {
   };
 };
 
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
 export default function BuilderPage() {
   const form = useFormStore((state) => state.form);
   const setFormMeta = useFormStore((state) => state.setFormMeta);
@@ -46,8 +50,41 @@ export default function BuilderPage() {
   const deleteForm = useFormStore((state) => state.deleteForm);
   const [saved, setSaved] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [leftWidth, setLeftWidth] = useState(330);
+  const [rightWidth, setRightWidth] = useState(340);
   const inputRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const builderGridStyle = {
+    "--builder-columns": `${leftWidth}px 6px minmax(460px, 1fr) 6px ${rightWidth}px`
+  } as CSSProperties;
+
+  const startResize = (pane: ResizePane, event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = pane === "left" ? leftWidth : rightWidth;
+
+    const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
+      const delta = moveEvent.clientX - startX;
+      if (pane === "left") {
+        setLeftWidth(clamp(startWidth + delta, 280, 440));
+        return;
+      }
+
+      setRightWidth(clamp(startWidth - delta, 280, 480));
+    };
+
+    const handlePointerUp = () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -187,17 +224,35 @@ export default function BuilderPage() {
               </Link>
             </div>
           </header>
-          <div className="grid min-h-0 flex-1 overflow-hidden grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+          <div
+            className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:[grid-template-columns:var(--builder-columns)]"
+            style={builderGridStyle}
+          >
             <div className="hidden min-h-0 overflow-hidden lg:block">
               <FieldSidebar />
             </div>
+            <ResizeHandle label="Resize left sidebar" onPointerDown={(event) => startResize("left", event)} />
             <BuilderCanvas />
-            <div className="hidden min-h-0 overflow-hidden 2xl:block">
+            <ResizeHandle label="Resize field settings panel" onPointerDown={(event) => startResize("right", event)} />
+            <div className="hidden min-h-0 overflow-hidden lg:block">
               <FieldSettingsPanel />
             </div>
           </div>
         </div>
       </DndContext>
     </AppShell>
+  );
+}
+
+function ResizeHandle({ label, onPointerDown }: { label: string; onPointerDown: (event: PointerEvent<HTMLButtonElement>) => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="hidden min-h-0 cursor-col-resize border-x border-[#d8e0ea] bg-[#eef2f7] transition hover:bg-[#dbe5f4] lg:flex"
+      onPointerDown={onPointerDown}
+    >
+      <span className="mx-auto mt-6 h-10 w-1 rounded-full bg-[#aab5c4]" />
+    </button>
   );
 }
