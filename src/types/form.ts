@@ -9,6 +9,14 @@ export type FieldType =
   | "checkbox"
   | "date"
   | "file"
+  | "rating"
+  | "signature"
+  | "daterange"
+  | "slider"
+  | "richtext"
+  | "matrix"
+  | "hidden"
+  | "payment"
   | "section"
   | "divider";
 
@@ -30,6 +38,20 @@ export type FormField = {
   options?: string[];
   step?: number;
   validation?: ValidationRule;
+  settings?: {
+    ratingStyle?: "stars" | "emoji";
+    ratingScale?: number;
+    acceptedFileTypes?: string;
+    maxFileSizeMb?: number;
+    countryCode?: string;
+    sliderMin?: number;
+    sliderMax?: number;
+    sliderStep?: number;
+    matrixRows?: string[];
+    matrixColumns?: string[];
+    hiddenValue?: string;
+    currency?: string;
+  };
 };
 
 export type FormTheme = {

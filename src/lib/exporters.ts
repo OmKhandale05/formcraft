@@ -1,6 +1,25 @@
 import type { FieldType, FormField, FormSchema } from "@/types/form";
 
-const inputTypes: FieldType[] = ["text", "email", "phone", "textarea", "number", "dropdown", "radio", "checkbox", "date", "file"];
+const inputTypes: FieldType[] = [
+  "text",
+  "email",
+  "phone",
+  "textarea",
+  "number",
+  "dropdown",
+  "radio",
+  "checkbox",
+  "date",
+  "file",
+  "rating",
+  "signature",
+  "daterange",
+  "slider",
+  "richtext",
+  "matrix",
+  "hidden",
+  "payment"
+];
 
 function escapeHtml(value = "") {
   return value
@@ -26,8 +45,10 @@ function quotedKey(field: FormField) {
 }
 
 function fieldTypeForTs(field: FormField) {
-  if (field.type === "number") return "number";
+  if (["number", "rating", "slider", "payment"].includes(field.type)) return "number";
   if (field.type === "checkbox") return "string[]";
+  if (field.type === "daterange") return "{ start: string; end: string }";
+  if (field.type === "matrix") return "Record<string, string>";
   if (field.type === "file") return "File | null";
   return "string";
 }
@@ -35,18 +56,22 @@ function fieldTypeForTs(field: FormField) {
 function fieldSchemaForZod(field: FormField) {
   const requiredMessage = "{ message: \"This field is required\" }";
 
-  if (field.type === "number") {
+  if (["number", "slider", "payment"].includes(field.type)) {
     const rules = ["z.coerce.number()"];
     if (field.validation?.min !== undefined) rules.push(`.min(${field.validation.min})`);
     if (field.validation?.max !== undefined) rules.push(`.max(${field.validation.max})`);
     return field.required ? rules.join("") : `${rules.join("")}.optional()`;
   }
 
+  if (field.type === "rating") return field.required ? "z.coerce.number().min(1)" : "z.coerce.number().optional()";
+
   if (field.type === "checkbox") {
     return field.required ? `z.array(z.string()).min(1, ${requiredMessage})` : "z.array(z.string()).optional()";
   }
 
   if (field.type === "file") return "z.any().optional()";
+  if (field.type === "daterange") return "z.object({ start: z.string(), end: z.string() })";
+  if (field.type === "matrix") return "z.record(z.string(), z.string()).optional()";
 
   const rules = ["z.string()"];
   if (field.required) rules.push(`.min(1, ${requiredMessage})`);
@@ -66,14 +91,29 @@ function renderHtmlField(field: FormField) {
 
   if (field.type === "section") return `<section class="section"><h2>${label}</h2>${helper}</section>`;
   if (field.type === "divider") return "<hr />";
+  if (field.type === "hidden") return `<input type="hidden" name="${id}" value="${escapeHtml(field.settings?.hiddenValue ?? "")}" />`;
   if (field.type === "textarea") return `<label>${label}<textarea name="${id}" placeholder="${placeholder}"${required}></textarea></label>${helper}`;
+  if (field.type === "richtext") return `<label>${label}<textarea name="${id}" placeholder="${placeholder}"${required}></textarea></label>${helper}`;
   if (field.type === "dropdown") {
     return `<label>${label}<select name="${id}"${required}><option value="">Select an option</option>${field.options?.map((option) => `<option>${escapeHtml(option)}</option>`).join("") ?? ""}</select></label>${helper}`;
   }
   if (field.type === "radio" || field.type === "checkbox") {
     return `<fieldset><legend>${label}</legend>${field.options?.map((option) => `<label class="choice"><input type="${field.type}" name="${id}" value="${escapeHtml(option)}"${required} /> ${escapeHtml(option)}</label>`).join("") ?? ""}</fieldset>${helper}`;
   }
-  if (field.type === "file") return `<label>${label}<input type="file" name="${id}" /></label>${helper}`;
+  if (field.type === "file") return `<label>${label}<input type="file" name="${id}" accept="${escapeHtml(field.settings?.acceptedFileTypes ?? "")}" /></label>${helper}`;
+  if (field.type === "rating") {
+    const scale = field.settings?.ratingScale ?? 5;
+    return `<fieldset><legend>${label}</legend>${Array.from({ length: scale }, (_, index) => `<label class="choice"><input type="radio" name="${id}" value="${index + 1}"${required} /> ${field.settings?.ratingStyle === "emoji" ? "🙂" : "★"} ${index + 1}</label>`).join("")}</fieldset>${helper}`;
+  }
+  if (field.type === "signature") return `<label>${label}<textarea name="${id}" placeholder="Base64 signature data"${required}></textarea></label>${helper}`;
+  if (field.type === "daterange") return `<fieldset><legend>${label}</legend><input type="date" name="${id}_start"${required} /><input type="date" name="${id}_end"${required} /></fieldset>${helper}`;
+  if (field.type === "slider") return `<label>${label}<input type="range" name="${id}" min="${field.settings?.sliderMin ?? 0}" max="${field.settings?.sliderMax ?? 100}" step="${field.settings?.sliderStep ?? 1}" /></label>${helper}`;
+  if (field.type === "matrix") {
+    const rows = field.settings?.matrixRows ?? [];
+    const columns = field.settings?.matrixColumns ?? [];
+    return `<fieldset><legend>${label}</legend>${rows.map((row) => `<div class="matrix-row"><span>${escapeHtml(row)}</span>${columns.map((column) => `<label class="choice"><input type="radio" name="${id}_${escapeHtml(row)}" value="${escapeHtml(column)}" /> ${escapeHtml(column)}</label>`).join("")}</div>`).join("")}</fieldset>${helper}`;
+  }
+  if (field.type === "payment") return `<label>${label}<input type="number" name="${id}" min="0" step="0.01" placeholder="${escapeHtml(field.settings?.currency ?? "USD")} amount"${required} /></label>${helper}`;
   const type = field.type === "phone" ? "tel" : field.type;
   return `<label>${label}<input type="${type}" name="${id}" placeholder="${placeholder}"${required} /></label>${helper}`;
 }
@@ -144,7 +184,9 @@ function renderReactField(field: FormField) {
 
   if (field.type === "section") return `      <section><h2>${label}</h2></section>`;
   if (field.type === "divider") return "      <hr />";
+  if (field.type === "hidden") return `      <input type="hidden" name="${key}" value="${(field.settings?.hiddenValue ?? "").replaceAll('"', '\\"')}" />`;
   if (field.type === "textarea") return `      <label>${label}<textarea name="${key}" placeholder="${placeholder}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
+  if (field.type === "richtext") return `      <label>${label}<textarea name="${key}" placeholder="${placeholder}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
   if (field.type === "dropdown") {
     return `      <label>${label}<select name="${key}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })}><option value="">Select an option</option>${field.options?.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("") ?? ""}</select></label>`;
   }
@@ -155,6 +197,12 @@ function renderReactField(field: FormField) {
     return `      <fieldset><legend>${label}</legend>${field.options?.map((option) => `<label><input type="checkbox" value="${escapeHtml(option)}" /> ${escapeHtml(option)}</label>`).join("") ?? ""}</fieldset>`;
   }
   if (field.type === "file") return `      <label>${label}<input type="file" name="${key}" /></label>`;
+  if (field.type === "rating") return `      <fieldset><legend>${label}</legend>${Array.from({ length: field.settings?.ratingScale ?? 5 }, (_, index) => `<label><input type="radio" name="${key}" value="${index + 1}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /> ${index + 1}</label>`).join("")}</fieldset>`;
+  if (field.type === "signature") return `      <label>${label}<textarea name="${key}" placeholder="Base64 signature data" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
+  if (field.type === "daterange") return `      <fieldset><legend>${label}</legend><input type="date" name="${key}_start" /><input type="date" name="${key}_end" /></fieldset>`;
+  if (field.type === "slider") return `      <label>${label}<input type="range" name="${key}" min="${field.settings?.sliderMin ?? 0}" max="${field.settings?.sliderMax ?? 100}" step="${field.settings?.sliderStep ?? 1}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
+  if (field.type === "matrix") return `      <fieldset><legend>${label}</legend><p>Matrix response: ${field.settings?.matrixRows?.join(", ") ?? ""}</p></fieldset>`;
+  if (field.type === "payment") return `      <label>${label}<input type="number" min="0" step="0.01" name="${key}" placeholder="${field.settings?.currency ?? "USD"} amount" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
   const type = field.type === "phone" ? "tel" : field.type;
   return `      <label>${label}<input type="${type}" name="${key}" placeholder="${placeholder}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
 }

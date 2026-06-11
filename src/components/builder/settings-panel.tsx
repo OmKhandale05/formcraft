@@ -8,12 +8,28 @@ import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
 const optionFieldTypes: FieldType[] = ["dropdown", "radio", "checkbox"];
-const inputFieldTypes: FieldType[] = ["text", "email", "phone", "textarea", "number", "dropdown", "radio", "checkbox", "date"];
+const inputFieldTypes: FieldType[] = [
+  "text",
+  "email",
+  "phone",
+  "textarea",
+  "number",
+  "dropdown",
+  "radio",
+  "checkbox",
+  "date",
+  "rating",
+  "daterange",
+  "slider",
+  "richtext",
+  "matrix",
+  "payment"
+];
 
 function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partial<FormField> {
   const usesOptions = optionFieldTypes.includes(nextType);
-  const supportsPlaceholder = !["section", "divider", "file"].includes(nextType);
-  const supportsRequired = !["section", "divider", "file"].includes(nextType);
+  const supportsPlaceholder = !["section", "divider", "file", "rating", "signature", "matrix", "hidden"].includes(nextType);
+  const supportsRequired = !["section", "divider", "file", "hidden"].includes(nextType);
   const supportsValidation = inputFieldTypes.includes(nextType);
   const nextValidation: ValidationRule = nextType === "number"
     ? { min: field.validation?.min, max: field.validation?.max }
@@ -24,8 +40,30 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
     placeholder: supportsPlaceholder ? field.placeholder || "Enter response" : undefined,
     required: supportsRequired ? Boolean(field.required) : false,
     options: usesOptions ? field.options?.length ? field.options : ["Option one", "Option two", "Option three"] : undefined,
-    validation: supportsValidation ? nextValidation : {}
+    validation: supportsValidation ? nextValidation : {},
+    settings: {
+      ...field.settings,
+      ratingStyle: nextType === "rating" ? field.settings?.ratingStyle ?? "stars" : field.settings?.ratingStyle,
+      ratingScale: nextType === "rating" ? field.settings?.ratingScale ?? 5 : field.settings?.ratingScale,
+      acceptedFileTypes: nextType === "file" ? field.settings?.acceptedFileTypes ?? ".pdf,.png,.jpg" : field.settings?.acceptedFileTypes,
+      maxFileSizeMb: nextType === "file" ? field.settings?.maxFileSizeMb ?? 10 : field.settings?.maxFileSizeMb,
+      countryCode: nextType === "phone" ? field.settings?.countryCode ?? "+91" : field.settings?.countryCode,
+      sliderMin: nextType === "slider" ? field.settings?.sliderMin ?? 0 : field.settings?.sliderMin,
+      sliderMax: nextType === "slider" ? field.settings?.sliderMax ?? 100 : field.settings?.sliderMax,
+      sliderStep: nextType === "slider" ? field.settings?.sliderStep ?? 5 : field.settings?.sliderStep,
+      matrixRows: nextType === "matrix" ? field.settings?.matrixRows ?? ["Ease of use", "Design quality", "Performance"] : field.settings?.matrixRows,
+      matrixColumns: nextType === "matrix" ? field.settings?.matrixColumns ?? ["Poor", "Average", "Great"] : field.settings?.matrixColumns,
+      hiddenValue: nextType === "hidden" ? field.settings?.hiddenValue ?? "utm_source=portfolio" : field.settings?.hiddenValue,
+      currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency
+    }
   };
+}
+
+function linesToList(value: string) {
+  return value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 export function FieldSettingsPanel() {
@@ -80,7 +118,7 @@ export function FieldSettingsPanel() {
             </div>
           </>
         )}
-        {!["section", "divider", "file"].includes(field.type) && (
+        {!["section", "divider", "file", "rating", "signature", "matrix", "hidden"].includes(field.type) && (
           <div>
             <Label htmlFor="field-placeholder">Placeholder</Label>
             <Input id="field-placeholder" className="mt-2" value={field.placeholder ?? ""} onChange={(event) => updateField(field.id, { placeholder: event.target.value })} />
@@ -91,7 +129,7 @@ export function FieldSettingsPanel() {
             <Label htmlFor="field-step">Step</Label>
             <Input id="field-step" type="number" min={1} className="mt-2" value={field.step ?? 1} onChange={(event) => updateField(field.id, { step: Number(event.target.value) || 1 })} />
           </div>
-          {!["section", "divider", "file"].includes(field.type) && (
+          {!["section", "divider", "file", "hidden"].includes(field.type) && (
             <label className="mt-7 flex h-10 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-medium text-[#1f2937] shadow-sm">
               <input type="checkbox" checked={Boolean(field.required)} onChange={(event) => updateField(field.id, { required: event.target.checked })} />
               Required
@@ -117,7 +155,90 @@ export function FieldSettingsPanel() {
             <p className="mt-1 text-xs text-[#667085]">One option per line.</p>
           </div>
         )}
-        {!["section", "divider", "file"].includes(field.type) && (
+        {field.type === "rating" && (
+          <div className="grid grid-cols-2 gap-3 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <div>
+              <Label htmlFor="rating-style">Rating style</Label>
+              <Select
+                id="rating-style"
+                className="mt-2"
+                value={field.settings?.ratingStyle ?? "stars"}
+                onChange={(event) => updateField(field.id, { settings: { ...field.settings, ratingStyle: event.target.value as "stars" | "emoji" } })}
+              >
+                <option value="stars">Stars</option>
+                <option value="emoji">Emoji</option>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="rating-scale">Scale</Label>
+              <Input id="rating-scale" type="number" min={3} max={10} className="mt-2" value={field.settings?.ratingScale ?? 5} onChange={(event) => updateField(field.id, { settings: { ...field.settings, ratingScale: Number(event.target.value) || 5 } })} />
+            </div>
+          </div>
+        )}
+        {field.type === "file" && (
+          <div className="grid grid-cols-2 gap-3 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <div>
+              <Label htmlFor="accepted-types">Accepted types</Label>
+              <Input id="accepted-types" className="mt-2" value={field.settings?.acceptedFileTypes ?? ""} onChange={(event) => updateField(field.id, { settings: { ...field.settings, acceptedFileTypes: event.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="max-file">Max MB</Label>
+              <Input id="max-file" type="number" min={1} className="mt-2" value={field.settings?.maxFileSizeMb ?? ""} onChange={(event) => updateField(field.id, { settings: { ...field.settings, maxFileSizeMb: event.target.value ? Number(event.target.value) : undefined } })} />
+            </div>
+          </div>
+        )}
+        {field.type === "phone" && (
+          <div>
+            <Label htmlFor="country-code">Default country code</Label>
+            <Input id="country-code" className="mt-2" value={field.settings?.countryCode ?? ""} onChange={(event) => updateField(field.id, { settings: { ...field.settings, countryCode: event.target.value } })} />
+          </div>
+        )}
+        {field.type === "slider" && (
+          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <div>
+              <Label htmlFor="slider-min">Min</Label>
+              <Input id="slider-min" type="number" className="mt-2" value={field.settings?.sliderMin ?? 0} onChange={(event) => updateField(field.id, { settings: { ...field.settings, sliderMin: Number(event.target.value) } })} />
+            </div>
+            <div>
+              <Label htmlFor="slider-max">Max</Label>
+              <Input id="slider-max" type="number" className="mt-2" value={field.settings?.sliderMax ?? 100} onChange={(event) => updateField(field.id, { settings: { ...field.settings, sliderMax: Number(event.target.value) } })} />
+            </div>
+            <div>
+              <Label htmlFor="slider-step">Step</Label>
+              <Input id="slider-step" type="number" min={1} className="mt-2" value={field.settings?.sliderStep ?? 1} onChange={(event) => updateField(field.id, { settings: { ...field.settings, sliderStep: Number(event.target.value) || 1 } })} />
+            </div>
+          </div>
+        )}
+        {field.type === "matrix" && (
+          <div className="grid gap-3 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <div>
+              <Label htmlFor="matrix-rows">Rows</Label>
+              <Textarea id="matrix-rows" className="mt-2 min-h-24 font-mono text-xs" value={(field.settings?.matrixRows ?? []).join("\n")} onChange={(event) => updateField(field.id, { settings: { ...field.settings, matrixRows: linesToList(event.target.value) } })} />
+            </div>
+            <div>
+              <Label htmlFor="matrix-columns">Columns</Label>
+              <Textarea id="matrix-columns" className="mt-2 min-h-24 font-mono text-xs" value={(field.settings?.matrixColumns ?? []).join("\n")} onChange={(event) => updateField(field.id, { settings: { ...field.settings, matrixColumns: linesToList(event.target.value) } })} />
+            </div>
+          </div>
+        )}
+        {field.type === "hidden" && (
+          <div>
+            <Label htmlFor="hidden-value">Hidden value</Label>
+            <Input id="hidden-value" className="mt-2" value={field.settings?.hiddenValue ?? ""} onChange={(event) => updateField(field.id, { settings: { ...field.settings, hiddenValue: event.target.value } })} />
+          </div>
+        )}
+        {field.type === "payment" && (
+          <div>
+            <Label htmlFor="currency">Currency</Label>
+            <Select id="currency" className="mt-2" value={field.settings?.currency ?? "USD"} onChange={(event) => updateField(field.id, { settings: { ...field.settings, currency: event.target.value } })}>
+              <option value="USD">USD</option>
+              <option value="INR">INR</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </Select>
+          </div>
+        )}
+        {!["section", "divider", "file", "rating", "signature", "daterange", "slider", "matrix", "hidden", "payment"].includes(field.type) && (
           <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
             <p className="mb-3 text-sm font-semibold text-[#1f2937]">Validation</p>
             {field.type === "number" ? (

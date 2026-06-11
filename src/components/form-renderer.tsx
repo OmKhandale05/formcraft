@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { UploadCloud } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { CreditCard, List, PenLine, Star, Type, UploadCloud } from "lucide-react";
+import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 import type { FormField, FormSchema } from "@/types/form";
 
 function schemaForField(field: FormField) {
-  if (["section", "divider", "file"].includes(field.type)) return z.any().optional();
+  if (["section", "divider", "file", "hidden"].includes(field.type)) return z.any().optional();
 
-  if (field.type === "number") {
+  if (["number", "slider", "payment"].includes(field.type)) {
     let numberSchema = z.coerce.number({ error: "Enter a valid number" });
     if (field.validation?.min !== undefined) numberSchema = numberSchema.min(field.validation.min);
     if (field.validation?.max !== undefined) numberSchema = numberSchema.max(field.validation.max);
@@ -25,6 +25,16 @@ function schemaForField(field: FormField) {
     const checkboxSchema = z.array(z.string());
     return field.required ? checkboxSchema.min(1, "Choose at least one option") : checkboxSchema.optional();
   }
+
+  if (field.type === "daterange") {
+    const rangeSchema = z.object({
+      start: z.string().min(field.required ? 1 : 0, "Choose a start date"),
+      end: z.string().min(field.required ? 1 : 0, "Choose an end date")
+    });
+    return field.required ? rangeSchema : rangeSchema.optional();
+  }
+
+  if (field.type === "matrix") return z.record(z.string(), z.string()).optional();
 
   let stringSchema = z.string();
   if (field.required) stringSchema = stringSchema.min(1, "This field is required");
@@ -56,11 +66,18 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors }
   } = useForm<Record<string, unknown>>({
     resolver: zodResolver(schema),
     defaultValues: form.fields.reduce<Record<string, unknown>>((values, field) => {
-      values[field.id] = field.type === "checkbox" ? [] : "";
+      if (field.type === "checkbox") values[field.id] = [];
+      else if (field.type === "daterange") values[field.id] = { start: "", end: "" };
+      else if (field.type === "matrix") values[field.id] = {};
+      else if (field.type === "slider") values[field.id] = field.settings?.sliderMin ?? 0;
+      else if (field.type === "hidden") values[field.id] = field.settings?.hiddenValue ?? "";
+      else values[field.id] = "";
       return values;
     }, {})
   });
@@ -110,7 +127,16 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
       </div>
       <div className="space-y-5">
         {form.fields.map((field) => (
-          <RenderedField key={field.id} field={field} register={register} error={errors[field.id]?.message as string | undefined} dark={isDark} rounded={rounded} />
+          <RenderedField
+            key={field.id}
+            field={field}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            error={errors[field.id]?.message as string | undefined}
+            dark={isDark}
+            rounded={rounded}
+          />
         ))}
       </div>
       <Button type="submit" variant="primary" className="mt-7 w-full sm:w-auto">
@@ -123,12 +149,16 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
 function RenderedField({
   field,
   register,
+  setValue,
+  watch,
   error,
   dark,
   rounded
 }: {
   field: FormField;
-  register: ReturnType<typeof useForm<Record<string, unknown>>>["register"];
+  register: UseFormRegister<Record<string, unknown>>;
+  setValue: UseFormSetValue<Record<string, unknown>>;
+  watch: UseFormWatch<Record<string, unknown>>;
   error?: string;
   dark: boolean;
   rounded: boolean;
@@ -145,6 +175,10 @@ function RenderedField({
     );
   }
 
+  if (field.type === "hidden") {
+    return <input type="hidden" value={field.settings?.hiddenValue ?? ""} {...register(field.id)} />;
+  }
+
   return (
     <div>
       <Label htmlFor={field.id} className={cn("mb-2 block", dark && "text-white")}>
@@ -152,8 +186,20 @@ function RenderedField({
         {field.required && <span className="ml-1 text-[var(--accent)]">*</span>}
       </Label>
       {field.type === "textarea" && <Textarea id={field.id} placeholder={field.placeholder} className={inputClass} {...register(field.id)} />}
-      {["text", "email", "phone", "number", "date"].includes(field.type) && (
+      {["text", "email", "number", "date"].includes(field.type) && (
         <Input id={field.id} type={field.type === "phone" ? "tel" : field.type} placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
+      )}
+      {field.type === "phone" && (
+        <div className="grid grid-cols-[104px_minmax(0,1fr)] gap-2">
+          <Select className={inputClass} defaultValue={field.settings?.countryCode ?? "+91"} {...register(`${field.id}_country`)}>
+            {["+91", "+1", "+44", "+61", "+971"].map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </Select>
+          <Input id={field.id} type="tel" placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
+        </div>
       )}
       {field.type === "dropdown" && (
         <Select id={field.id} className={inputClass} {...register(field.id)}>
@@ -186,13 +232,197 @@ function RenderedField({
         </div>
       )}
       {field.type === "file" && (
-        <div className={cn("flex items-center gap-3 border border-dashed p-4 text-sm", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/20 text-white/70" : "border-[#cdd5df] text-[#68707d]")}>
+        <label className={cn("flex cursor-pointer items-center gap-3 border border-dashed p-4 text-sm", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/20 text-white/70" : "border-[#cdd5df] text-[#68707d]")}>
           <UploadCloud size={20} />
-          File upload placeholder
+          <span>
+            Drag files here or browse
+            <span className="mt-1 block text-xs">
+              {field.settings?.acceptedFileTypes || "Any file"} · Max {field.settings?.maxFileSizeMb ?? 10}MB
+            </span>
+          </span>
+          <input className="hidden" type="file" accept={field.settings?.acceptedFileTypes} {...register(field.id)} />
+        </label>
+      )}
+      {field.type === "rating" && <RatingField field={field} register={register} dark={dark} />}
+      {field.type === "signature" && <SignatureField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
+      {field.type === "daterange" && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input type="date" aria-label={`${field.label} start`} className={inputClass} {...register(`${field.id}.start`)} />
+          <Input type="date" aria-label={`${field.label} end`} className={inputClass} {...register(`${field.id}.end`)} />
+        </div>
+      )}
+      {field.type === "slider" && (
+        <div className="rounded-xl border border-[#d8e0ea] bg-white/70 p-4">
+          <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[#667085]">
+            <span>{field.settings?.sliderMin ?? 0}</span>
+            <span className="rounded-full bg-[var(--accent)] px-2.5 py-1 text-white">{String(watch(field.id) ?? field.settings?.sliderMin ?? 0)}</span>
+            <span>{field.settings?.sliderMax ?? 100}</span>
+          </div>
+          <input
+            type="range"
+            min={field.settings?.sliderMin ?? 0}
+            max={field.settings?.sliderMax ?? 100}
+            step={field.settings?.sliderStep ?? 1}
+            className="w-full accent-[var(--accent)]"
+            {...register(field.id)}
+          />
+        </div>
+      )}
+      {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
+      {field.type === "matrix" && <MatrixField field={field} register={register} dark={dark} />}
+      {field.type === "payment" && (
+        <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2">
+          <div className={cn("flex h-10 items-center justify-center gap-1 rounded-xl border border-[#d8e0ea] bg-[#f8fafc] text-sm font-semibold", dark && "border-white/15 bg-white/5 text-white")}>
+            <CreditCard size={15} />
+            {field.settings?.currency ?? "USD"}
+          </div>
+          <Input id={field.id} type="number" min={0} step="0.01" placeholder="0.00" className={inputClass} {...register(field.id)} />
         </div>
       )}
       {field.helperText && <p className={cn("mt-1.5 text-xs", dark ? "text-white/50" : "text-[#68707d]")}>{field.helperText}</p>}
       {error && <p className="mt-1.5 text-xs font-medium text-[#dc2626]">{error}</p>}
+    </div>
+  );
+}
+
+function RatingField({ field, register, dark }: { field: FormField; register: UseFormRegister<Record<string, unknown>>; dark: boolean }) {
+  const scale = Math.min(Math.max(field.settings?.ratingScale ?? 5, 3), 10);
+  const values = Array.from({ length: scale }, (_, index) => String(index + 1));
+  const emojis = ["😡", "😕", "😐", "🙂", "😍", "🤩", "🚀", "🏆", "💎", "✨"];
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {values.map((value, index) => (
+        <label key={value} className={cn("flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-semibold", dark ? "border-white/10 bg-white/5" : "border-[#dce1e8] bg-[#fbfcfe]")}>
+          <input className="sr-only" type="radio" value={value} {...register(field.id)} />
+          {field.settings?.ratingStyle === "emoji" ? emojis[index] ?? "🙂" : <Star size={18} className="fill-[var(--accent)] text-[var(--accent)]" />}
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function SignatureField({ field, setValue, dark, rounded }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawing = useRef(false);
+
+  const draw = (event: PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !drawing.current) return;
+    const rect = canvas.getBoundingClientRect();
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.lineWidth = 2;
+    context.lineCap = "round";
+    context.strokeStyle = dark ? "#ffffff" : "#111418";
+    context.lineTo(event.clientX - rect.left, event.clientY - rect.top);
+    context.stroke();
+    setValue(field.id, canvas.toDataURL("image/png"), { shouldValidate: true });
+  };
+
+  return (
+    <div className={cn("overflow-hidden border", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-white")}>
+      <canvas
+        ref={canvasRef}
+        width={720}
+        height={180}
+        className="h-36 w-full touch-none"
+        onPointerDown={(event) => {
+          drawing.current = true;
+          const context = canvasRef.current?.getContext("2d");
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (!context || !rect) return;
+          context.beginPath();
+          context.moveTo(event.clientX - rect.left, event.clientY - rect.top);
+        }}
+        onPointerMove={draw}
+        onPointerUp={() => {
+          drawing.current = false;
+        }}
+        onPointerLeave={() => {
+          drawing.current = false;
+        }}
+      />
+      <input type="hidden" {...registerSignature(field.id, setValue)} />
+      <div className="flex items-center justify-between border-t border-[#d8e0ea] px-3 py-2 text-xs text-[#667085]">
+        <span className="inline-flex items-center gap-1.5"><PenLine size={13} /> Draw signature</span>
+        <button
+          type="button"
+          className="font-semibold text-[var(--accent)]"
+          onClick={() => {
+            const canvas = canvasRef.current;
+            canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+            setValue(field.id, "", { shouldValidate: true });
+          }}
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function registerSignature(id: string, setValue: UseFormSetValue<Record<string, unknown>>) {
+  return {
+    name: id,
+    readOnly: true,
+    onChange: () => setValue(id, "")
+  };
+}
+
+function RichTextField({ field, setValue, dark, rounded }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean }) {
+  return (
+    <div className={cn("overflow-hidden border", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-white")}>
+      <div className="flex gap-1 border-b border-[#d8e0ea] p-2">
+        {[
+          { command: "bold", label: "B", icon: Type },
+          { command: "italic", label: "I", icon: Type },
+          { command: "insertUnorderedList", label: "List", icon: List }
+        ].map((item) => (
+          <button key={item.command} type="button" className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-[#eef2f7]" onClick={() => document.execCommand(item.command)}>
+            <item.icon size={13} />
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div
+        contentEditable
+        className={cn("min-h-28 px-3 py-2 text-sm outline-none", dark ? "text-white" : "text-[#111827]")}
+        data-placeholder={field.placeholder}
+        onInput={(event) => setValue(field.id, event.currentTarget.innerHTML, { shouldValidate: true })}
+      />
+    </div>
+  );
+}
+
+function MatrixField({ field, register, dark }: { field: FormField; register: UseFormRegister<Record<string, unknown>>; dark: boolean }) {
+  const rows = field.settings?.matrixRows?.length ? field.settings.matrixRows : ["Quality", "Speed", "Support"];
+  const columns = field.settings?.matrixColumns?.length ? field.settings.matrixColumns : ["Poor", "Okay", "Great"];
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-[#d8e0ea]">
+      <table className="w-full min-w-[460px] border-collapse text-sm">
+        <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"}>
+          <tr>
+            <th className="p-3 text-left font-semibold">Criteria</th>
+            {columns.map((column) => (
+              <th key={column} className="p-3 text-center font-semibold">{column}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row} className="border-t border-[#e5e9ef]">
+              <td className="p-3 font-medium">{row}</td>
+              {columns.map((column) => (
+                <td key={column} className="p-3 text-center">
+                  <input type="radio" value={column} {...register(`${field.id}.${row}`)} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
