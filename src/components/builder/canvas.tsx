@@ -3,18 +3,23 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import Link from "next/link";
 import type { MouseEvent } from "react";
-import { Columns2, Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Rows3, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
+import { Columns2, Copy, GripVertical, Grid3X3, Layers3, Moon, MousePointer2, Palette, Pencil, Rows3, Square, Sun, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input, Label, Textarea } from "@/components/ui/input";
 import { fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
 import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { FormField } from "@/types/form";
 
+const themeColors = ["#2563eb", "#0f766e", "#d97706", "#db2777", "#7c3aed", "#111827"];
+
 export function BuilderCanvas() {
   const form = useFormStore((state) => state.form);
   const clearSelection = useFormStore((state) => state.clearSelection);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { isOver, setNodeRef } = useDroppable({
     id: "builder-canvas",
     data: { type: "canvas" }
@@ -36,13 +41,14 @@ export function BuilderCanvas() {
               <h1 className="text-2xl font-semibold text-[#111418]">{form.title}</h1>
               <p className="mt-2 text-sm leading-6 text-[#667085]">{form.description}</p>
             </div>
-            <Link
-              href="/settings"
+            <button
+              type="button"
               className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-semibold text-[#20242b] shadow-sm transition hover:border-[#c5d0dc] hover:bg-white"
+              onClick={() => setDetailsOpen(true)}
             >
               <Pencil size={15} />
               Edit
-            </Link>
+            </button>
           </div>
         </div>
         <SortableContext items={form.fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
@@ -90,7 +96,105 @@ export function BuilderCanvas() {
           </div>
         </SortableContext>
       </div>
+      {detailsOpen && <FormDetailsDialog onClose={() => setDetailsOpen(false)} />}
     </div>
+  );
+}
+
+function FormDetailsDialog({ onClose }: { onClose: () => void }) {
+  const form = useFormStore((state) => state.form);
+  const setFormMeta = useFormStore((state) => state.setFormMeta);
+  const setTheme = useFormStore((state) => state.setTheme);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#111418]/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="form-details-title">
+      <button type="button" className="absolute inset-0 cursor-default" aria-label="Close form details" onClick={onClose} />
+      <div className="relative max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl border border-[#d8e0ea] bg-white shadow-[0_30px_90px_rgba(17,24,39,0.28)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[#e3e8ef] p-5">
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#465366]">
+              <Palette size={14} />
+              Form details
+            </div>
+            <h2 id="form-details-title" className="text-xl font-semibold text-[#111418]">Edit form identity</h2>
+            <p className="mt-1 text-sm leading-6 text-[#667085]">Update the title, description, and visual style without leaving the canvas.</p>
+          </div>
+          <Button type="button" size="icon" variant="ghost" onClick={onClose} aria-label="Close form details">
+            <X size={18} />
+          </Button>
+        </div>
+        <div className="formcraft-scrollbar max-h-[calc(92vh-116px)] overflow-y-auto p-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="canvas-form-name">Form name</Label>
+              <Input id="canvas-form-name" className="mt-2" value={form.name} onChange={(event) => setFormMeta({ name: event.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="canvas-form-title">Public title</Label>
+              <Input id="canvas-form-title" className="mt-2" value={form.title} onChange={(event) => setFormMeta({ title: event.target.value })} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="canvas-form-description">Description</Label>
+              <Textarea id="canvas-form-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-[#d8e0ea] bg-[#f8fafc] p-4">
+            <Label>Accent color</Label>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {themeColors.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  aria-label={`Use ${color}`}
+                  className="h-10 w-10 rounded-xl border-2 border-white shadow ring-offset-2 transition hover:scale-105"
+                  style={{ background: color, boxShadow: form.theme.accentColor === color ? `0 0 0 3px ${color}33` : undefined }}
+                  onClick={() => setTheme({ accentColor: color })}
+                />
+              ))}
+              <Input type="color" value={form.theme.accentColor} onChange={(event) => setTheme({ accentColor: event.target.value })} className="h-10 w-16 p-1" />
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+              <Label>Corner style</Label>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button type="button" variant={form.theme.radius === "rounded" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "rounded" })}>
+                  <Palette size={16} />
+                  Rounded
+                </Button>
+                <Button type="button" variant={form.theme.radius === "square" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "square" })}>
+                  <Square size={16} />
+                  Square
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+              <Label>Preview mode</Label>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button type="button" variant={form.theme.mode === "light" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "light" })}>
+                  <Sun size={16} />
+                  Light
+                </Button>
+                <Button type="button" variant={form.theme.mode === "dark" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "dark" })}>
+                  <Moon size={16} />
+                  Dark
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex justify-end gap-2 border-t border-[#e3e8ef] pt-4">
+            <Button type="button" variant="secondary" onClick={onClose}>Close</Button>
+            <Button type="button" onClick={onClose}>Done</Button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
