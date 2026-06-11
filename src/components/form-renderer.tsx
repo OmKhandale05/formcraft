@@ -301,38 +301,53 @@ function RatingField({
   const scale = Math.min(Math.max(field.settings?.ratingScale ?? 5, 3), 10);
   const selectedValue = Number(watch(field.id) || 0);
   const emojis = ["😡", "😕", "😐", "🙂", "😍", "🤩", "🚀", "🏆", "💎", "✨"];
+  const isEmoji = field.settings?.ratingStyle === "emoji";
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div>
       <input type="hidden" {...register(field.id)} />
-      {Array.from({ length: scale }, (_, index) => {
-        const value = index + 1;
-        const selected = selectedValue === value;
+      <div className={cn("flex flex-wrap items-center", isEmoji ? "gap-2" : "gap-1")}>
+        {Array.from({ length: scale }, (_, index) => {
+          const value = index + 1;
+          const selected = selectedValue === value;
+          const filled = selectedValue >= value;
 
-        return (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={selected}
-            aria-label={`Select ${value} out of ${scale}`}
-            className={cn(
-              "flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-semibold transition",
-              selected
-                ? "border-[var(--accent)] bg-[var(--accent)] text-white shadow-[0_10px_24px_rgba(49,87,213,0.22)]"
-                : dark
-                  ? "border-white/10 bg-white/5 text-white/75 hover:border-white/25 hover:bg-white/10"
-                  : "border-[#dce1e8] bg-[#fbfcfe] text-[#465366] hover:border-[var(--accent)] hover:bg-[#f4f7ff]"
-            )}
-            onClick={() => setValue(field.id, value, { shouldDirty: true, shouldValidate: true })}
-          >
-            {field.settings?.ratingStyle === "emoji" ? (
-              <span className="text-lg leading-none">{emojis[index] ?? "🙂"}</span>
-            ) : (
-              <Star size={18} className={cn(selected && "fill-white", !selected && "fill-[var(--accent)] text-[var(--accent)]")} />
-            )}
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={selected}
+              aria-label={`Select ${value} out of ${scale}`}
+              className={cn(
+                "cursor-pointer transition",
+                isEmoji
+                  ? "flex h-11 min-w-11 items-center justify-center rounded-xl border px-3 text-sm font-semibold"
+                  : "rounded-lg p-1.5 hover:scale-110 focus-visible:scale-110",
+                isEmoji && selected && "border-[var(--accent)] bg-[var(--accent)] text-white shadow-[0_10px_24px_rgba(49,87,213,0.22)]",
+                isEmoji && !selected && (dark ? "border-white/10 bg-white/5 text-white/75 hover:border-white/25 hover:bg-white/10" : "border-[#dce1e8] bg-[#fbfcfe] text-[#465366] hover:border-[var(--accent)] hover:bg-[#f4f7ff]")
+              )}
+              onClick={() => setValue(field.id, value, { shouldDirty: true, shouldValidate: true })}
+            >
+              {isEmoji ? (
+                <span className="text-lg leading-none">{emojis[index] ?? "🙂"}</span>
+              ) : (
+                <Star
+                  size={30}
+                  className={cn(
+                    "transition",
+                    filled ? "fill-[#f59e0b] text-[#f59e0b]" : dark ? "fill-transparent text-white/30" : "fill-transparent text-[#cbd5e1]"
+                  )}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {!isEmoji && (
+        <p className={cn("mt-2 text-xs font-medium", dark ? "text-white/55" : "text-[#667085]")}>
+          {selectedValue ? `${selectedValue} / ${scale} selected` : "No rating selected"}
+        </p>
+      )}
     </div>
   );
 }
