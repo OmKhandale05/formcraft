@@ -4,7 +4,8 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
-import { Copy, GripVertical, Pencil, Trash2 } from "lucide-react";
+import type { MouseEvent } from "react";
+import { Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
@@ -12,6 +13,7 @@ import type { FormField } from "@/types/form";
 
 export function BuilderCanvas() {
   const form = useFormStore((state) => state.form);
+  const clearSelection = useFormStore((state) => state.clearSelection);
   const { isOver, setNodeRef } = useDroppable({
     id: "builder-canvas",
     data: { type: "canvas" }
@@ -47,12 +49,28 @@ export function BuilderCanvas() {
             ref={setNodeRef}
             data-testid="builder-canvas-dropzone"
             className={cn(
-              "min-h-[480px] rounded-2xl border border-dashed border-[#bfcadc] bg-white/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur transition",
+              "relative min-h-[480px] overflow-hidden rounded-2xl border border-dashed border-[#bfcadc] bg-white/80 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur transition",
               isOver && "border-[#3157d5] bg-[#f8faff] ring-4 ring-[#3157d5]/10"
             )}
+            onClick={(event) => {
+              if (event.currentTarget === event.target) clearSelection();
+            }}
           >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(100,116,139,0.18)_1px,transparent_0)] [background-size:18px_18px]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/80 to-transparent" />
+            <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8e0ea] bg-white/92 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
+                <Grid3X3 size={13} />
+                8px snap grid
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8e0ea] bg-white/92 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
+                <MousePointer2 size={13} />
+                Shift+click multi-select
+              </span>
+            </div>
+            <BulkSelectionToolbar />
             {form.fields.length === 0 ? (
-              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+              <div className="relative z-10 flex min-h-[420px] flex-col items-center justify-center text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-xl">
                   <GripVertical size={24} />
                 </div>
@@ -62,7 +80,7 @@ export function BuilderCanvas() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="relative z-10 grid gap-3">
                 {form.fields.map((field, index) => (
                   <CanvasField key={field.id} field={field} index={index} />
                 ))}
@@ -77,11 +95,21 @@ export function BuilderCanvas() {
 
 function CanvasField({ field, index }: { field: FormField; index: number }) {
   const selectedFieldId = useFormStore((state) => state.selectedFieldId);
+  const selectedFieldIds = useFormStore((state) => state.selectedFieldIds);
   const setSelectedField = useFormStore((state) => state.setSelectedField);
+  const toggleFieldSelection = useFormStore((state) => state.toggleFieldSelection);
   const duplicateField = useFormStore((state) => state.duplicateField);
   const deleteField = useFormStore((state) => state.deleteField);
-  const selected = selectedFieldId === field.id;
+  const selected = selectedFieldId === field.id || selectedFieldIds.includes(field.id);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id });
+  const handleSelect = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.shiftKey) {
+      toggleFieldSelection(field.id);
+      return;
+    }
+
+    setSelectedField(field.id);
+  };
 
   return (
     <div
@@ -89,12 +117,18 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
       data-testid="builder-canvas-field"
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "group card-hover rounded-xl border bg-white p-4 shadow-sm",
+        "group card-hover relative rounded-xl border bg-white p-4 shadow-sm",
         selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
         isDragging && "opacity-50"
       )}
-      onClick={() => setSelectedField(field.id)}
+      onClick={handleSelect}
     >
+      <span
+        className={cn(
+          "absolute -left-1 top-4 h-10 w-1.5 rounded-full transition",
+          selected ? "bg-[#3157d5]" : "bg-transparent group-hover:bg-[#c7d2fe]"
+        )}
+      />
       <div className="flex items-start gap-3">
         <button className="mt-1 text-[#a1aab7]" type="button" {...listeners} {...attributes} aria-label="Reorder field">
           <GripVertical size={18} />
@@ -131,7 +165,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
             </div>
           )}
         </div>
-        <div className="flex opacity-0 transition group-hover:opacity-100">
+        <div className={cn("flex opacity-0 transition group-hover:opacity-100", selected && "opacity-100")}>
           <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); duplicateField(field.id); }} aria-label="Duplicate field">
             <Copy size={16} />
           </Button>
@@ -140,6 +174,46 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function BulkSelectionToolbar() {
+  const form = useFormStore((state) => state.form);
+  const selectedFieldIds = useFormStore((state) => state.selectedFieldIds);
+  const duplicateSelectedFields = useFormStore((state) => state.duplicateSelectedFields);
+  const deleteSelectedFields = useFormStore((state) => state.deleteSelectedFields);
+  const updateSelectedFields = useFormStore((state) => state.updateSelectedFields);
+  const selectedFields = form.fields.filter((field) => selectedFieldIds.includes(field.id));
+
+  if (selectedFields.length < 2) return null;
+
+  const allRequired = selectedFields.every((field) => field.required);
+
+  return (
+    <div className="relative z-20 mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-[#c8d4e4] bg-white/95 p-2 shadow-[0_18px_45px_rgba(17,24,39,0.14)] backdrop-blur">
+      <div className="flex items-center gap-2 px-2 text-sm font-semibold text-[#111418]">
+        <Layers3 size={16} />
+        {selectedFields.length} selected
+      </div>
+      <div className="h-6 w-px bg-[#d8e0ea]" />
+      <Button type="button" size="sm" variant="secondary" onClick={duplicateSelectedFields}>
+        <Copy size={15} />
+        Duplicate
+      </Button>
+      <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ required: !allRequired })}>
+        {allRequired ? "Make optional" : "Mark required"}
+      </Button>
+      <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ step: 1 })}>
+        Step 1
+      </Button>
+      <Button type="button" size="sm" variant="secondary" onClick={() => updateSelectedFields({ step: 2 })}>
+        Step 2
+      </Button>
+      <Button type="button" size="sm" variant="danger" onClick={deleteSelectedFields}>
+        <Trash2 size={15} />
+        Delete
+      </Button>
     </div>
   );
 }

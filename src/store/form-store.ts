@@ -8,15 +8,21 @@ import { defaultForm } from "@/lib/templates";
 type FormStore = {
   form: FormSchema;
   selectedFieldId: string | null;
+  selectedFieldIds: string[];
   submissions: Submission[];
   setSelectedField: (id: string | null) => void;
+  toggleFieldSelection: (id: string) => void;
+  clearSelection: () => void;
   setFormMeta: (updates: Partial<Pick<FormSchema, "name" | "title" | "description">>) => void;
   setTheme: (theme: Partial<FormTheme>) => void;
   addField: (field: FormField, index?: number) => void;
   updateField: (id: string, updates: Partial<FormField>) => void;
   duplicateField: (id: string) => void;
+  duplicateSelectedFields: () => void;
   deleteField: (id: string) => void;
+  deleteSelectedFields: () => void;
   deleteForm: () => void;
+  updateSelectedFields: (updates: Partial<FormField>) => void;
   reorderFields: (from: number, to: number) => void;
   replaceForm: (form: FormSchema) => void;
   addSubmission: (values: Record<string, unknown>) => void;
@@ -30,8 +36,17 @@ export const useFormStore = create<FormStore>()(
     (set, get) => ({
       form: defaultForm,
       selectedFieldId: null,
+      selectedFieldIds: [],
       submissions: [],
-      setSelectedField: (id) => set({ selectedFieldId: id }),
+      setSelectedField: (id) => set({ selectedFieldId: id, selectedFieldIds: id ? [id] : [] }),
+      toggleFieldSelection: (id) =>
+        set((state) => {
+          const selected = state.selectedFieldIds.includes(id)
+            ? state.selectedFieldIds.filter((fieldId) => fieldId !== id)
+            : [...state.selectedFieldIds, id];
+          return { selectedFieldIds: selected, selectedFieldId: selected.at(-1) ?? null };
+        }),
+      clearSelection: () => set({ selectedFieldId: null, selectedFieldIds: [] }),
       setFormMeta: (updates) =>
         set((state) => ({
           form: stamp({ ...state.form, ...updates })
@@ -45,7 +60,7 @@ export const useFormStore = create<FormStore>()(
           const fields = [...state.form.fields];
           if (typeof index === "number") fields.splice(index, 0, field);
           else fields.push(field);
-          return { form: stamp({ ...state.form, fields }), selectedFieldId: field.id };
+          return { form: stamp({ ...state.form, fields }), selectedFieldId: field.id, selectedFieldIds: [field.id] };
         }),
       updateField: (id, updates) =>
         set((state) => ({
@@ -65,19 +80,62 @@ export const useFormStore = create<FormStore>()(
           };
           const fields = [...state.form.fields];
           fields.splice(index + 1, 0, copy);
-          return { form: stamp({ ...state.form, fields }), selectedFieldId: copy.id };
+          return { form: stamp({ ...state.form, fields }), selectedFieldId: copy.id, selectedFieldIds: [copy.id] };
+        }),
+      duplicateSelectedFields: () =>
+        set((state) => {
+          const selected = new Set(state.selectedFieldIds);
+          if (!selected.size) return state;
+          const copiedIds: string[] = [];
+          const fields = state.form.fields.flatMap((field) => {
+            if (!selected.has(field.id)) return [field];
+            const copy = {
+              ...field,
+              id: `${field.type}-${crypto.randomUUID()}`,
+              label: `${field.label} copy`
+            };
+            copiedIds.push(copy.id);
+            return [field, copy];
+          });
+          return { form: stamp({ ...state.form, fields }), selectedFieldId: copiedIds.at(-1) ?? null, selectedFieldIds: copiedIds };
         }),
       deleteField: (id) =>
-        set((state) => ({
-          form: stamp({ ...state.form, fields: state.form.fields.filter((field) => field.id !== id) }),
-          selectedFieldId: state.selectedFieldId === id ? null : state.selectedFieldId
-        })),
+        set((state) => {
+          const selectedFieldIds = state.selectedFieldIds.filter((fieldId) => fieldId !== id);
+          return {
+            form: stamp({ ...state.form, fields: state.form.fields.filter((field) => field.id !== id) }),
+            selectedFieldId: state.selectedFieldId === id ? selectedFieldIds.at(-1) ?? null : state.selectedFieldId,
+            selectedFieldIds
+          };
+        }),
+      deleteSelectedFields: () =>
+        set((state) => {
+          const selected = new Set(state.selectedFieldIds);
+          if (!selected.size) return state;
+          return {
+            form: stamp({ ...state.form, fields: state.form.fields.filter((field) => !selected.has(field.id)) }),
+            selectedFieldId: null,
+            selectedFieldIds: []
+          };
+        }),
       deleteForm: () =>
         set((state) => ({
           form: stamp({ ...state.form, fields: [] }),
           selectedFieldId: null,
+          selectedFieldIds: [],
           submissions: []
         })),
+      updateSelectedFields: (updates) =>
+        set((state) => {
+          const selected = new Set(state.selectedFieldIds);
+          if (!selected.size) return state;
+          return {
+            form: stamp({
+              ...state.form,
+              fields: state.form.fields.map((field) => (selected.has(field.id) ? { ...field, ...updates } : field))
+            })
+          };
+        }),
       reorderFields: (from, to) =>
         set((state) => {
           const fields = [...state.form.fields];
@@ -91,7 +149,8 @@ export const useFormStore = create<FormStore>()(
             ...form,
             id: form.id || `form-${crypto.randomUUID()}`
           }),
-          selectedFieldId: null
+          selectedFieldId: null,
+          selectedFieldIds: []
         }),
       addSubmission: (values) =>
         set((state) => ({

@@ -1,6 +1,6 @@
 "use client";
 
-import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
 import { Download, Eye, FileUp, Save, Trash2 } from "lucide-react";
@@ -27,6 +27,15 @@ const exportOptions = [
 ] as const;
 
 type ExportExtension = (typeof exportOptions)[number]["extension"];
+
+const snapToGrid: Modifier = ({ transform }) => {
+  const grid = 8;
+  return {
+    ...transform,
+    x: Math.round(transform.x / grid) * grid,
+    y: Math.round(transform.y / grid) * grid
+  };
+};
 
 export default function BuilderPage() {
   const form = useFormStore((state) => state.form);
@@ -112,7 +121,7 @@ export default function BuilderPage() {
 
   return (
     <AppShell>
-      <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} modifiers={[snapToGrid]} onDragEnd={handleDragEnd}>
         <div className="flex h-screen max-h-screen flex-col overflow-hidden">
           <header className="flex min-h-16 shrink-0 flex-wrap items-center gap-3 border-b border-[#d8e0ea] bg-white/82 px-4 backdrop-blur-xl sm:px-5">
             <Input
