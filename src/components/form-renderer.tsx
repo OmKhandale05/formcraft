@@ -14,10 +14,11 @@ import type { FormField, FormSchema } from "@/types/form";
 function schemaForField(field: FormField) {
   if (["section", "divider", "file", "hidden"].includes(field.type)) return z.any().optional();
 
-  if (["number", "slider", "payment"].includes(field.type)) {
+  if (["number", "rating", "slider", "payment"].includes(field.type)) {
     let numberSchema = z.coerce.number({ error: "Enter a valid number" });
     if (field.validation?.min !== undefined) numberSchema = numberSchema.min(field.validation.min);
     if (field.validation?.max !== undefined) numberSchema = numberSchema.max(field.validation.max);
+    if (field.type === "rating") numberSchema = numberSchema.min(1, "Choose a rating");
     return field.required ? numberSchema : numberSchema.optional().or(z.literal(""));
   }
 
