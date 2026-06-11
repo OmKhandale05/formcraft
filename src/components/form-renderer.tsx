@@ -440,7 +440,19 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     editor.focus();
     if (command === "quoteText") {
       const selection = window.getSelection()?.toString();
-      document.execCommand("insertText", false, selection ? `"${selection}"` : "\"\"");
+      if (selection) {
+        document.execCommand("insertText", false, `"${selection}"`);
+      } else {
+        document.execCommand("insertText", false, "\"\"");
+        const nextSelection = window.getSelection();
+        if (nextSelection?.rangeCount) {
+          const range = nextSelection.getRangeAt(0);
+          range.setStart(range.startContainer, Math.max(range.startOffset - 1, 0));
+          range.collapse(true);
+          nextSelection.removeAllRanges();
+          nextSelection.addRange(range);
+        }
+      }
     } else {
       document.execCommand(command, false, value);
     }
