@@ -2,6 +2,7 @@ import {
   AlignLeft,
   Calendar,
   CalendarRange,
+  Calculator,
   CheckSquare,
   CreditCard,
   Divide,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 import type { FieldLayoutPreference, FieldType, FormField } from "@/types/form";
 
-export const compactFieldTypes: FieldType[] = ["text", "email", "phone", "number", "dropdown", "date", "rating", "slider", "payment"];
+export const compactFieldTypes: FieldType[] = ["text", "email", "phone", "number", "dropdown", "date", "rating", "slider", "payment", "formula"];
 export const fullWidthOnlyFieldTypes: FieldType[] = ["section", "divider", "signature", "matrix", "richtext", "textarea", "file", "hidden"];
 
 export const fieldCatalog: Array<{
@@ -49,6 +50,7 @@ export const fieldCatalog: Array<{
   { type: "matrix", label: "Matrix / grid", description: "Rows by columns table", icon: Table2 },
   { type: "hidden", label: "Hidden field", description: "UTM or silent metadata", icon: EyeOff },
   { type: "payment", label: "Payment field", description: "Stripe-ready amount", icon: CreditCard },
+  { type: "formula", label: "Formula output", description: "Live calculated value", icon: Calculator },
   { type: "section", label: "Section title", description: "Step or content block", icon: Heading },
   { type: "divider", label: "Divider", description: "Visual separator", icon: Divide }
 ];
@@ -72,7 +74,7 @@ export function createField(type: FieldType, layoutPreference: FieldLayoutPrefer
     label: base?.label ?? "Untitled field",
     placeholder: type === "textarea" || type === "richtext" ? "Tell us more..." : "Enter response",
     helperText: "",
-    required: !["section", "divider", "file", "hidden"].includes(type),
+    required: !["section", "divider", "file", "hidden", "formula"].includes(type),
     options: ["dropdown", "radio", "checkbox"].includes(type) ? optionDefaults : undefined,
     step: 1,
     layout: resolveFieldLayout(type, layoutPreference),
@@ -89,7 +91,11 @@ export function createField(type: FieldType, layoutPreference: FieldLayoutPrefer
       matrixRows: type === "matrix" ? matrixRows : undefined,
       matrixColumns: type === "matrix" ? matrixColumns : undefined,
       hiddenValue: type === "hidden" ? "utm_source=portfolio" : undefined,
-      currency: type === "payment" ? "USD" : undefined
+      currency: type === "payment" ? "USD" : undefined,
+      formulaExpression: type === "formula" ? "0" : undefined,
+      formulaFormat: type === "formula" ? "number" : undefined,
+      formulaPrecision: type === "formula" ? 2 : undefined,
+      formulaFallback: type === "formula" ? "Waiting for inputs" : undefined
     }
   };
 }

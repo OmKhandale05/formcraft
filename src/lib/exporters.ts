@@ -19,7 +19,8 @@ const inputTypes: FieldType[] = [
   "richtext",
   "matrix",
   "hidden",
-  "payment"
+  "payment",
+  "formula"
 ];
 
 function escapeHtml(value = "") {
@@ -46,7 +47,7 @@ function quotedKey(field: FormField) {
 }
 
 function fieldTypeForTs(field: FormField) {
-  if (["number", "rating", "slider", "payment"].includes(field.type)) return "number";
+  if (["number", "rating", "slider", "payment", "formula"].includes(field.type)) return "number";
   if (field.type === "checkbox") return "string[]";
   if (field.type === "daterange") return "{ start: string; end: string }";
   if (field.type === "matrix") return "Record<string, string>";
@@ -57,7 +58,7 @@ function fieldTypeForTs(field: FormField) {
 function fieldSchemaForZod(field: FormField) {
   const requiredMessage = "{ message: \"This field is required\" }";
 
-  if (["number", "slider", "payment"].includes(field.type)) {
+  if (["number", "slider", "payment", "formula"].includes(field.type)) {
     const rules = ["z.coerce.number()"];
     if (field.validation?.min !== undefined) rules.push(`.min(${field.validation.min})`);
     if (field.validation?.max !== undefined) rules.push(`.max(${field.validation.max})`);
@@ -118,6 +119,7 @@ function renderHtmlField(field: FormField) {
     const currencySelect = `<select name="${id}_currency">${currencyCodes.map((currency) => `<option value="${currency}"${currency === (field.settings?.currency ?? "USD") ? " selected" : ""}>${currency}</option>`).join("")}</select>`;
     return `<label>${label}<div class="payment-row">${currencySelect}<input type="number" name="${id}" min="0" step="0.01" placeholder="0.00"${required} /></div></label>${helper}`;
   }
+  if (field.type === "formula") return `<output name="${id}" data-formula="${escapeHtml(field.settings?.formulaExpression ?? "")}">${escapeHtml(field.settings?.formulaFallback ?? "Calculated result")}</output>${helper}`;
   const type = field.type === "phone" ? "tel" : field.type;
   return `<label>${label}<input type="${type}" name="${id}" placeholder="${placeholder}"${required} /></label>${helper}`;
 }
@@ -144,6 +146,7 @@ export function exportHtml(form: FormSchema) {
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .field-half { grid-column: 1 / -1; } }
     label, fieldset { display: grid; gap: 8px; font-weight: 650; }
     input, textarea, select { width: 100%; border: 1px solid #d8e0ea; border-radius: 12px; padding: 11px 12px; font: inherit; }
+    output { display: block; border: 1px solid #d8e0ea; border-radius: 12px; padding: 16px; background: #fbfcfe; font-size: 1.35rem; font-weight: 750; }
     textarea { min-height: 120px; }
     .choice { display: flex; align-items: center; gap: 8px; font-weight: 500; }
     .choice input { width: auto; }
@@ -226,6 +229,7 @@ function renderReactField(field: FormField) {
   if (field.type === "slider") return `      <label>${label}<input type="range" name="${key}" min="${field.settings?.sliderMin ?? 0}" max="${field.settings?.sliderMax ?? 100}" step="${field.settings?.sliderStep ?? 1}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
   if (field.type === "matrix") return `      <fieldset><legend>${label}</legend><p>Matrix response: ${field.settings?.matrixRows?.join(", ") ?? ""}</p></fieldset>`;
   if (field.type === "payment") return `      <label>${label}<select name="${key}_currency">${currencyCodes.map((currency) => `<option value="${currency}"${currency === (field.settings?.currency ?? "USD") ? " selected" : ""}>${currency}</option>`).join("")}</select><input type="number" min="0" step="0.01" name="${key}" placeholder="0.00" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
+  if (field.type === "formula") return `      <output data-formula="${(field.settings?.formulaExpression ?? "").replaceAll('"', '\\"')}">${(field.settings?.formulaFallback ?? "Calculated result").replaceAll('"', '\\"')}</output>`;
   const type = field.type === "phone" ? "tel" : field.type;
   return `      <label>${label}<input type="${type}" name="${key}" placeholder="${placeholder}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
 }

@@ -17,6 +17,7 @@ export type FieldType =
   | "matrix"
   | "hidden"
   | "payment"
+  | "formula"
   | "section"
   | "divider";
 
@@ -55,6 +56,12 @@ export type FormField = {
     matrixColumns?: string[];
     hiddenValue?: string;
     currency?: string;
+    formulaExpression?: string;
+    formulaFormat?: "number" | "currency" | "percent" | "text";
+    formulaPrecision?: number;
+    formulaPrefix?: string;
+    formulaSuffix?: string;
+    formulaFallback?: string;
   };
 };
 

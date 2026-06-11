@@ -2,18 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Bold, CheckCircle2, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
-import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { ArrowLeft, ArrowRight, Bold, Calculator, CheckCircle2, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { evaluateFormula, formatFormulaValue } from "@/lib/formula";
 import { cn } from "@/lib/utils";
 import type { FormField, FormSchema } from "@/types/form";
 
 function schemaForField(field: FormField) {
-  if (["section", "divider", "file", "hidden"].includes(field.type)) return z.any().optional();
+  if (["section", "divider", "file", "hidden", "formula"].includes(field.type)) return z.any().optional();
 
   if (["number", "rating", "slider", "payment"].includes(field.type)) {
     let numberSchema = z.coerce.number({ error: "Enter a valid number" });
@@ -57,7 +58,7 @@ function buildZodSchema(fields: FormField[]) {
 }
 
 function validationNamesForField(field: FormField) {
-  if (["section", "divider", "hidden", "file"].includes(field.type)) return [];
+  if (["section", "divider", "hidden", "file", "formula"].includes(field.type)) return [];
   if (field.type === "daterange") return [`${field.id}.start`, `${field.id}.end`];
   return [field.id];
 }
@@ -353,6 +354,7 @@ function RenderedField({
       )}
       {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
       {field.type === "matrix" && <MatrixField field={field} register={register} dark={dark} />}
+      {field.type === "formula" && <FormulaField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} />}
       {field.type === "payment" && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
           <input type="hidden" {...register(`${field.id}_currency`)} />
@@ -370,6 +372,48 @@ function RenderedField({
       )}
       {field.helperText && <p className={cn("mt-1.5 text-xs", dark ? "text-white/50" : "text-[#68707d]")}>{field.helperText}</p>}
       {error && <p className="mt-1.5 text-xs font-medium text-[#dc2626]">{error}</p>}
+    </div>
+  );
+}
+
+function FormulaField({
+  field,
+  register,
+  setValue,
+  watch,
+  dark,
+  rounded
+}: {
+  field: FormField;
+  register: UseFormRegister<Record<string, unknown>>;
+  setValue: UseFormSetValue<Record<string, unknown>>;
+  watch: UseFormWatch<Record<string, unknown>>;
+  dark: boolean;
+  rounded: boolean;
+}) {
+  const values = watch();
+  const result = useMemo(() => evaluateFormula(field.settings?.formulaExpression, values), [field.settings?.formulaExpression, values]);
+  const formattedValue = result.error ? field.settings?.formulaFallback || "Waiting for inputs" : formatFormulaValue(field, result.value);
+
+  useEffect(() => {
+    setValue(field.id, result.error ? null : result.value, { shouldDirty: true, shouldValidate: true });
+  }, [field.id, result.error, result.value, setValue]);
+
+  return (
+    <div className={cn("border p-4", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-[#fbfcfe]")}>
+      <input type="hidden" {...register(field.id)} />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">
+          <Calculator size={15} />
+          Formula result
+        </div>
+        <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", result.error ? "bg-[#fef2f2] text-[#dc2626]" : "bg-[#eef8f5] text-[#0f766e]")}>
+          {result.error ? "Needs input" : "Live"}
+        </span>
+      </div>
+      <p className={cn("mt-3 text-2xl font-semibold", dark ? "text-white" : "text-[#111418]")}>{formattedValue}</p>
+      {field.settings?.formulaExpression && <p className={cn("mt-2 font-mono text-xs", dark ? "text-white/45" : "text-[#667085]")}>{field.settings.formulaExpression}</p>}
+      {result.error && <p className="mt-2 text-xs font-medium text-[#dc2626]">{result.error}</p>}
     </div>
   );
 }

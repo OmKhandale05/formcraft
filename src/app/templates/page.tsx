@@ -36,6 +36,7 @@ const fieldTypeLabels: Record<FieldType, string> = {
   matrix: "Matrix",
   hidden: "Hidden",
   payment: "Payment",
+  formula: "Formula",
   section: "Section",
   divider: "Divider"
 };

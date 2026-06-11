@@ -25,13 +25,14 @@ const inputFieldTypes: FieldType[] = [
   "slider",
   "richtext",
   "matrix",
-  "payment"
+  "payment",
+  "formula"
 ];
 
 function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partial<FormField> {
   const usesOptions = optionFieldTypes.includes(nextType);
-  const supportsPlaceholder = !["section", "divider", "file", "rating", "signature", "matrix", "hidden"].includes(nextType);
-  const supportsRequired = !["section", "divider", "file", "hidden"].includes(nextType);
+  const supportsPlaceholder = !["section", "divider", "file", "rating", "signature", "matrix", "hidden", "formula"].includes(nextType);
+  const supportsRequired = !["section", "divider", "file", "hidden", "formula"].includes(nextType);
   const supportsValidation = inputFieldTypes.includes(nextType);
   const nextValidation: ValidationRule = nextType === "number"
     ? { min: field.validation?.min, max: field.validation?.max }
@@ -57,7 +58,11 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
       matrixRows: nextType === "matrix" ? field.settings?.matrixRows ?? ["Ease of use", "Design quality", "Performance"] : field.settings?.matrixRows,
       matrixColumns: nextType === "matrix" ? field.settings?.matrixColumns ?? ["Poor", "Average", "Great"] : field.settings?.matrixColumns,
       hiddenValue: nextType === "hidden" ? field.settings?.hiddenValue ?? "utm_source=portfolio" : field.settings?.hiddenValue,
-      currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency
+      currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency,
+      formulaExpression: nextType === "formula" ? field.settings?.formulaExpression ?? "0" : field.settings?.formulaExpression,
+      formulaFormat: nextType === "formula" ? field.settings?.formulaFormat ?? "number" : field.settings?.formulaFormat,
+      formulaPrecision: nextType === "formula" ? field.settings?.formulaPrecision ?? 2 : field.settings?.formulaPrecision,
+      formulaFallback: nextType === "formula" ? field.settings?.formulaFallback ?? "Waiting for inputs" : field.settings?.formulaFallback
     }
   };
 }
@@ -121,7 +126,7 @@ export function FieldSettingsPanel() {
             </div>
           </>
         )}
-        {!["section", "divider", "file", "rating", "signature", "matrix", "hidden"].includes(field.type) && (
+        {!["section", "divider", "file", "rating", "signature", "matrix", "hidden", "formula"].includes(field.type) && (
           <div>
             <Label htmlFor="field-placeholder">Placeholder</Label>
             <Input id="field-placeholder" className="mt-2" value={field.placeholder ?? ""} onChange={(event) => updateField(field.id, { placeholder: event.target.value })} />
@@ -132,7 +137,7 @@ export function FieldSettingsPanel() {
             <Label htmlFor="field-step">Step</Label>
             <Input id="field-step" type="number" min={1} className="mt-2" value={field.step ?? 1} onChange={(event) => updateField(field.id, { step: Number(event.target.value) || 1 })} />
           </div>
-          {!["section", "divider", "file", "hidden"].includes(field.type) && (
+          {!["section", "divider", "file", "hidden", "formula"].includes(field.type) && (
             <label className="mt-7 flex h-10 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-medium text-[#1f2937] shadow-sm">
               <input type="checkbox" checked={Boolean(field.required)} onChange={(event) => updateField(field.id, { required: event.target.checked })} />
               Required
@@ -273,7 +278,8 @@ export function FieldSettingsPanel() {
             />
           </div>
         )}
-        {!["section", "divider", "file", "rating", "signature", "daterange", "slider", "matrix", "hidden", "payment"].includes(field.type) && (
+        {field.type === "formula" && <FormulaSettings field={field} fields={form.fields} onChange={(settings) => updateField(field.id, { settings: { ...field.settings, ...settings } })} />}
+        {!["section", "divider", "file", "rating", "signature", "daterange", "slider", "matrix", "hidden", "payment", "formula"].includes(field.type) && (
           <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
             <p className="mb-3 text-sm font-semibold text-[#1f2937]">Validation</p>
             {field.type === "number" ? (
@@ -319,6 +325,81 @@ export function FieldSettingsPanel() {
         </div>
       </div>
     </aside>
+  );
+}
+
+function FormulaSettings({
+  field,
+  fields,
+  onChange
+}: {
+  field: FormField;
+  fields: FormField[];
+  onChange: (settings: NonNullable<FormField["settings"]>) => void;
+}) {
+  const formulaFields = fields.filter((item) => item.id !== field.id && !["section", "divider", "file", "signature", "richtext", "matrix"].includes(item.type));
+  const expression = field.settings?.formulaExpression ?? "";
+  const insertVariable = (fieldId: string) => {
+    onChange({ formulaExpression: `${expression}${expression.endsWith(" ") || !expression ? "" : " "}{${fieldId}}` });
+  };
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+      <div>
+        <Label htmlFor="formula-expression">Formula expression</Label>
+        <Textarea
+          id="formula-expression"
+          className="mt-2 min-h-24 font-mono text-xs"
+          value={expression}
+          placeholder="{attendees} * 49 + {addons}"
+          onChange={(event) => onChange({ formulaExpression: event.target.value })}
+        />
+        <p className="mt-2 text-xs leading-5 text-[#667085]">Use field IDs in braces. Supports +, -, *, /, parentheses, min, max, avg, round, ceil, floor and abs.</p>
+      </div>
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Insert variable</p>
+        <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
+          {formulaFields.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="rounded-lg border border-[#d8e0ea] bg-white px-2.5 py-1 text-xs font-semibold text-[#465366] transition hover:border-[#3157d5] hover:text-[#3157d5]"
+              onClick={() => insertVariable(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+          {!formulaFields.length && <span className="text-xs text-[#667085]">Add input fields first.</span>}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="formula-format">Format</Label>
+          <Select id="formula-format" className="mt-2" value={field.settings?.formulaFormat ?? "number"} onChange={(event) => onChange({ formulaFormat: event.target.value as NonNullable<FormField["settings"]>["formulaFormat"] })}>
+            <option value="number">Number</option>
+            <option value="currency">Currency</option>
+            <option value="percent">Percent</option>
+            <option value="text">Text with affixes</option>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="formula-precision">Precision</Label>
+          <Input id="formula-precision" type="number" min={0} max={6} className="mt-2" value={field.settings?.formulaPrecision ?? 2} onChange={(event) => onChange({ formulaPrecision: Number(event.target.value) || 0 })} />
+        </div>
+        <div>
+          <Label htmlFor="formula-prefix">Prefix</Label>
+          <Input id="formula-prefix" className="mt-2" value={field.settings?.formulaPrefix ?? ""} placeholder="$" onChange={(event) => onChange({ formulaPrefix: event.target.value })} />
+        </div>
+        <div>
+          <Label htmlFor="formula-suffix">Suffix</Label>
+          <Input id="formula-suffix" className="mt-2" value={field.settings?.formulaSuffix ?? ""} placeholder="%" onChange={(event) => onChange({ formulaSuffix: event.target.value })} />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="formula-fallback">Fallback text</Label>
+        <Input id="formula-fallback" className="mt-2" value={field.settings?.formulaFallback ?? ""} placeholder="Waiting for inputs" onChange={(event) => onChange({ formulaFallback: event.target.value })} />
+      </div>
+    </div>
   );
 }
 
