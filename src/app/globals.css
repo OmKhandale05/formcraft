@@ -93,3 +93,29 @@ select:focus-visible {
   transform: translateY(-2px);
   box-shadow: 0 18px 38px rgba(17, 24, 39, 0.11);
 }
+
+.rich-text-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #98a2b3;
+}
+
+.rich-text-editor ul,
+.rich-text-editor ol {
+  margin: 0.5rem 0;
+  padding-left: 1.4rem;
+}
+
+.rich-text-editor ul {
+  list-style: disc;
+}
+
+.rich-text-editor ol {
+  list-style: decimal;
+}
+
+.rich-text-editor blockquote {
+  margin: 0.6rem 0;
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  color: #667085;
+}

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { CreditCard, List, PenLine, Star, Type, UploadCloud } from "lucide-react";
+import { Bold, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
 import { useMemo, useRef, useState, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
@@ -422,23 +422,54 @@ function registerSignature(id: string, setValue: UseFormSetValue<Record<string, 
 }
 
 function RichTextField({ field, setValue, dark, rounded }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean }) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const toolbarItems = [
+    { command: "bold", label: "Bold", icon: Bold },
+    { command: "italic", label: "Italic", icon: Italic },
+    { command: "underline", label: "Underline", icon: Underline },
+    { command: "insertUnorderedList", label: "Bullet list", icon: List },
+    { command: "insertOrderedList", label: "Numbered list", icon: ListOrdered },
+    { command: "formatBlock", value: "blockquote", label: "Quote", icon: Quote },
+    { command: "removeFormat", label: "Clear", icon: Eraser }
+  ];
+
+  const runCommand = (command: string, value?: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand(command, false, value);
+    setValue(field.id, editor.innerHTML, { shouldDirty: true, shouldValidate: true });
+  };
+
   return (
     <div className={cn("overflow-hidden border", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-white")}>
-      <div className="flex gap-1 border-b border-[#d8e0ea] p-2">
-        {[
-          { command: "bold", label: "B", icon: Type },
-          { command: "italic", label: "I", icon: Type },
-          { command: "insertUnorderedList", label: "List", icon: List }
-        ].map((item) => (
-          <button key={item.command} type="button" className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-[#eef2f7]" onClick={() => document.execCommand(item.command)}>
+      <div className={cn("flex flex-wrap gap-1 border-b p-2", dark ? "border-white/10" : "border-[#d8e0ea]")}>
+        {toolbarItems.map((item) => (
+          <button
+            key={`${item.command}-${item.label}`}
+            type="button"
+            title={item.label}
+            aria-label={item.label}
+            className={cn(
+              "inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition",
+              dark ? "text-white/75 hover:bg-white/10 hover:text-white" : "text-[#465366] hover:bg-[#eef2f7] hover:text-[#111418]"
+            )}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => runCommand(item.command, item.value)}
+          >
             <item.icon size={13} />
-            {item.label}
+            <span className="hidden sm:inline">{item.label}</span>
           </button>
         ))}
       </div>
       <div
+        ref={editorRef}
         contentEditable
-        className={cn("min-h-28 px-3 py-2 text-sm outline-none", dark ? "text-white" : "text-[#111827]")}
+        className={cn(
+          "rich-text-editor min-h-32 px-3 py-2 text-sm leading-6 outline-none",
+          dark ? "text-white marker:text-white/70" : "text-[#111827] marker:text-[#475569]"
+        )}
         data-placeholder={field.placeholder}
         onInput={(event) => setValue(field.id, event.currentTarget.innerHTML, { shouldValidate: true })}
       />
