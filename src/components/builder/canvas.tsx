@@ -11,16 +11,13 @@ import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { FormField } from "@/types/form";
 
-export function BuilderCanvas() {
+export function BuilderCanvas({ onEditForm }: { onEditForm: () => void }) {
   const form = useFormStore((state) => state.form);
   const clearSelection = useFormStore((state) => state.clearSelection);
   const { isOver, setNodeRef } = useDroppable({
     id: "builder-canvas",
     data: { type: "canvas" }
   });
-  const focusDetailsPanel = () => {
-    document.getElementById("form-details-sidebar")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
@@ -41,7 +38,7 @@ export function BuilderCanvas() {
             <button
               type="button"
               className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-semibold text-[#20242b] shadow-sm transition hover:border-[#c5d0dc] hover:bg-white"
-              onClick={focusDetailsPanel}
+              onClick={onEditForm}
             >
               <Pencil size={15} />
               Edit

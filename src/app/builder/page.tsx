@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppShell } from "@/components/app-shell";
 import { BuilderCanvas } from "@/components/builder/canvas";
-import { FieldSettingsPanel } from "@/components/builder/settings-panel";
+import { FieldSettingsPanel, FormDetailsPanel } from "@/components/builder/settings-panel";
 import { FieldSidebar } from "@/components/builder/field-sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ const exportOptions = [
 
 type ExportExtension = (typeof exportOptions)[number]["extension"];
 type ResizePane = "left" | "right";
+type RightPanelMode = "field" | "form";
 
 const snapToGrid: Modifier = ({ transform }) => {
   const grid = 8;
@@ -50,6 +51,7 @@ export default function BuilderPage() {
   const deleteForm = useFormStore((state) => state.deleteForm);
   const [saved, setSaved] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("field");
   const [leftWidth, setLeftWidth] = useState(330);
   const [rightWidth, setRightWidth] = useState(340);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -232,10 +234,10 @@ export default function BuilderPage() {
               <FieldSidebar />
             </div>
             <ResizeHandle label="Resize left sidebar" onPointerDown={(event) => startResize("left", event)} />
-            <BuilderCanvas />
+            <BuilderCanvas onEditForm={() => setRightPanelMode("form")} />
             <ResizeHandle label="Resize field settings panel" onPointerDown={(event) => startResize("right", event)} />
             <div className="hidden min-h-0 overflow-hidden lg:block">
-              <FieldSettingsPanel />
+              {rightPanelMode === "form" ? <FormDetailsPanel onClose={() => setRightPanelMode("field")} /> : <FieldSettingsPanel />}
             </div>
           </div>
         </div>

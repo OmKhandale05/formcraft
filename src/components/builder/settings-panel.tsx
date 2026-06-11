@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Moon, Palette, Square, Sun, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
 const optionFieldTypes: FieldType[] = ["dropdown", "radio", "checkbox"];
+const themeColors = ["#2563eb", "#0f766e", "#d97706", "#db2777", "#7c3aed", "#111827"];
 const inputFieldTypes: FieldType[] = [
   "text",
   "email",
@@ -315,6 +316,87 @@ export function FieldSettingsPanel() {
             ))}
           </Select>
           <p className="mt-1 text-xs text-[#667085]">Converts this field while preserving compatible settings.</p>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+export function FormDetailsPanel({ onClose }: { onClose: () => void }) {
+  const form = useFormStore((state) => state.form);
+  const setFormMeta = useFormStore((state) => state.setFormMeta);
+  const setTheme = useFormStore((state) => state.setTheme);
+
+  return (
+    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
+      <div className="mb-5 flex items-start justify-between gap-3 rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#111418] text-white">
+            <Palette size={19} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#1f2937]">Form details</p>
+            <p className="text-xs text-[#667085]">Live canvas settings</p>
+          </div>
+        </div>
+        <Button type="button" size="icon" variant="ghost" onClick={onClose} aria-label="Close form details">
+          <X size={17} />
+        </Button>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="right-form-name">Form name</Label>
+          <Input id="right-form-name" className="mt-2" value={form.name} onChange={(event) => setFormMeta({ name: event.target.value })} />
+        </div>
+        <div>
+          <Label htmlFor="right-form-title">Public title</Label>
+          <Input id="right-form-title" className="mt-2" value={form.title} onChange={(event) => setFormMeta({ title: event.target.value })} />
+        </div>
+        <div>
+          <Label htmlFor="right-form-description">Description</Label>
+          <Textarea id="right-form-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
+        </div>
+        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+          <Label>Accent color</Label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {themeColors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                aria-label={`Use ${color}`}
+                className="h-9 w-9 rounded-xl border-2 border-white shadow ring-offset-2 transition hover:scale-105"
+                style={{ background: color, boxShadow: form.theme.accentColor === color ? `0 0 0 3px ${color}33` : undefined }}
+                onClick={() => setTheme({ accentColor: color })}
+              />
+            ))}
+            <Input type="color" value={form.theme.accentColor} onChange={(event) => setTheme({ accentColor: event.target.value })} className="h-9 w-14 p-1" />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+          <Label>Corner style</Label>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button type="button" size="sm" variant={form.theme.radius === "rounded" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "rounded" })}>
+              <Palette size={15} />
+              Rounded
+            </Button>
+            <Button type="button" size="sm" variant={form.theme.radius === "square" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "square" })}>
+              <Square size={15} />
+              Square
+            </Button>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+          <Label>Preview mode</Label>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button type="button" size="sm" variant={form.theme.mode === "light" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "light" })}>
+              <Sun size={15} />
+              Light
+            </Button>
+            <Button type="button" size="sm" variant={form.theme.mode === "dark" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "dark" })}>
+              <Moon size={15} />
+              Dark
+            </Button>
+          </div>
         </div>
       </div>
     </aside>
