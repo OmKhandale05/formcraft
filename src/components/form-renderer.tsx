@@ -243,7 +243,7 @@ function RenderedField({
           <input className="hidden" type="file" accept={field.settings?.acceptedFileTypes} {...register(field.id)} />
         </label>
       )}
-      {field.type === "rating" && <RatingField field={field} register={register} dark={dark} />}
+      {field.type === "rating" && <RatingField field={field} register={register} setValue={setValue} watch={watch} dark={dark} />}
       {field.type === "signature" && <SignatureField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
       {field.type === "daterange" && (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -285,19 +285,54 @@ function RenderedField({
   );
 }
 
-function RatingField({ field, register, dark }: { field: FormField; register: UseFormRegister<Record<string, unknown>>; dark: boolean }) {
+function RatingField({
+  field,
+  register,
+  setValue,
+  watch,
+  dark
+}: {
+  field: FormField;
+  register: UseFormRegister<Record<string, unknown>>;
+  setValue: UseFormSetValue<Record<string, unknown>>;
+  watch: UseFormWatch<Record<string, unknown>>;
+  dark: boolean;
+}) {
   const scale = Math.min(Math.max(field.settings?.ratingScale ?? 5, 3), 10);
-  const values = Array.from({ length: scale }, (_, index) => String(index + 1));
+  const selectedValue = Number(watch(field.id) || 0);
   const emojis = ["😡", "😕", "😐", "🙂", "😍", "🤩", "🚀", "🏆", "💎", "✨"];
 
   return (
     <div className="flex flex-wrap gap-2">
-      {values.map((value, index) => (
-        <label key={value} className={cn("flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-semibold", dark ? "border-white/10 bg-white/5" : "border-[#dce1e8] bg-[#fbfcfe]")}>
-          <input className="sr-only" type="radio" value={value} {...register(field.id)} />
-          {field.settings?.ratingStyle === "emoji" ? emojis[index] ?? "🙂" : <Star size={18} className="fill-[var(--accent)] text-[var(--accent)]" />}
-        </label>
-      ))}
+      <input type="hidden" {...register(field.id)} />
+      {Array.from({ length: scale }, (_, index) => {
+        const value = index + 1;
+        const selected = selectedValue === value;
+
+        return (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={selected}
+            aria-label={`Select ${value} out of ${scale}`}
+            className={cn(
+              "flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-semibold transition",
+              selected
+                ? "border-[var(--accent)] bg-[var(--accent)] text-white shadow-[0_10px_24px_rgba(49,87,213,0.22)]"
+                : dark
+                  ? "border-white/10 bg-white/5 text-white/75 hover:border-white/25 hover:bg-white/10"
+                  : "border-[#dce1e8] bg-[#fbfcfe] text-[#465366] hover:border-[var(--accent)] hover:bg-[#f4f7ff]"
+            )}
+            onClick={() => setValue(field.id, value, { shouldDirty: true, shouldValidate: true })}
+          >
+            {field.settings?.ratingStyle === "emoji" ? (
+              <span className="text-lg leading-none">{emojis[index] ?? "🙂"}</span>
+            ) : (
+              <Star size={18} className={cn(selected && "fill-white", !selected && "fill-[var(--accent)] text-[var(--accent)]")} />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
