@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { currencyCodes } from "@/lib/currencies";
 import type { FormField, FormSchema } from "@/types/form";
 
 function schemaForField(field: FormField) {
@@ -272,12 +273,19 @@ function RenderedField({
       {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
       {field.type === "matrix" && <MatrixField field={field} register={register} dark={dark} />}
       {field.type === "payment" && (
-        <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2">
-          <div className={cn("flex h-10 items-center justify-center gap-1 rounded-xl border border-[#d8e0ea] bg-[#f8fafc] text-sm font-semibold", dark && "border-white/15 bg-white/5 text-white")}>
-            <CreditCard size={15} />
-            {field.settings?.currency ?? "USD"}
-          </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
+          <Select aria-label={`${field.label} currency`} className={inputClass} defaultValue={field.settings?.currency ?? "USD"} {...register(`${field.id}_currency`)}>
+            {currencyCodes.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </Select>
           <Input id={field.id} type="number" min={0} step="0.01" placeholder="0.00" className={inputClass} {...register(field.id)} />
+          <p className={cn("flex items-center gap-1 text-xs sm:col-span-2", dark ? "text-white/50" : "text-[#667085]")}>
+            <CreditCard size={13} />
+            Stripe-ready amount input with selectable currency.
+          </p>
         </div>
       )}
       {field.helperText && <p className={cn("mt-1.5 text-xs", dark ? "text-white/50" : "text-[#68707d]")}>{field.helperText}</p>}

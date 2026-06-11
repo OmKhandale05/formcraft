@@ -1,4 +1,5 @@
 import type { FieldType, FormField, FormSchema } from "@/types/form";
+import { currencyCodes } from "@/lib/currencies";
 
 const inputTypes: FieldType[] = [
   "text",
@@ -113,7 +114,10 @@ function renderHtmlField(field: FormField) {
     const columns = field.settings?.matrixColumns ?? [];
     return `<fieldset><legend>${label}</legend>${rows.map((row) => `<div class="matrix-row"><span>${escapeHtml(row)}</span>${columns.map((column) => `<label class="choice"><input type="radio" name="${id}_${escapeHtml(row)}" value="${escapeHtml(column)}" /> ${escapeHtml(column)}</label>`).join("")}</div>`).join("")}</fieldset>${helper}`;
   }
-  if (field.type === "payment") return `<label>${label}<input type="number" name="${id}" min="0" step="0.01" placeholder="${escapeHtml(field.settings?.currency ?? "USD")} amount"${required} /></label>${helper}`;
+  if (field.type === "payment") {
+    const currencySelect = `<select name="${id}_currency">${currencyCodes.map((currency) => `<option value="${currency}"${currency === (field.settings?.currency ?? "USD") ? " selected" : ""}>${currency}</option>`).join("")}</select>`;
+    return `<label>${label}<div class="payment-row">${currencySelect}<input type="number" name="${id}" min="0" step="0.01" placeholder="0.00"${required} /></div></label>${helper}`;
+  }
   const type = field.type === "phone" ? "tel" : field.type;
   return `<label>${label}<input type="${type}" name="${id}" placeholder="${placeholder}"${required} /></label>${helper}`;
 }
@@ -133,6 +137,7 @@ export function exportHtml(form: FormSchema) {
     textarea { min-height: 120px; }
     .choice { display: flex; align-items: center; gap: 8px; font-weight: 500; }
     .choice input { width: auto; }
+    .payment-row { display: grid; grid-template-columns: 132px 1fr; gap: 8px; }
     .helper, p { color: #667085; line-height: 1.6; }
     .section { margin-top: 28px; }
     button { margin-top: 24px; border: 0; border-radius: 12px; padding: 12px 18px; background: #111418; color: #fff; font-weight: 700; }
@@ -202,7 +207,7 @@ function renderReactField(field: FormField) {
   if (field.type === "daterange") return `      <fieldset><legend>${label}</legend><input type="date" name="${key}_start" /><input type="date" name="${key}_end" /></fieldset>`;
   if (field.type === "slider") return `      <label>${label}<input type="range" name="${key}" min="${field.settings?.sliderMin ?? 0}" max="${field.settings?.sliderMax ?? 100}" step="${field.settings?.sliderStep ?? 1}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
   if (field.type === "matrix") return `      <fieldset><legend>${label}</legend><p>Matrix response: ${field.settings?.matrixRows?.join(", ") ?? ""}</p></fieldset>`;
-  if (field.type === "payment") return `      <label>${label}<input type="number" min="0" step="0.01" name="${key}" placeholder="${field.settings?.currency ?? "USD"} amount" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
+  if (field.type === "payment") return `      <label>${label}<select name="${key}_currency">${currencyCodes.map((currency) => `<option value="${currency}"${currency === (field.settings?.currency ?? "USD") ? " selected" : ""}>${currency}</option>`).join("")}</select><input type="number" min="0" step="0.01" name="${key}" placeholder="0.00" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: Number(event.target.value) })} /></label>`;
   const type = field.type === "phone" ? "tel" : field.type;
   return `      <label>${label}<input type="${type}" name="${key}" placeholder="${placeholder}" onChange={(event) => setValues({ ...values, ${quotedKey(field)}: event.target.value })} /></label>`;
 }
