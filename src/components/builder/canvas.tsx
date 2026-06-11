@@ -117,11 +117,13 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
       data-testid="builder-canvas-field"
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "group card-hover relative rounded-xl border bg-white p-4 shadow-sm",
+        "group card-hover relative cursor-grab rounded-xl border bg-white p-4 shadow-sm active:cursor-grabbing",
         selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
         isDragging && "opacity-50"
       )}
       onClick={handleSelect}
+      {...listeners}
+      {...attributes}
     >
       <span
         className={cn(
@@ -130,9 +132,9 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
         )}
       />
       <div className="flex items-start gap-3">
-        <button className="mt-1 text-[#a1aab7]" type="button" {...listeners} {...attributes} aria-label="Reorder field">
+        <div className="mt-1 text-[#a1aab7] transition group-hover:text-[#667085]" aria-hidden="true">
           <GripVertical size={18} />
-        </button>
+        </div>
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-[#e9f7f5] px-2 py-1 text-xs font-semibold text-[#0f766e]">Step {field.step ?? 1}</span>
@@ -165,7 +167,7 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
             </div>
           )}
         </div>
-        <div className={cn("flex opacity-0 transition group-hover:opacity-100", selected && "opacity-100")}>
+        <div className={cn("flex opacity-0 transition group-hover:opacity-100", selected && "opacity-100")} onPointerDown={(event) => event.stopPropagation()}>
           <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); duplicateField(field.id); }} aria-label="Duplicate field">
             <Copy size={16} />
           </Button>
