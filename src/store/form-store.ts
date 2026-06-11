@@ -16,6 +16,7 @@ type FormStore = {
   updateField: (id: string, updates: Partial<FormField>) => void;
   duplicateField: (id: string) => void;
   deleteField: (id: string) => void;
+  deleteForm: () => void;
   reorderFields: (from: number, to: number) => void;
   replaceForm: (form: FormSchema) => void;
   addSubmission: (values: Record<string, unknown>) => void;
@@ -70,6 +71,12 @@ export const useFormStore = create<FormStore>()(
         set((state) => ({
           form: stamp({ ...state.form, fields: state.form.fields.filter((field) => field.id !== id) }),
           selectedFieldId: state.selectedFieldId === id ? null : state.selectedFieldId
+        })),
+      deleteForm: () =>
+        set((state) => ({
+          form: stamp({ ...state.form, fields: [] }),
+          selectedFieldId: null,
+          submissions: []
         })),
       reorderFields: (from, to) =>
         set((state) => {

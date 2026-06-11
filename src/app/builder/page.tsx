@@ -3,7 +3,7 @@
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { Download, Eye, FileUp, Save } from "lucide-react";
+import { Download, Eye, FileUp, Save, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppShell } from "@/components/app-shell";
@@ -34,6 +34,7 @@ export default function BuilderPage() {
   const addField = useFormStore((state) => state.addField);
   const reorderFields = useFormStore((state) => state.reorderFields);
   const replaceForm = useFormStore((state) => state.replaceForm);
+  const deleteForm = useFormStore((state) => state.deleteForm);
   const [saved, setSaved] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -99,6 +100,16 @@ export default function BuilderPage() {
     void extension;
   };
 
+  const handleDeleteForm = () => {
+    if (form.fields.length === 0) return;
+
+    const confirmed = window.confirm("Delete all fields from this form? This will clear the canvas and local submissions.");
+    if (!confirmed) return;
+
+    setExportOpen(false);
+    deleteForm();
+  };
+
   return (
     <AppShell>
       <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -156,6 +167,10 @@ export default function BuilderPage() {
               <Button type="button" variant="secondary" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 1600); }}>
                 <Save size={16} />
                 {saved ? "Saved" : "Save"}
+              </Button>
+              <Button type="button" variant="danger" onClick={handleDeleteForm} disabled={form.fields.length === 0}>
+                <Trash2 size={16} />
+                Delete form
               </Button>
               <Link href="/preview" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-white">
                 <Eye size={16} />
