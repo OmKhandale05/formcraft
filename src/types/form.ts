@@ -56,6 +56,12 @@ export type FormField = {
     matrixColumns?: string[];
     hiddenValue?: string;
     currency?: string;
+    formulaMode?: "simple" | "advanced";
+    formulaInputA?: string;
+    formulaInputB?: string;
+    formulaOperator?: "add" | "subtract" | "multiply" | "divide" | "average" | "percent" | "percentIncrease";
+    formulaUseCustomValue?: boolean;
+    formulaCustomValue?: number;
     formulaExpression?: string;
     formulaFormat?: "number" | "currency" | "percent" | "text";
     formulaPrecision?: number;

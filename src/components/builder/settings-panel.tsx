@@ -59,6 +59,10 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
       matrixColumns: nextType === "matrix" ? field.settings?.matrixColumns ?? ["Poor", "Average", "Great"] : field.settings?.matrixColumns,
       hiddenValue: nextType === "hidden" ? field.settings?.hiddenValue ?? "utm_source=portfolio" : field.settings?.hiddenValue,
       currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency,
+      formulaMode: nextType === "formula" ? field.settings?.formulaMode ?? "simple" : field.settings?.formulaMode,
+      formulaOperator: nextType === "formula" ? field.settings?.formulaOperator ?? "add" : field.settings?.formulaOperator,
+      formulaUseCustomValue: nextType === "formula" ? field.settings?.formulaUseCustomValue ?? false : field.settings?.formulaUseCustomValue,
+      formulaCustomValue: nextType === "formula" ? field.settings?.formulaCustomValue ?? 0 : field.settings?.formulaCustomValue,
       formulaExpression: nextType === "formula" ? field.settings?.formulaExpression ?? "0" : field.settings?.formulaExpression,
       formulaFormat: nextType === "formula" ? field.settings?.formulaFormat ?? "number" : field.settings?.formulaFormat,
       formulaPrecision: nextType === "formula" ? field.settings?.formulaPrecision ?? 2 : field.settings?.formulaPrecision,
@@ -337,41 +341,153 @@ function FormulaSettings({
   fields: FormField[];
   onChange: (settings: NonNullable<FormField["settings"]>) => void;
 }) {
-  const formulaFields = fields.filter((item) => item.id !== field.id && !["section", "divider", "file", "signature", "richtext", "matrix"].includes(item.type));
+  const formulaFields = fields.filter((item) => item.id !== field.id && !["section", "divider", "file", "signature", "richtext", "matrix", "formula"].includes(item.type));
   const expression = field.settings?.formulaExpression ?? "";
+  const mode = field.settings?.formulaMode ?? "simple";
+  const operator = field.settings?.formulaOperator ?? "add";
+  const inputA = field.settings?.formulaInputA ?? formulaFields[0]?.id ?? "";
+  const inputB = field.settings?.formulaInputB ?? formulaFields[1]?.id ?? formulaFields[0]?.id ?? "";
+  const useCustomValue = Boolean(field.settings?.formulaUseCustomValue);
+  const customValue = field.settings?.formulaCustomValue ?? 0;
+
+  const buildExpression = (next: {
+    formulaInputA?: string;
+    formulaInputB?: string;
+    formulaOperator?: NonNullable<FormField["settings"]>["formulaOperator"];
+    formulaUseCustomValue?: boolean;
+    formulaCustomValue?: number;
+  }) => {
+    const nextInputA = next.formulaInputA ?? inputA;
+    const nextInputB = next.formulaInputB ?? inputB;
+    const nextOperator = next.formulaOperator ?? operator;
+    const nextUseCustomValue = next.formulaUseCustomValue ?? useCustomValue;
+    const nextCustomValue = next.formulaCustomValue ?? customValue;
+    const left = nextInputA ? `{${nextInputA}}` : "0";
+    const right = nextUseCustomValue ? String(nextCustomValue || 0) : nextInputB ? `{${nextInputB}}` : "0";
+
+    if (nextOperator === "subtract") return `${left} - ${right}`;
+    if (nextOperator === "multiply") return `${left} * ${right}`;
+    if (nextOperator === "divide") return `${left} / ${right}`;
+    if (nextOperator === "average") return `avg(${left}, ${right})`;
+    if (nextOperator === "percent") return `(${left} / ${right}) * 100`;
+    if (nextOperator === "percentIncrease") return `((${right} - ${left}) / ${left}) * 100`;
+    return `${left} + ${right}`;
+  };
+
+  const updateSimpleFormula = (updates: NonNullable<FormField["settings"]>) => {
+    onChange({
+      ...updates,
+      formulaMode: "simple",
+      formulaExpression: buildExpression(updates)
+    });
+  };
+
   const insertVariable = (fieldId: string) => {
-    onChange({ formulaExpression: `${expression}${expression.endsWith(" ") || !expression ? "" : " "}{${fieldId}}` });
+    onChange({ formulaMode: "advanced", formulaExpression: `${expression}${expression.endsWith(" ") || !expression ? "" : " "}{${fieldId}}` });
   };
 
   return (
     <div className="space-y-4 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
-      <div>
-        <Label htmlFor="formula-expression">Formula expression</Label>
-        <Textarea
-          id="formula-expression"
-          className="mt-2 min-h-24 font-mono text-xs"
-          value={expression}
-          placeholder="{attendees} * 49 + {addons}"
-          onChange={(event) => onChange({ formulaExpression: event.target.value })}
-        />
-        <p className="mt-2 text-xs leading-5 text-[#667085]">Use field IDs in braces. Supports +, -, *, /, parentheses, min, max, avg, round, ceil, floor and abs.</p>
+      <div className="flex rounded-xl border border-[#d8e0ea] bg-[#f8fafc] p-1">
+        <button
+          type="button"
+          className={`h-8 flex-1 rounded-lg text-sm font-semibold transition ${mode === "simple" ? "bg-white text-[#3157d5] shadow-sm" : "text-[#667085] hover:text-[#111418]"}`}
+          onClick={() => onChange({ formulaMode: "simple", formulaExpression: buildExpression({}) })}
+        >
+          Simple
+        </button>
+        <button
+          type="button"
+          className={`h-8 flex-1 rounded-lg text-sm font-semibold transition ${mode === "advanced" ? "bg-white text-[#3157d5] shadow-sm" : "text-[#667085] hover:text-[#111418]"}`}
+          onClick={() => onChange({ formulaMode: "advanced" })}
+        >
+          Advanced
+        </button>
       </div>
-      <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Insert variable</p>
-        <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
-          {formulaFields.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="rounded-lg border border-[#d8e0ea] bg-white px-2.5 py-1 text-xs font-semibold text-[#465366] transition hover:border-[#3157d5] hover:text-[#3157d5]"
-              onClick={() => insertVariable(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-          {!formulaFields.length && <span className="text-xs text-[#667085]">Add input fields first.</span>}
+
+      {mode === "simple" ? (
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="formula-input-a">First field</Label>
+            <Select id="formula-input-a" className="mt-2" value={inputA} onChange={(event) => updateSimpleFormula({ formulaInputA: event.target.value })}>
+              <option value="">Choose field</option>
+              {formulaFields.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label} ({item.type})
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="formula-operator">Calculation</Label>
+            <Select id="formula-operator" className="mt-2" value={operator} onChange={(event) => updateSimpleFormula({ formulaOperator: event.target.value as NonNullable<FormField["settings"]>["formulaOperator"] })}>
+              <option value="add">Add</option>
+              <option value="subtract">Subtract</option>
+              <option value="multiply">Multiply</option>
+              <option value="divide">Divide</option>
+              <option value="average">Average</option>
+              <option value="percent">First as % of second</option>
+              <option value="percentIncrease">% change from first to second</option>
+            </Select>
+          </div>
+          <div className="rounded-xl border border-[#d8e0ea] bg-[#fbfcfe] p-3">
+            <label className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#1f2937]">
+              <input type="checkbox" checked={useCustomValue} onChange={(event) => updateSimpleFormula({ formulaUseCustomValue: event.target.checked })} />
+              Use custom number instead of second field
+            </label>
+            {useCustomValue ? (
+              <Input type="number" value={customValue} onChange={(event) => updateSimpleFormula({ formulaCustomValue: Number(event.target.value) || 0 })} />
+            ) : (
+              <>
+                <Label htmlFor="formula-input-b">Second field</Label>
+                <Select id="formula-input-b" className="mt-2" value={inputB} onChange={(event) => updateSimpleFormula({ formulaInputB: event.target.value })}>
+                  <option value="">Choose field</option>
+                  {formulaFields.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label} ({item.type})
+                    </option>
+                  ))}
+                </Select>
+              </>
+            )}
+          </div>
+          <div className="rounded-xl border border-[#d8e0ea] bg-white p-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Generated formula</p>
+            <p className="mt-2 break-words font-mono text-xs text-[#111418]">{buildExpression({})}</p>
+          </div>
+          {!formulaFields.length && <p className="text-xs leading-5 text-[#dc2626]">Add at least one input field before this formula.</p>}
         </div>
-      </div>
+      ) : (
+        <>
+          <div>
+            <Label htmlFor="formula-expression">Formula expression</Label>
+            <Textarea
+              id="formula-expression"
+              className="mt-2 min-h-24 font-mono text-xs"
+              value={expression}
+              placeholder="{attendees} * 49 + {addons}"
+              onChange={(event) => onChange({ formulaMode: "advanced", formulaExpression: event.target.value })}
+            />
+            <p className="mt-2 text-xs leading-5 text-[#667085]">Use field IDs in braces. Supports +, -, *, /, parentheses, min, max, avg, round, ceil, floor and abs.</p>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Insert canvas field</p>
+            <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
+              {formulaFields.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="rounded-lg border border-[#d8e0ea] bg-white px-2.5 py-1 text-xs font-semibold text-[#465366] transition hover:border-[#3157d5] hover:text-[#3157d5]"
+                  onClick={() => insertVariable(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+              {!formulaFields.length && <span className="text-xs text-[#667085]">Add input fields first.</span>}
+            </div>
+          </div>
+        </>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="formula-format">Format</Label>
