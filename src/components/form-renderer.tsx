@@ -429,7 +429,7 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     { command: "underline", label: "Underline", icon: Underline },
     { command: "insertUnorderedList", label: "Bullet list", icon: List },
     { command: "insertOrderedList", label: "Numbered list", icon: ListOrdered },
-    { command: "formatBlock", value: "blockquote", label: "Quote", icon: Quote },
+    { command: "quoteText", label: "Quote", icon: Quote },
     { command: "removeFormat", label: "Clear", icon: Eraser }
   ];
 
@@ -438,7 +438,12 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
     if (!editor) return;
 
     editor.focus();
-    document.execCommand(command, false, value);
+    if (command === "quoteText") {
+      const selection = window.getSelection()?.toString();
+      document.execCommand("insertText", false, selection ? `"${selection}"` : "\"\"");
+    } else {
+      document.execCommand(command, false, value);
+    }
     setValue(field.id, editor.innerHTML, { shouldDirty: true, shouldValidate: true });
   };
 
@@ -456,7 +461,7 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
               dark ? "text-white/75 hover:bg-white/10 hover:text-white" : "text-[#465366] hover:bg-[#eef2f7] hover:text-[#111418]"
             )}
             onMouseDown={(event) => event.preventDefault()}
-            onClick={() => runCommand(item.command, item.value)}
+            onClick={() => runCommand(item.command)}
           >
             <item.icon size={13} />
             <span className="hidden sm:inline">{item.label}</span>
