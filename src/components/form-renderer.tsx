@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Bold, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bold, CheckCircle2, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
 import { useMemo, useRef, useState, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
@@ -56,6 +56,12 @@ function buildZodSchema(fields: FormField[]) {
   );
 }
 
+function validationNamesForField(field: FormField) {
+  if (["section", "divider", "hidden", "file"].includes(field.type)) return [];
+  if (field.type === "daterange") return [`${field.id}.start`, `${field.id}.end`];
+  return [field.id];
+}
+
 type FormRendererProps = {
   form: FormSchema;
   onSubmit?: (values: Record<string, unknown>) => void;
@@ -64,12 +70,25 @@ type FormRendererProps = {
 
 export function FormRenderer({ form, onSubmit, compact = false }: FormRendererProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const schema = useMemo(() => buildZodSchema(form.fields), [form.fields]);
+  const steps = useMemo(() => {
+    const uniqueSteps = Array.from(new Set(form.fields.map((field) => field.step ?? 1))).sort((a, b) => a - b);
+    return uniqueSteps.length ? uniqueSteps : [1];
+  }, [form.fields]);
+  const activeStepIndex = Math.min(currentStepIndex, steps.length - 1);
+  const currentStep = steps[activeStepIndex] ?? steps[0];
+  const isMultiStep = steps.length > 1;
+  const currentStepFields = form.fields.filter((field) => (field.step ?? 1) === currentStep || field.type === "hidden");
+  const currentVisibleFields = currentStepFields.filter((field) => field.type !== "hidden");
+  const stepSection = currentVisibleFields.find((field) => field.type === "section");
+  const progress = ((activeStepIndex + 1) / steps.length) * 100;
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    trigger,
     formState: { errors }
   } = useForm<Record<string, unknown>>({
     resolver: zodResolver(schema),
@@ -89,6 +108,13 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
 
   const isDark = form.theme.mode === "dark";
   const rounded = form.theme.radius === "rounded";
+  const currentStepValidationNames = currentStepFields.flatMap(validationNamesForField);
+
+  const goToNextStep = async () => {
+    const valid = await trigger(currentStepValidationNames);
+    if (!valid) return;
+    setCurrentStepIndex((index) => Math.min(index + 1, steps.length - 1));
+  };
 
   if (submitted) {
     return (
@@ -130,8 +156,36 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         <h1 className={cn("font-semibold", compact ? "text-xl" : "text-2xl")}>{form.title}</h1>
         <p className={cn("mt-2 text-sm leading-6", isDark ? "text-white/65" : "text-[#68707d]")}>{form.description}</p>
       </div>
+
+      {isMultiStep && (
+        <div className={cn("mb-6 rounded-2xl border p-4", isDark ? "border-white/10 bg-white/5" : "border-[#e5e9ef] bg-[#f8fafc]")}>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-white/45" : "text-[#98a2b3]")}>
+                Step {activeStepIndex + 1} of {steps.length}
+              </p>
+              <h2 className="mt-1 text-base font-semibold">{stepSection?.label ?? `Step ${currentStep}`}</h2>
+            </div>
+            <div className="flex gap-1.5">
+              {steps.map((step, index) => (
+                <span
+                  key={step}
+                  className={cn(
+                    "h-2.5 w-2.5 rounded-full transition",
+                    index <= activeStepIndex ? "bg-[var(--accent)]" : isDark ? "bg-white/16" : "bg-[#d8e0ea]"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+          <div className={cn("h-2 overflow-hidden rounded-full", isDark ? "bg-white/10" : "bg-[#e5e9ef]")}>
+            <div className="h-full rounded-full bg-[var(--accent)] transition-all duration-300" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+      )}
+
       <div className="space-y-5">
-        {form.fields.map((field) => (
+        {currentStepFields.map((field) => (
           <RenderedField
             key={field.id}
             field={field}
@@ -144,9 +198,32 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
           />
         ))}
       </div>
-      <Button type="submit" variant="primary" className="mt-7 w-full sm:w-auto">
-        Submit response
-      </Button>
+      <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
+        {isMultiStep && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={activeStepIndex === 0}
+            onClick={() => setCurrentStepIndex((index) => Math.max(index - 1, 0))}
+          >
+            <ArrowLeft size={16} />
+            Back
+          </Button>
+        )}
+        <div className="ml-auto">
+          {isMultiStep && activeStepIndex < steps.length - 1 ? (
+            <Button type="button" variant="primary" onClick={goToNextStep}>
+              Continue
+              <ArrowRight size={16} />
+            </Button>
+          ) : (
+            <Button type="submit" variant="primary" className="w-full sm:w-auto">
+              <CheckCircle2 size={16} />
+              Submit response
+            </Button>
+          )}
+        </div>
+      </div>
     </form>
   );
 }
