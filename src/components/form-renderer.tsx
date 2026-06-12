@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Bold, Calculator, CheckCircle2, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bold, Calculator, Check, CheckCircle2, ChevronDown, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
@@ -276,13 +276,16 @@ function RenderedField({
       )}
       {field.type === "phone" && (
         <div className="grid grid-cols-[minmax(136px,168px)_minmax(0,1fr)] gap-2 max-sm:grid-cols-1">
-          <Select aria-label={`${field.label} country code`} className={inputClass} defaultValue={field.settings?.countryCode ?? "+91"} {...register(`${field.id}_country`)}>
-            {phoneCountries.map((country) => (
-              <option key={`${country.code}-${country.country}`} value={country.code}>
-                {country.flag} {country.code}
-              </option>
-            ))}
-          </Select>
+          <PhoneCountrySelect
+            name={`${field.id}_country`}
+            defaultValue={field.settings?.countryCode ?? "+91"}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            dark={dark}
+            rounded={rounded}
+            label={field.label}
+          />
           <Input id={field.id} type="tel" placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
         </div>
       )}
@@ -373,6 +376,79 @@ function RenderedField({
       )}
       {field.helperText && <p className={cn("mt-1.5 text-xs", dark ? "text-white/50" : "text-[#68707d]")}>{field.helperText}</p>}
       {error && <p className="mt-1.5 text-xs font-medium text-[#dc2626]">{error}</p>}
+    </div>
+  );
+}
+
+function PhoneCountrySelect({
+  name,
+  defaultValue,
+  register,
+  setValue,
+  watch,
+  dark,
+  rounded,
+  label
+}: {
+  name: string;
+  defaultValue: string;
+  register: UseFormRegister<Record<string, unknown>>;
+  setValue: UseFormSetValue<Record<string, unknown>>;
+  watch: UseFormWatch<Record<string, unknown>>;
+  dark: boolean;
+  rounded: boolean;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedValue = String(watch(name) || defaultValue);
+  const selectedCountry = phoneCountries.find((country) => country.code === selectedValue) ?? phoneCountries.find((country) => country.code === defaultValue) ?? phoneCountries[0];
+
+  useEffect(() => {
+    setValue(name, selectedCountry.code, { shouldDirty: false, shouldValidate: false });
+  }, [name, selectedCountry.code, setValue]);
+
+  return (
+    <div className="relative">
+      <input type="hidden" {...register(name)} />
+      <button
+        type="button"
+        aria-label={`${label} country code`}
+        aria-expanded={open}
+        className={cn(
+          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm text-[#111827] shadow-sm transition focus:border-[var(--accent)] focus:bg-white focus:outline-none",
+          !rounded && "rounded-none",
+          dark && "border-white/15 bg-white/5 text-white"
+        )}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="truncate font-semibold">{selectedCountry.flag} {selectedCountry.code}</span>
+        <ChevronDown size={16} className={cn("shrink-0 text-[#667085] transition", open && "rotate-180", dark && "text-white/55")} />
+      </button>
+      {open && (
+        <div className={cn("absolute left-0 top-11 z-30 max-h-64 w-72 overflow-y-auto rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-xl", dark && "border-white/15 bg-[#151922]")}>
+          {phoneCountries.map((country) => {
+            const selected = country.code === selectedCountry.code;
+            return (
+              <button
+                key={`${country.code}-${country.country}`}
+                type="button"
+                className={cn(
+                  "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-[#f1f5f9]",
+                  selected ? "bg-[#eef4ff] font-semibold text-[#1d3fbf]" : "text-[#283140]",
+                  dark && (selected ? "bg-white/10 text-white" : "text-white/78 hover:bg-white/10")
+                )}
+                onClick={() => {
+                  setValue(name, country.code, { shouldDirty: true, shouldValidate: true });
+                  setOpen(false);
+                }}
+              >
+                <span className="min-w-0 truncate">{country.flag} {country.code} {country.country}</span>
+                {selected && <Check size={15} className="shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
