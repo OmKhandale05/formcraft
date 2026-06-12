@@ -255,8 +255,8 @@ function ResizeHandle({ label, onPointerDown }: { label: string; onPointerDown: 
       className="group relative hidden min-h-0 cursor-col-resize items-center justify-center bg-transparent outline-none lg:flex"
       onPointerDown={onPointerDown}
     >
-      <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-transparent transition group-hover:bg-[#d8e0ea]/60 group-focus-visible:bg-[#3157d5]/45" />
-      <span className="relative z-10 flex h-14 w-8 items-center justify-center rounded-full border border-[#d8e0ea] bg-white/95 text-[#667085] shadow-[0_10px_28px_rgba(17,24,39,0.12)] transition group-hover:-translate-y-0.5 group-hover:border-[#b8c4d4] group-hover:text-[#3157d5] group-hover:shadow-[0_14px_34px_rgba(49,87,213,0.18)] group-focus-visible:ring-4 group-focus-visible:ring-[#3157d5]/15">
+      <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#d8e0ea] transition group-hover:bg-[#b8c4d4] group-focus-visible:bg-[#3157d5]/55" />
+      <span className="relative z-10 flex h-14 w-8 items-center justify-center rounded-full border border-[#d8e0ea] bg-white text-[#667085] shadow-[0_8px_22px_rgba(17,24,39,0.1)] transition group-hover:border-[#b8c4d4] group-hover:text-[#3157d5] group-hover:shadow-[0_12px_30px_rgba(49,87,213,0.16)] group-focus-visible:ring-4 group-focus-visible:ring-[#3157d5]/15">
         <GripVertical size={18} />
       </span>
     </button>
