@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { evaluateFormula, formatFormulaValue } from "@/lib/formula";
+import { phoneCountries } from "@/lib/phone-countries";
 import { cn } from "@/lib/utils";
 import type { FormField, FormSchema } from "@/types/form";
 
@@ -274,11 +275,11 @@ function RenderedField({
         <Input id={field.id} type={field.type === "phone" ? "tel" : field.type} placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
       )}
       {field.type === "phone" && (
-        <div className="grid grid-cols-[104px_minmax(0,1fr)] gap-2">
-          <Select className={inputClass} defaultValue={field.settings?.countryCode ?? "+91"} {...register(`${field.id}_country`)}>
-            {["+91", "+1", "+44", "+61", "+971"].map((code) => (
-              <option key={code} value={code}>
-                {code}
+        <div className="grid grid-cols-[minmax(136px,168px)_minmax(0,1fr)] gap-2 max-sm:grid-cols-1">
+          <Select aria-label={`${field.label} country code`} className={inputClass} defaultValue={field.settings?.countryCode ?? "+91"} {...register(`${field.id}_country`)}>
+            {phoneCountries.map((country) => (
+              <option key={`${country.code}-${country.country}`} value={country.code}>
+                {country.flag} {country.code} {country.country}
               </option>
             ))}
           </Select>

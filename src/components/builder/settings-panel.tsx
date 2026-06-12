@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { fieldCatalog, fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
+import { phoneCountries } from "@/lib/phone-countries";
 import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
@@ -248,9 +249,16 @@ export function FieldSettingsPanel() {
           </div>
         )}
         {field.type === "phone" && (
-          <div>
-            <Label htmlFor="country-code">Default country code</Label>
-            <Input id="country-code" className="mt-2" value={field.settings?.countryCode ?? ""} onChange={(event) => updateField(field.id, { settings: { ...field.settings, countryCode: event.target.value } })} />
+          <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+            <Label htmlFor="country-code">Default country</Label>
+            <Select id="country-code" className="mt-2" value={field.settings?.countryCode ?? "+91"} onChange={(event) => updateField(field.id, { settings: { ...field.settings, countryCode: event.target.value } })}>
+              {phoneCountries.map((country) => (
+                <option key={`${country.code}-${country.country}`} value={country.code}>
+                  {country.flag} {country.code} {country.country}
+                </option>
+              ))}
+            </Select>
+            <p className="mt-2 text-xs leading-5 text-[#667085]">Shows a flag and dial code in the preview phone input.</p>
           </div>
         )}
         {field.type === "slider" && (
