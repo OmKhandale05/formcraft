@@ -477,14 +477,31 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
                   </span>
                   Column {index + 1}
                 </div>
-                <button
-                  type="button"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#e11d48] transition hover:bg-[#ffe4e9]"
-                  onClick={() => onChange({ matrixColumns: columns.filter((_, columnIndex) => columnIndex !== index) })}
-                  aria-label="Delete column"
-                >
-                  <Trash2 size={14} />
-                </button>
+                <div className="flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#667085] transition hover:border-[#3157d5] hover:text-[#3157d5]"
+                    onClick={() => {
+                      const copyName = `${column} copy`;
+                      onChange({
+                        matrixColumns: [...columns.slice(0, index + 1), copyName, ...columns.slice(index + 1)],
+                        matrixColumnDescriptions: { ...columnDescriptions, [copyName]: columnDescriptions[column] ?? "" },
+                        matrixColumnWidths: { ...columnWidths, [copyName]: columnWidths[column] ?? 160 }
+                      });
+                    }}
+                    aria-label="Duplicate column"
+                  >
+                    <Copy size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#e11d48] transition hover:bg-[#ffe4e9]"
+                    onClick={() => onChange({ matrixColumns: columns.filter((_, columnIndex) => columnIndex !== index) })}
+                    aria-label="Delete column"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
               <Input value={column} className="w-full" onChange={(event) => updateColumn(index, event.target.value)} />
               <div className="grid gap-3">
