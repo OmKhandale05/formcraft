@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, GripVertical, Moon, Palette, Plus, Square, Sun, Trash2, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -340,6 +340,8 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
   const columnWidths = field.settings?.matrixColumnWidths ?? {};
   const draggedRow = useRef<number | null>(null);
   const draggedColumn = useRef<number | null>(null);
+  const [rowDropIndex, setRowDropIndex] = useState<number | null>(null);
+  const [columnDropIndex, setColumnDropIndex] = useState<number | null>(null);
 
   const updateRow = (index: number, value: string) => onChange({ matrixRows: rows.map((row, rowIndex) => (rowIndex === index ? value : row)) });
   const updateColumn = (index: number, value: string) => {
@@ -394,19 +396,36 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
           {rows.map((row, index) => (
             <div
               key={`${row}-${index}`}
-              draggable
-              onDragStart={() => { draggedRow.current = index; }}
-              onDragOver={(event) => event.preventDefault()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                if (draggedRow.current !== null && draggedRow.current !== index) setRowDropIndex(index);
+              }}
+              onDragLeave={() => setRowDropIndex(null)}
               onDrop={() => {
                 if (draggedRow.current === null || draggedRow.current === index) return;
                 onChange({ matrixRows: moveItem(rows, draggedRow.current, index) });
                 draggedRow.current = null;
+                setRowDropIndex(null);
               }}
-              className="group rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white"
+              className={`group rounded-2xl border bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white ${
+                rowDropIndex === index ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#d8e0ea]"
+              }`}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-semibold text-[#667085]">
-                  <span className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
+                  <span
+                    draggable
+                    onDragStart={(event) => {
+                      draggedRow.current = index;
+                      event.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragEnd={() => {
+                      draggedRow.current = null;
+                      setRowDropIndex(null);
+                    }}
+                    className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3] active:cursor-grabbing"
+                    title="Drag to reorder row"
+                  >
                     <GripVertical size={15} />
                   </span>
                   Row {index + 1}
@@ -460,19 +479,36 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
           {columns.map((column, index) => (
             <div
               key={`${column}-${index}`}
-              draggable
-              onDragStart={() => { draggedColumn.current = index; }}
-              onDragOver={(event) => event.preventDefault()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                if (draggedColumn.current !== null && draggedColumn.current !== index) setColumnDropIndex(index);
+              }}
+              onDragLeave={() => setColumnDropIndex(null)}
               onDrop={() => {
                 if (draggedColumn.current === null || draggedColumn.current === index) return;
                 onChange({ matrixColumns: moveItem(columns, draggedColumn.current, index) });
                 draggedColumn.current = null;
+                setColumnDropIndex(null);
               }}
-              className="space-y-3 rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white"
+              className={`space-y-3 rounded-2xl border bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white ${
+                columnDropIndex === index ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#d8e0ea]"
+              }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-semibold text-[#667085]">
-                  <span className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
+                  <span
+                    draggable
+                    onDragStart={(event) => {
+                      draggedColumn.current = index;
+                      event.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragEnd={() => {
+                      draggedColumn.current = null;
+                      setColumnDropIndex(null);
+                    }}
+                    className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3] active:cursor-grabbing"
+                    title="Drag to reorder column"
+                  >
                     <GripVertical size={15} />
                   </span>
                   Column {index + 1}
