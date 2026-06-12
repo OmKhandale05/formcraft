@@ -349,6 +349,8 @@ function FormulaSettings({
   const useCustomValue = Boolean(field.settings?.formulaUseCustomValue);
   const customValue = field.settings?.formulaCustomValue ?? 0;
   const numberedLabel = (item: FormField, index: number) => `${index + 1}. ${item.label} (${item.type})`;
+  const exampleA = formulaFields[0]?.id ?? "First field";
+  const exampleB = formulaFields[1]?.id ?? formulaFields[0]?.id ?? "Second field";
 
   const buildExpression = (next: {
     formulaInputA?: string;
@@ -441,42 +443,51 @@ function FormulaSettings({
             </>
           )}
         </div>
-        <div className="rounded-xl border border-[#d8e0ea] bg-white p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Canvas fields</p>
-          <div className="mt-2 grid gap-1.5">
-            {formulaFields.map((item, index) => (
-              <div key={item.id} className="flex items-center gap-2 rounded-lg bg-[#f8fafc] px-2.5 py-1.5 text-xs text-[#465366]">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#111418] text-[10px] font-bold text-white">{index + 1}</span>
-                <span className="truncate font-semibold">{item.label}</span>
-                <span className="ml-auto text-[#98a2b3]">{item.type}</span>
-              </div>
-            ))}
-            {!formulaFields.length && <p className="text-xs leading-5 text-[#dc2626]">Add at least one input field before this formula.</p>}
-          </div>
-        </div>
+        {!formulaFields.length && <p className="text-xs leading-5 text-[#dc2626]">Add at least one input field before this formula.</p>}
       </div>
 
       <details className="rounded-xl border border-[#d8e0ea] bg-white p-3">
-        <summary className="cursor-pointer text-sm font-semibold text-[#465366]">Need a custom formula?</summary>
-        <div className="mt-3 space-y-3">
+        <summary className="cursor-pointer text-sm font-semibold text-[#465366]">Need a custom formula? Open guide</summary>
+        <div className="mt-3 space-y-4">
+          <div className="rounded-xl border border-[#d8e0ea] bg-[#f8fafc] p-3 text-xs leading-5 text-[#667085]">
+            <p className="font-semibold text-[#111418]">How it works</p>
+            <p className="mt-1">1. Click a field button below to insert it into the formula.</p>
+            <p>2. Add math symbols like +, -, *, / between fields.</p>
+            <p>3. Preview will calculate the answer live.</p>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">Insert field</p>
+            <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
+              {formulaFields.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="rounded-lg border border-[#d8e0ea] bg-white px-2.5 py-1 text-xs font-semibold text-[#465366] transition hover:border-[#3157d5] hover:text-[#3157d5]"
+                  onClick={() => insertVariable(item.id)}
+                >
+                  {index + 1}. {item.label}
+                </button>
+              ))}
+              {!formulaFields.length && <span className="text-xs text-[#667085]">Add input fields first.</span>}
+            </div>
+          </div>
           <Textarea
             className="min-h-24 font-mono text-xs"
             value={expression}
-            placeholder="{field_one} * 49 + {field_two}"
+            placeholder="{Price} * {Quantity}"
             onChange={(event) => onChange({ formulaMode: "advanced", formulaExpression: event.target.value })}
           />
-          <p className="text-xs leading-5 text-[#667085]">Optional. Use this only when the guided builder cannot handle your calculation.</p>
-          <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
-            {formulaFields.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                className="rounded-lg border border-[#d8e0ea] bg-white px-2.5 py-1 text-xs font-semibold text-[#465366] transition hover:border-[#3157d5] hover:text-[#3157d5]"
-                onClick={() => insertVariable(item.id)}
-              >
-                {index + 1}. {item.label}
-              </button>
-            ))}
+          <div className="grid gap-2 text-xs text-[#667085]">
+            <p className="font-semibold text-[#111418]">Examples</p>
+            <button type="button" className="rounded-lg bg-[#f8fafc] px-2.5 py-2 text-left font-mono hover:bg-[#eef2f7]" onClick={() => onChange({ formulaMode: "advanced", formulaExpression: `{${exampleA}} * {${exampleB}}` })}>
+              {`{${exampleA}} * {${exampleB}}`} <span className="font-sans text-[#667085]">total cost</span>
+            </button>
+            <button type="button" className="rounded-lg bg-[#f8fafc] px-2.5 py-2 text-left font-mono hover:bg-[#eef2f7]" onClick={() => onChange({ formulaMode: "advanced", formulaExpression: `({${exampleA}} / {${exampleB}}) * 100` })}>
+              {`({${exampleA}} / {${exampleB}}) * 100`} <span className="font-sans text-[#667085]">percentage</span>
+            </button>
+            <button type="button" className="rounded-lg bg-[#f8fafc] px-2.5 py-2 text-left font-mono hover:bg-[#eef2f7]" onClick={() => onChange({ formulaMode: "advanced", formulaExpression: `avg({${exampleA}}, {${exampleB}})` })}>
+              {`avg({${exampleA}}, {${exampleB}})`} <span className="font-sans text-[#667085]">average</span>
+            </button>
           </div>
         </div>
       </details>
