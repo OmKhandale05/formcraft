@@ -671,71 +671,73 @@ function MatrixField({
   const borderColor = field.settings?.matrixBorderColor;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[#d8e0ea]" style={{ borderColor }}>
-      <table className="w-full min-w-[460px] border-collapse text-sm">
-        <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor }}>
-          <tr>
-            <th className="p-3 text-left font-semibold">Criteria</th>
-            {columns.map((column) => (
-              <th key={column} className="p-3 text-center font-semibold" style={{ minWidth: widths[column] ?? 140 }}>
-                <span className="block">{column}</span>
-                {descriptions[column] && <span className={cn("mt-1 block text-xs font-normal", dark ? "text-white/45" : "text-[#667085]")}>{descriptions[column]}</span>}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {visibleRows.map((row, rowIndex) => {
-            const rowBackground = alternateRows && rowIndex % 2 === 1 ? alternateRowColor : rowColor;
-            return (
-              <tr
-                key={row}
-                className={cn("border-t border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}
-                style={{ backgroundColor: rowBackground, borderColor }}
-              >
-                <td className="p-3 font-medium">{row}</td>
-                {columns.map((column) => (
-                  <td key={column} className="border-l border-[#e5e9ef] p-3 text-center" style={{ borderColor }}>
-                    {inputType === "radio" && <input type="radio" value={column} {...register(`${field.id}.${row}`)} />}
-                    {inputType === "checkbox" && <input type="checkbox" {...register(`${field.id}.${row}.${column}`)} />}
-                    {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28" {...register(`${field.id}.${row}.${column}`)} />}
-                    {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24" {...register(`${field.id}.${row}.${column}`)} />}
-                    {inputType === "dropdown" && (
-                      <Select aria-label={`${row} ${column}`} className="min-w-32" {...register(`${field.id}.${row}.${column}`)}>
-                        <option value="">Select</option>
-                        {dropdownOptions.map((option) => (
-                          <option key={option} value={option}>{option}</option>
-                        ))}
-                      </Select>
-                    )}
-                    {inputType === "rating" && (
-                      <div className="flex justify-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map((value) => {
-                          const name = `${field.id}.${row}.${column}`;
-                          const selected = Number(watch(name) || 0) >= value;
-                          return (
-                            <button key={value} type="button" aria-label={`${value} stars`} onClick={() => setValue(name, value, { shouldDirty: true, shouldValidate: true })}>
-                              <Star size={18} className={selected ? "fill-[#f59e0b] text-[#f59e0b]" : "text-[#cbd5e1]"} />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {inputType === "toggle" && (
-                      <label className="inline-flex cursor-pointer items-center justify-center">
-                        <input type="checkbox" className="peer sr-only" {...register(`${field.id}.${row}.${column}`)} />
-                        <span className="h-6 w-11 rounded-full bg-[#cbd5e1] p-0.5 transition peer-checked:bg-[var(--accent)] peer-checked:[&_span]:translate-x-5">
-                          <span className="block h-5 w-5 rounded-full bg-white transition" />
-                        </span>
-                      </label>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className={cn("overflow-hidden rounded-xl border border-[#d8e0ea]", dark ? "bg-[#111418]" : "bg-white")} style={{ borderColor }}>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[460px] border-separate border-spacing-0 text-sm">
+          <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor }}>
+            <tr>
+              <th className="p-3 text-left font-semibold">Criteria</th>
+              {columns.map((column) => (
+                <th key={column} className="p-3 text-center font-semibold" style={{ minWidth: widths[column] ?? 140 }}>
+                  <span className="block">{column}</span>
+                  {descriptions[column] && <span className={cn("mt-1 block text-xs font-normal", dark ? "text-white/45" : "text-[#667085]")}>{descriptions[column]}</span>}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row, rowIndex) => {
+              const rowBackground = alternateRows && rowIndex % 2 === 1 ? alternateRowColor : rowColor;
+              return (
+                <tr
+                  key={row}
+                  className={cn("border-t border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}
+                  style={{ backgroundColor: rowBackground, borderColor }}
+                >
+                  <td className="p-3 font-medium">{row}</td>
+                  {columns.map((column) => (
+                    <td key={column} className="border-l border-[#e5e9ef] p-3 text-center" style={{ borderColor }}>
+                      {inputType === "radio" && <input type="radio" value={column} {...register(`${field.id}.${row}`)} />}
+                      {inputType === "checkbox" && <input type="checkbox" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "dropdown" && (
+                        <Select aria-label={`${row} ${column}`} className="min-w-32" {...register(`${field.id}.${row}.${column}`)}>
+                          <option value="">Select</option>
+                          {dropdownOptions.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </Select>
+                      )}
+                      {inputType === "rating" && (
+                        <div className="flex justify-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((value) => {
+                            const name = `${field.id}.${row}.${column}`;
+                            const selected = Number(watch(name) || 0) >= value;
+                            return (
+                              <button key={value} type="button" aria-label={`${value} stars`} onClick={() => setValue(name, value, { shouldDirty: true, shouldValidate: true })}>
+                                <Star size={18} className={selected ? "fill-[#f59e0b] text-[#f59e0b]" : "text-[#cbd5e1]"} />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {inputType === "toggle" && (
+                        <label className="inline-flex cursor-pointer items-center justify-center">
+                          <input type="checkbox" className="peer sr-only" {...register(`${field.id}.${row}.${column}`)} />
+                          <span className="h-6 w-11 rounded-full bg-[#cbd5e1] p-0.5 transition peer-checked:bg-[var(--accent)] peer-checked:[&_span]:translate-x-5">
+                            <span className="block h-5 w-5 rounded-full bg-white transition" />
+                          </span>
+                        </label>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
