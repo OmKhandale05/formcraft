@@ -279,7 +279,7 @@ function RenderedField({
           <Select aria-label={`${field.label} country code`} className={inputClass} defaultValue={field.settings?.countryCode ?? "+91"} {...register(`${field.id}_country`)}>
             {phoneCountries.map((country) => (
               <option key={`${country.code}-${country.country}`} value={country.code}>
-                {country.flag} {country.code} {country.country}
+                {country.flag} {country.code}
               </option>
             ))}
           </Select>

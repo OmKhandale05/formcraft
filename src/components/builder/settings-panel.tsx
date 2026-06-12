@@ -254,7 +254,7 @@ export function FieldSettingsPanel() {
             <Select id="country-code" className="mt-2" value={field.settings?.countryCode ?? "+91"} onChange={(event) => updateField(field.id, { settings: { ...field.settings, countryCode: event.target.value } })}>
               {phoneCountries.map((country) => (
                 <option key={`${country.code}-${country.country}`} value={country.code}>
-                  {country.flag} {country.code} {country.country}
+                  {country.flag} {country.code}
                 </option>
               ))}
             </Select>
