@@ -60,6 +60,10 @@ export type FormField = {
     matrixInputType?: "radio" | "checkbox" | "text" | "number" | "dropdown" | "rating" | "toggle";
     matrixDropdownOptions?: string[];
     matrixAlternateRows?: boolean;
+    matrixHeaderColor?: string;
+    matrixRowColor?: string;
+    matrixAlternateRowColor?: string;
+    matrixBorderColor?: string;
     hiddenValue?: string;
     currency?: string;
     formulaMode?: "simple" | "advanced";

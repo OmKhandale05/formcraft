@@ -11,6 +11,13 @@ import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
 const optionFieldTypes: FieldType[] = ["dropdown", "radio", "checkbox"];
 const themeColors = ["#2563eb", "#0f766e", "#d97706", "#db2777", "#7c3aed", "#111827"];
+const matrixColorPresets = ["#eef4ff", "#f8fafc", "#ffffff", "#fef3c7", "#ecfdf5", "#fdf2f8", "#f1f5f9", "#111827"];
+const defaultMatrixColors = {
+  matrixHeaderColor: "#eef4ff",
+  matrixRowColor: "#ffffff",
+  matrixAlternateRowColor: "#f8fafc",
+  matrixBorderColor: "#d8e0ea"
+};
 const inputFieldTypes: FieldType[] = [
   "text",
   "email",
@@ -61,6 +68,10 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
       matrixInputType: nextType === "matrix" ? field.settings?.matrixInputType ?? "radio" : field.settings?.matrixInputType,
       matrixDropdownOptions: nextType === "matrix" ? field.settings?.matrixDropdownOptions ?? ["Low", "Medium", "High"] : field.settings?.matrixDropdownOptions,
       matrixAlternateRows: nextType === "matrix" ? field.settings?.matrixAlternateRows ?? true : field.settings?.matrixAlternateRows,
+      matrixHeaderColor: nextType === "matrix" ? field.settings?.matrixHeaderColor ?? defaultMatrixColors.matrixHeaderColor : field.settings?.matrixHeaderColor,
+      matrixRowColor: nextType === "matrix" ? field.settings?.matrixRowColor ?? defaultMatrixColors.matrixRowColor : field.settings?.matrixRowColor,
+      matrixAlternateRowColor: nextType === "matrix" ? field.settings?.matrixAlternateRowColor ?? defaultMatrixColors.matrixAlternateRowColor : field.settings?.matrixAlternateRowColor,
+      matrixBorderColor: nextType === "matrix" ? field.settings?.matrixBorderColor ?? defaultMatrixColors.matrixBorderColor : field.settings?.matrixBorderColor,
       hiddenValue: nextType === "hidden" ? field.settings?.hiddenValue ?? "utm_source=portfolio" : field.settings?.hiddenValue,
       currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency,
       formulaMode: nextType === "formula" ? field.settings?.formulaMode ?? "simple" : field.settings?.formulaMode,
@@ -382,6 +393,40 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
       </div>
 
       <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[#111418]">Grid colors</p>
+            <p className="mt-1 text-xs leading-5 text-[#667085]">Style the header, body rows and grid lines.</p>
+          </div>
+          <Button type="button" size="sm" variant="secondary" onClick={() => onChange(defaultMatrixColors)}>
+            Reset
+          </Button>
+        </div>
+        <div className="grid gap-3">
+          <MatrixColorControl
+            label="Header"
+            value={field.settings?.matrixHeaderColor ?? defaultMatrixColors.matrixHeaderColor}
+            onChange={(value) => onChange({ matrixHeaderColor: value })}
+          />
+          <MatrixColorControl
+            label="All rows"
+            value={field.settings?.matrixRowColor ?? defaultMatrixColors.matrixRowColor}
+            onChange={(value) => onChange({ matrixRowColor: value })}
+          />
+          <MatrixColorControl
+            label="Alternate rows"
+            value={field.settings?.matrixAlternateRowColor ?? defaultMatrixColors.matrixAlternateRowColor}
+            onChange={(value) => onChange({ matrixAlternateRowColor: value })}
+          />
+          <MatrixColorControl
+            label="Grid lines"
+            value={field.settings?.matrixBorderColor ?? defaultMatrixColors.matrixBorderColor}
+            onChange={(value) => onChange({ matrixBorderColor: value })}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
         <div className="mb-4 grid gap-3">
           <div>
             <p className="text-sm font-semibold text-[#111418]">Rows</p>
@@ -561,6 +606,32 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
           <Textarea id="matrix-dropdown-options" className="mt-2 min-h-20 font-mono text-xs" value={(field.settings?.matrixDropdownOptions ?? []).join("\n")} onChange={(event) => onChange({ matrixDropdownOptions: linesToList(event.target.value) })} />
         </div>
       )}
+    </div>
+  );
+}
+
+function MatrixColorControl({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <div className="rounded-xl border border-[#d8e0ea] bg-[#fbfcfe] p-3">
+      <div className="flex items-center justify-between gap-3">
+        <Label className="text-xs font-semibold text-[#344054]">{label}</Label>
+        <div className="flex items-center gap-2">
+          <span className="h-7 w-7 rounded-lg border border-[#d8e0ea]" style={{ background: value }} />
+          <Input type="color" value={value} onChange={(event) => onChange(event.target.value)} className="h-8 w-10 cursor-pointer p-1" aria-label={`${label} color`} />
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {matrixColorPresets.map((color) => (
+          <button
+            key={`${label}-${color}`}
+            type="button"
+            className="h-7 w-7 rounded-lg border border-[#d8e0ea] transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#3157d5]/30"
+            style={{ background: color, boxShadow: value === color ? `0 0 0 3px ${color}55` : undefined }}
+            onClick={() => onChange(color)}
+            aria-label={`Use ${color} for ${label}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
