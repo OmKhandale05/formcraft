@@ -3,7 +3,7 @@
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { Download, Eye, FileUp, Save, Trash2 } from "lucide-react";
+import { Download, Eye, FileUp, GripVertical, Save, Trash2 } from "lucide-react";
 import type { CSSProperties, PointerEvent } from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -57,7 +57,7 @@ export default function BuilderPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const builderGridStyle = {
-    "--builder-columns": `${leftWidth}px 6px minmax(460px, 1fr) 6px ${rightWidth}px`
+    "--builder-columns": `${leftWidth}px 14px minmax(460px, 1fr) 14px ${rightWidth}px`
   } as CSSProperties;
 
   const startResize = (pane: ResizePane, event: PointerEvent<HTMLButtonElement>) => {
@@ -251,10 +251,14 @@ function ResizeHandle({ label, onPointerDown }: { label: string; onPointerDown: 
     <button
       type="button"
       aria-label={label}
-      className="hidden min-h-0 cursor-col-resize border-x border-[#d8e0ea] bg-[#eef2f7] transition hover:bg-[#dbe5f4] lg:flex"
+      title={label}
+      className="group relative hidden min-h-0 cursor-col-resize items-center justify-center bg-transparent outline-none lg:flex"
       onPointerDown={onPointerDown}
     >
-      <span className="mx-auto mt-6 h-10 w-1 rounded-full bg-[#aab5c4]" />
+      <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-transparent transition group-hover:bg-[#d8e0ea]/60 group-focus-visible:bg-[#3157d5]/45" />
+      <span className="relative z-10 flex h-14 w-8 items-center justify-center rounded-full border border-[#d8e0ea] bg-white/95 text-[#667085] shadow-[0_10px_28px_rgba(17,24,39,0.12)] transition group-hover:-translate-y-0.5 group-hover:border-[#b8c4d4] group-hover:text-[#3157d5] group-hover:shadow-[0_14px_34px_rgba(49,87,213,0.18)] group-focus-visible:ring-4 group-focus-visible:ring-[#3157d5]/15">
+        <GripVertical size={18} />
+      </span>
     </button>
   );
 }
