@@ -380,12 +380,12 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
       </div>
 
       <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-4 grid gap-3">
           <div>
             <p className="text-sm font-semibold text-[#111418]">Rows</p>
             <p className="mt-1 text-xs text-[#667085]">{rows.length} rows · drag to reorder</p>
           </div>
-          <Button type="button" size="sm" variant="secondary" onClick={() => onChange({ matrixRows: [...rows, `Row ${rows.length + 1}`] })}>
+          <Button type="button" size="sm" variant="secondary" className="w-full justify-center" onClick={() => onChange({ matrixRows: [...rows, `Row ${rows.length + 1}`] })}>
             <Plus size={14} />
             Add row
           </Button>
@@ -404,42 +404,54 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
               }}
               className="group rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white"
             >
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-7 shrink-0 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
-                  <GripVertical size={15} />
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#667085]">
+                  <span className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
+                    <GripVertical size={15} />
+                  </span>
+                  Row {index + 1}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <Input value={row} onChange={(event) => updateRow(index, event.target.value)} />
-                  <label className="mt-3 flex items-center gap-2 text-xs font-medium text-[#667085]">
+                <div className="flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#667085] transition hover:border-[#3157d5] hover:text-[#3157d5]"
+                    onClick={() => onChange({ matrixRows: [...rows.slice(0, index + 1), `${row} copy`, ...rows.slice(index + 1)] })}
+                    aria-label="Duplicate row"
+                  >
+                    <Copy size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#e11d48] transition hover:bg-[#ffe4e9]"
+                    onClick={() => onChange({ matrixRows: rows.filter((_, rowIndex) => rowIndex !== index) })}
+                    aria-label="Delete row"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+              <Input value={row} className="w-full" onChange={(event) => updateRow(index, event.target.value)} />
+              <label className="mt-3 flex min-w-0 items-center gap-2 text-xs font-medium text-[#667085]">
                     <input
+                      className="shrink-0"
                       type="checkbox"
                       checked={hiddenRows.includes(row)}
                       onChange={(event) => onChange({ matrixHiddenRows: event.target.checked ? [...hiddenRows, row] : hiddenRows.filter((item) => item !== row) })}
                     />
-                    Hide this row in preview
+                    <span className="whitespace-nowrap">Hide this row in preview</span>
                   </label>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button type="button" size="icon" variant="ghost" onClick={() => onChange({ matrixRows: [...rows.slice(0, index + 1), `${row} copy`, ...rows.slice(index + 1)] })} aria-label="Duplicate row">
-                    <Copy size={14} />
-                  </Button>
-                  <Button type="button" size="icon" variant="danger" onClick={() => onChange({ matrixRows: rows.filter((_, rowIndex) => rowIndex !== index) })} aria-label="Delete row">
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </div>
             </div>
           ))}
         </div>
       </div>
 
       <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-4 grid gap-3">
           <div>
             <p className="text-sm font-semibold text-[#111418]">Columns</p>
             <p className="mt-1 text-xs text-[#667085]">{columns.length} columns · help text and width</p>
           </div>
-          <Button type="button" size="sm" variant="secondary" onClick={() => onChange({ matrixColumns: [...columns, `Column ${columns.length + 1}`] })}>
+          <Button type="button" size="sm" variant="secondary" className="w-full justify-center" onClick={() => onChange({ matrixColumns: [...columns, `Column ${columns.length + 1}`] })}>
             <Plus size={14} />
             Add column
           </Button>
@@ -458,17 +470,23 @@ function MatrixSettings({ field, onChange }: { field: FormField; onChange: (sett
               }}
               className="space-y-3 rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3 transition hover:border-[#c5d0dc] hover:bg-white"
             >
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-7 shrink-0 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
-                  <GripVertical size={15} />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#667085]">
+                  <span className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-[#d8e0ea] bg-white text-[#98a2b3]">
+                    <GripVertical size={15} />
+                  </span>
+                  Column {index + 1}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <Input value={column} onChange={(event) => updateColumn(index, event.target.value)} />
-                </div>
-                <Button type="button" size="icon" variant="danger" onClick={() => onChange({ matrixColumns: columns.filter((_, columnIndex) => columnIndex !== index) })} aria-label="Delete column">
+                <button
+                  type="button"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#e11d48] transition hover:bg-[#ffe4e9]"
+                  onClick={() => onChange({ matrixColumns: columns.filter((_, columnIndex) => columnIndex !== index) })}
+                  aria-label="Delete column"
+                >
                   <Trash2 size={14} />
-                </Button>
+                </button>
               </div>
+              <Input value={column} className="w-full" onChange={(event) => updateColumn(index, event.target.value)} />
               <div className="grid gap-3">
                 <div>
                   <Label htmlFor={`matrix-help-${index}`}>Help text</Label>
