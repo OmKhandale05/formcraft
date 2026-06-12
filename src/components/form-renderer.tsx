@@ -353,7 +353,7 @@ function RenderedField({
         </div>
       )}
       {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
-      {field.type === "matrix" && <MatrixField field={field} register={register} dark={dark} />}
+      {field.type === "matrix" && <MatrixField field={field} register={register} setValue={setValue} watch={watch} dark={dark} />}
       {field.type === "formula" && <FormulaField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} />}
       {field.type === "payment" && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
@@ -644,9 +644,27 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
   );
 }
 
-function MatrixField({ field, register, dark }: { field: FormField; register: UseFormRegister<Record<string, unknown>>; dark: boolean }) {
+function MatrixField({
+  field,
+  register,
+  setValue,
+  watch,
+  dark
+}: {
+  field: FormField;
+  register: UseFormRegister<Record<string, unknown>>;
+  setValue: UseFormSetValue<Record<string, unknown>>;
+  watch: UseFormWatch<Record<string, unknown>>;
+  dark: boolean;
+}) {
   const rows = field.settings?.matrixRows?.length ? field.settings.matrixRows : ["Quality", "Speed", "Support"];
   const columns = field.settings?.matrixColumns?.length ? field.settings.matrixColumns : ["Poor", "Okay", "Great"];
+  const visibleRows = rows.filter((row) => !field.settings?.matrixHiddenRows?.includes(row));
+  const descriptions = field.settings?.matrixColumnDescriptions ?? {};
+  const widths = field.settings?.matrixColumnWidths ?? {};
+  const inputType = field.settings?.matrixInputType ?? "radio";
+  const dropdownOptions = field.settings?.matrixDropdownOptions?.length ? field.settings.matrixDropdownOptions : ["Low", "Medium", "High"];
+  const alternateRows = field.settings?.matrixAlternateRows ?? true;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-[#d8e0ea]">
@@ -655,17 +673,52 @@ function MatrixField({ field, register, dark }: { field: FormField; register: Us
           <tr>
             <th className="p-3 text-left font-semibold">Criteria</th>
             {columns.map((column) => (
-              <th key={column} className="p-3 text-center font-semibold">{column}</th>
+              <th key={column} className="p-3 text-center font-semibold" style={{ minWidth: widths[column] ?? 140 }}>
+                <span className="block">{column}</span>
+                {descriptions[column] && <span className={cn("mt-1 block text-xs font-normal", dark ? "text-white/45" : "text-[#667085]")}>{descriptions[column]}</span>}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row} className="border-t border-[#e5e9ef]">
+          {visibleRows.map((row, rowIndex) => (
+            <tr key={row} className={cn("border-t border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}>
               <td className="p-3 font-medium">{row}</td>
               {columns.map((column) => (
                 <td key={column} className="p-3 text-center">
-                  <input type="radio" value={column} {...register(`${field.id}.${row}`)} />
+                  {inputType === "radio" && <input type="radio" value={column} {...register(`${field.id}.${row}`)} />}
+                  {inputType === "checkbox" && <input type="checkbox" {...register(`${field.id}.${row}.${column}`)} />}
+                  {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28" {...register(`${field.id}.${row}.${column}`)} />}
+                  {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24" {...register(`${field.id}.${row}.${column}`)} />}
+                  {inputType === "dropdown" && (
+                    <Select aria-label={`${row} ${column}`} className="min-w-32" {...register(`${field.id}.${row}.${column}`)}>
+                      <option value="">Select</option>
+                      {dropdownOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </Select>
+                  )}
+                  {inputType === "rating" && (
+                    <div className="flex justify-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((value) => {
+                        const name = `${field.id}.${row}.${column}`;
+                        const selected = Number(watch(name) || 0) >= value;
+                        return (
+                          <button key={value} type="button" aria-label={`${value} stars`} onClick={() => setValue(name, value, { shouldDirty: true, shouldValidate: true })}>
+                            <Star size={18} className={selected ? "fill-[#f59e0b] text-[#f59e0b]" : "text-[#cbd5e1]"} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {inputType === "toggle" && (
+                    <label className="inline-flex cursor-pointer items-center justify-center">
+                      <input type="checkbox" className="peer sr-only" {...register(`${field.id}.${row}.${column}`)} />
+                      <span className="h-6 w-11 rounded-full bg-[#cbd5e1] p-0.5 transition peer-checked:bg-[var(--accent)] peer-checked:[&_span]:translate-x-5">
+                        <span className="block h-5 w-5 rounded-full bg-white transition" />
+                      </span>
+                    </label>
+                  )}
                 </td>
               ))}
             </tr>

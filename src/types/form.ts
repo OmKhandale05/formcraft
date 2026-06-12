@@ -54,6 +54,12 @@ export type FormField = {
     sliderStep?: number;
     matrixRows?: string[];
     matrixColumns?: string[];
+    matrixHiddenRows?: string[];
+    matrixColumnDescriptions?: Record<string, string>;
+    matrixColumnWidths?: Record<string, number>;
+    matrixInputType?: "radio" | "checkbox" | "text" | "number" | "dropdown" | "rating" | "toggle";
+    matrixDropdownOptions?: string[];
+    matrixAlternateRows?: boolean;
     hiddenValue?: string;
     currency?: string;
     formulaMode?: "simple" | "advanced";

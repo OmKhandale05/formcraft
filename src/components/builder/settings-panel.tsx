@@ -1,6 +1,7 @@
 "use client";
 
-import { Copy, Moon, Palette, Square, Sun, Trash2, X } from "lucide-react";
+import { Copy, GripVertical, Moon, Palette, Plus, Square, Sun, Trash2, X } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -57,6 +58,9 @@ function normalizeFieldTypeChange(field: FormField, nextType: FieldType): Partia
       sliderStep: nextType === "slider" ? field.settings?.sliderStep ?? 5 : field.settings?.sliderStep,
       matrixRows: nextType === "matrix" ? field.settings?.matrixRows ?? ["Ease of use", "Design quality", "Performance"] : field.settings?.matrixRows,
       matrixColumns: nextType === "matrix" ? field.settings?.matrixColumns ?? ["Poor", "Average", "Great"] : field.settings?.matrixColumns,
+      matrixInputType: nextType === "matrix" ? field.settings?.matrixInputType ?? "radio" : field.settings?.matrixInputType,
+      matrixDropdownOptions: nextType === "matrix" ? field.settings?.matrixDropdownOptions ?? ["Low", "Medium", "High"] : field.settings?.matrixDropdownOptions,
+      matrixAlternateRows: nextType === "matrix" ? field.settings?.matrixAlternateRows ?? true : field.settings?.matrixAlternateRows,
       hiddenValue: nextType === "hidden" ? field.settings?.hiddenValue ?? "utm_source=portfolio" : field.settings?.hiddenValue,
       currency: nextType === "payment" ? field.settings?.currency ?? "USD" : field.settings?.currency,
       formulaMode: nextType === "formula" ? field.settings?.formulaMode ?? "simple" : field.settings?.formulaMode,
@@ -254,18 +258,7 @@ export function FieldSettingsPanel() {
             </div>
           </div>
         )}
-        {field.type === "matrix" && (
-          <div className="grid gap-3 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
-            <div>
-              <Label htmlFor="matrix-rows">Rows</Label>
-              <Textarea id="matrix-rows" className="mt-2 min-h-24 font-mono text-xs" value={(field.settings?.matrixRows ?? []).join("\n")} onChange={(event) => updateField(field.id, { settings: { ...field.settings, matrixRows: linesToList(event.target.value) } })} />
-            </div>
-            <div>
-              <Label htmlFor="matrix-columns">Columns</Label>
-              <Textarea id="matrix-columns" className="mt-2 min-h-24 font-mono text-xs" value={(field.settings?.matrixColumns ?? []).join("\n")} onChange={(event) => updateField(field.id, { settings: { ...field.settings, matrixColumns: linesToList(event.target.value) } })} />
-            </div>
-          </div>
-        )}
+        {field.type === "matrix" && <MatrixSettings field={field} onChange={(settings) => updateField(field.id, { settings: { ...field.settings, ...settings } })} />}
         {field.type === "hidden" && (
           <div>
             <Label htmlFor="hidden-value">Hidden value</Label>
@@ -329,6 +322,152 @@ export function FieldSettingsPanel() {
         </div>
       </div>
     </aside>
+  );
+}
+
+function moveItem(items: string[], from: number, to: number) {
+  const next = [...items];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
+function MatrixSettings({ field, onChange }: { field: FormField; onChange: (settings: NonNullable<FormField["settings"]>) => void }) {
+  const rows = field.settings?.matrixRows?.length ? field.settings.matrixRows : ["Ease of use", "Design quality", "Performance"];
+  const columns = field.settings?.matrixColumns?.length ? field.settings.matrixColumns : ["Poor", "Average", "Great"];
+  const hiddenRows = field.settings?.matrixHiddenRows ?? [];
+  const columnDescriptions = field.settings?.matrixColumnDescriptions ?? {};
+  const columnWidths = field.settings?.matrixColumnWidths ?? {};
+  const draggedRow = useRef<number | null>(null);
+  const draggedColumn = useRef<number | null>(null);
+
+  const updateRow = (index: number, value: string) => onChange({ matrixRows: rows.map((row, rowIndex) => (rowIndex === index ? value : row)) });
+  const updateColumn = (index: number, value: string) => {
+    const oldColumn = columns[index];
+    const nextColumns = columns.map((column, columnIndex) => (columnIndex === index ? value : column));
+    const nextDescriptions = { ...columnDescriptions };
+    const nextWidths = { ...columnWidths };
+    if (oldColumn && oldColumn !== value) {
+      nextDescriptions[value] = nextDescriptions[oldColumn] ?? "";
+      nextWidths[value] = nextWidths[oldColumn] ?? 160;
+      delete nextDescriptions[oldColumn];
+      delete nextWidths[oldColumn];
+    }
+    onChange({ matrixColumns: nextColumns, matrixColumnDescriptions: nextDescriptions, matrixColumnWidths: nextWidths });
+  };
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="matrix-input-type">Input type</Label>
+          <Select id="matrix-input-type" className="mt-2" value={field.settings?.matrixInputType ?? "radio"} onChange={(event) => onChange({ matrixInputType: event.target.value as NonNullable<FormField["settings"]>["matrixInputType"] })}>
+            <option value="radio">Radio - single select</option>
+            <option value="checkbox">Checkbox - multi select</option>
+            <option value="text">Text input</option>
+            <option value="number">Number input</option>
+            <option value="dropdown">Dropdown</option>
+            <option value="rating">Rating</option>
+            <option value="toggle">Toggle switch</option>
+          </Select>
+        </div>
+        <label className="mt-7 flex h-10 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm font-medium text-[#1f2937] shadow-sm">
+          <input type="checkbox" checked={field.settings?.matrixAlternateRows ?? true} onChange={(event) => onChange({ matrixAlternateRows: event.target.checked })} />
+          Alternate rows
+        </label>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-sm font-semibold text-[#1f2937]">Rows</p>
+          <Button type="button" size="sm" variant="secondary" onClick={() => onChange({ matrixRows: [...rows, `Row ${rows.length + 1}`] })}>
+            <Plus size={14} />
+            Add row
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {rows.map((row, index) => (
+            <div
+              key={`${row}-${index}`}
+              draggable
+              onDragStart={() => { draggedRow.current = index; }}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (draggedRow.current === null || draggedRow.current === index) return;
+                onChange({ matrixRows: moveItem(rows, draggedRow.current, index) });
+                draggedRow.current = null;
+              }}
+              className="rounded-xl border border-[#d8e0ea] bg-white p-2"
+            >
+              <div className="flex items-center gap-2">
+                <GripVertical size={15} className="shrink-0 cursor-grab text-[#98a2b3]" />
+                <Input value={row} onChange={(event) => updateRow(index, event.target.value)} />
+                <Button type="button" size="icon" variant="ghost" onClick={() => onChange({ matrixRows: [...rows.slice(0, index + 1), `${row} copy`, ...rows.slice(index + 1)] })} aria-label="Duplicate row">
+                  <Copy size={14} />
+                </Button>
+                <Button type="button" size="icon" variant="danger" onClick={() => onChange({ matrixRows: rows.filter((_, rowIndex) => rowIndex !== index) })} aria-label="Delete row">
+                  <Trash2 size={14} />
+                </Button>
+              </div>
+              <label className="mt-2 flex items-center gap-2 pl-7 text-xs font-medium text-[#667085]">
+                <input
+                  type="checkbox"
+                  checked={hiddenRows.includes(row)}
+                  onChange={(event) => onChange({ matrixHiddenRows: event.target.checked ? [...hiddenRows, row] : hiddenRows.filter((item) => item !== row) })}
+                />
+                Hide this row in preview
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-sm font-semibold text-[#1f2937]">Columns</p>
+          <Button type="button" size="sm" variant="secondary" onClick={() => onChange({ matrixColumns: [...columns, `Column ${columns.length + 1}`] })}>
+            <Plus size={14} />
+            Add column
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {columns.map((column, index) => (
+            <div
+              key={`${column}-${index}`}
+              draggable
+              onDragStart={() => { draggedColumn.current = index; }}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (draggedColumn.current === null || draggedColumn.current === index) return;
+                onChange({ matrixColumns: moveItem(columns, draggedColumn.current, index) });
+                draggedColumn.current = null;
+              }}
+              className="space-y-2 rounded-xl border border-[#d8e0ea] bg-white p-2"
+            >
+              <div className="flex items-center gap-2">
+                <GripVertical size={15} className="shrink-0 cursor-grab text-[#98a2b3]" />
+                <Input value={column} onChange={(event) => updateColumn(index, event.target.value)} />
+                <Button type="button" size="icon" variant="danger" onClick={() => onChange({ matrixColumns: columns.filter((_, columnIndex) => columnIndex !== index) })} aria-label="Delete column">
+                  <Trash2 size={14} />
+                </Button>
+              </div>
+              <Input placeholder="Column help text" value={columnDescriptions[column] ?? ""} onChange={(event) => onChange({ matrixColumnDescriptions: { ...columnDescriptions, [column]: event.target.value } })} />
+              <div>
+                <Label htmlFor={`matrix-width-${index}`}>Width px</Label>
+                <Input id={`matrix-width-${index}`} type="number" min={96} max={360} className="mt-2" value={columnWidths[column] ?? 160} onChange={(event) => onChange({ matrixColumnWidths: { ...columnWidths, [column]: Number(event.target.value) || 160 } })} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {(field.settings?.matrixInputType ?? "radio") === "dropdown" && (
+        <div>
+          <Label htmlFor="matrix-dropdown-options">Dropdown options</Label>
+          <Textarea id="matrix-dropdown-options" className="mt-2 min-h-20 font-mono text-xs" value={(field.settings?.matrixDropdownOptions ?? []).join("\n")} onChange={(event) => onChange({ matrixDropdownOptions: linesToList(event.target.value) })} />
+        </div>
+      )}
+    </div>
   );
 }
 
