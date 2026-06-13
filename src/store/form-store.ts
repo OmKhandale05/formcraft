@@ -2,9 +2,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { FormField, FormSchema, FormTheme, FormVersion, LogicRule, PublishedForm, Submission } from "@/types/form";
+import type { FormField, FormSchema, FormTheme, FormVersion, LogicRule, Submission } from "@/types/form";
 import { defaultForm } from "@/lib/templates";
-import { slugify } from "@/lib/utils";
 
 type FormStore = {
   form: FormSchema;
@@ -12,7 +11,6 @@ type FormStore = {
   selectedFieldIds: string[];
   submissions: Submission[];
   versions: FormVersion[];
-  publishedForm: PublishedForm;
   setSelectedField: (id: string | null) => void;
   toggleFieldSelection: (id: string) => void;
   clearSelection: () => void;
@@ -35,10 +33,6 @@ type FormStore = {
   restoreVersion: (id: string) => void;
   duplicateVersion: (id: string) => void;
   deleteVersion: (id: string) => void;
-  publishForm: () => void;
-  unpublishForm: () => void;
-  updatePublishSlug: (slug: string) => void;
-  updatePublishDestinations: (destinations: PublishedForm["destinations"]) => void;
   addSubmission: (values: Record<string, unknown>) => void;
   clearSubmissions: () => void;
 };
@@ -53,11 +47,6 @@ export const useFormStore = create<FormStore>()(
       selectedFieldIds: [],
       submissions: [],
       versions: [],
-      publishedForm: {
-        published: false,
-        slug: slugify(defaultForm.name),
-        destinations: ["inbox"]
-      },
       setSelectedField: (id) => set({ selectedFieldId: id, selectedFieldIds: id ? [id] : [] }),
       toggleFieldSelection: (id) =>
         set((state) => {
@@ -272,46 +261,6 @@ export const useFormStore = create<FormStore>()(
         set((state) => ({
           versions: state.versions.filter((version) => version.id !== id)
         })),
-      publishForm: () =>
-        set((state) => {
-          const publishedAt = new Date().toISOString();
-          return {
-            publishedForm: {
-              ...state.publishedForm,
-              published: true,
-              slug: state.publishedForm.slug || slugify(state.form.name || state.form.title),
-              publishedAt,
-              form: {
-                ...state.form,
-                fields: state.form.fields.map((field) => ({ ...field, settings: field.settings ? { ...field.settings } : undefined, validation: field.validation ? { ...field.validation } : undefined, options: field.options ? [...field.options] : undefined })),
-                theme: { ...state.form.theme },
-                logicRules: state.form.logicRules?.map((rule) => ({ ...rule, targetFieldIds: [...rule.targetFieldIds] })),
-                updatedAt: publishedAt
-              }
-            }
-          };
-        }),
-      unpublishForm: () =>
-        set((state) => ({
-          publishedForm: {
-            ...state.publishedForm,
-            published: false
-          }
-        })),
-      updatePublishSlug: (slug) =>
-        set((state) => ({
-          publishedForm: {
-            ...state.publishedForm,
-            slug: slugify(slug)
-          }
-        })),
-      updatePublishDestinations: (destinations) =>
-        set((state) => ({
-          publishedForm: {
-            ...state.publishedForm,
-            destinations
-          }
-        })),
       addSubmission: (values) =>
         set((state) => ({
           submissions: [
@@ -331,8 +280,7 @@ export const useFormStore = create<FormStore>()(
       partialize: (state) => ({
         form: state.form,
         submissions: state.submissions,
-        versions: state.versions,
-        publishedForm: state.publishedForm
+        versions: state.versions
       })
     }
   )

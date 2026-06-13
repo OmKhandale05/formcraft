@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Code2, Copy, Monitor, Smartphone } from "lucide-react";
+import { Check, Code2, Copy, Monitor, PanelsTopLeft, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { FormRenderer } from "@/components/form-renderer";
@@ -12,13 +12,23 @@ export default function PreviewPage() {
   const form = useFormStore((state) => state.form);
   const addSubmission = useFormStore((state) => state.addSubmission);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"json" | "embed" | null>(null);
   const schemaJson = useMemo(() => JSON.stringify(form, null, 2), [form]);
+  const embedCode = useMemo(() => {
+    const encodedSchema = encodeURIComponent(JSON.stringify(form));
+    return `<div data-formcraft-schema="${encodedSchema}"></div>\n<script src="https://formcraft.app/embed.js" async></script>`;
+  }, [form]);
 
   const copySchema = async () => {
     await navigator.clipboard.writeText(schemaJson);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+    setCopied("json");
+    window.setTimeout(() => setCopied(null), 1600);
+  };
+
+  const copyEmbed = async () => {
+    await navigator.clipboard.writeText(embedCode);
+    setCopied("embed");
+    window.setTimeout(() => setCopied(null), 1600);
   };
 
   return (
@@ -59,8 +69,8 @@ export default function PreviewPage() {
                 </p>
               </div>
               <Button type="button" size="sm" variant="secondary" onClick={copySchema}>
-                {copied ? <Check size={15} /> : <Copy size={15} />}
-                {copied ? "Copied" : "Copy"}
+                {copied === "json" ? <Check size={15} /> : <Copy size={15} />}
+                {copied === "json" ? "Copied" : "Copy"}
               </Button>
             </div>
             <pre className="formcraft-scrollbar max-h-[720px] overflow-auto rounded-2xl border border-white/10 bg-[#07090d] p-4 text-xs leading-5 text-[#d9e4f2] shadow-inner">
@@ -69,6 +79,25 @@ export default function PreviewPage() {
             <p className="mt-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm leading-6 text-[#aab4c3]">
               This is the exact schema used by the live preview, including field layout, validation, theme, logic rules, and multi-step settings.
             </p>
+
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/8 p-4">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold text-[#dce6f5]">
+                    <PanelsTopLeft size={14} />
+                    Embed code
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-[#aab4c3]">Copy this snippet to simulate adding the form to another site.</p>
+                </div>
+                <Button type="button" size="sm" variant="secondary" onClick={copyEmbed}>
+                  {copied === "embed" ? <Check size={15} /> : <Copy size={15} />}
+                  {copied === "embed" ? "Copied" : "Copy"}
+                </Button>
+              </div>
+              <pre className="formcraft-scrollbar max-h-52 overflow-auto rounded-2xl border border-white/10 bg-[#07090d] p-4 text-xs leading-5 text-[#d9e4f2] shadow-inner">
+                <code className="select-text whitespace-pre-wrap">{embedCode}</code>
+              </pre>
+            </div>
           </aside>
         </div>
       </main>

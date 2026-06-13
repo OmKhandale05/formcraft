@@ -140,11 +140,3 @@ export type FormVersion = {
   createdAt: string;
   form: FormSchema;
 };
-
-export type PublishedForm = {
-  published: boolean;
-  slug: string;
-  publishedAt?: string;
-  form?: FormSchema;
-  destinations: Array<"inbox" | "email" | "sheets" | "slack" | "webhook">;
-};

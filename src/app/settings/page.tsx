@@ -5,7 +5,6 @@ import { AppShell } from "@/components/app-shell";
 import { AppearanceControls } from "@/components/builder/appearance-controls";
 import { FormHealthPanel } from "@/components/builder/form-health-panel";
 import { LogicBuilder } from "@/components/builder/logic-builder";
-import { PublishSharePanel } from "@/components/builder/publish-share-panel";
 import { VersionHistoryPanel } from "@/components/builder/version-history-panel";
 import { FormRenderer } from "@/components/form-renderer";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -27,7 +26,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-[#111418]">Theme and settings</h1>
-                <p className="text-sm text-[#667085]">Tune the published form experience.</p>
+                <p className="text-sm text-[#667085]">Tune the form experience.</p>
               </div>
             </div>
           </div>
@@ -41,7 +40,6 @@ export default function SettingsPage() {
               <Textarea id="description" className="mt-2" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
             </div>
             <FormHealthPanel form={form} />
-            <PublishSharePanel />
             <VersionHistoryPanel />
             <LogicBuilder />
             <AppearanceControls theme={form.theme} onChange={setTheme} />
