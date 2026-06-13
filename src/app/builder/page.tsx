@@ -176,59 +176,59 @@ export default function BuilderPage() {
                   className="h-10 max-w-[360px] border-transparent bg-[#f3f6fa] text-[15px] font-bold shadow-none focus:bg-white"
                 />
               </div>
-              <div className="hidden items-center rounded-2xl border border-[#d8e0ea] bg-[#f8fafc] px-3 py-2 text-xs font-semibold text-[#465366] shadow-sm xl:flex">
-                <span className="inline-flex items-center gap-1.5">
+              <div className="hidden h-10 shrink-0 items-center rounded-xl border border-[#d8e0ea] bg-[#f8fafc] px-3 text-xs font-semibold text-[#465366] shadow-sm xl:flex">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                   <CheckCircle2 size={14} className="text-[#0f766e]" />
                   {form.fields.length} fields
                 </span>
                 <span className="mx-2 h-4 w-px bg-[#d8e0ea]" />
-                <span className="inline-flex items-center gap-1.5 text-[#687386]">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#687386]">
                   <Clock3 size={14} className="text-[#64748b]" />
                   Updated {formatTimestamp(form.updatedAt)}
                 </span>
               </div>
-              <div className="ml-auto flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
-                <FileUp size={16} />
-                Import
-              </Button>
-              <input ref={inputRef} type="file" accept="application/json" className="hidden" onChange={(event) => importJson(event.target.files?.[0])} />
-              <div>
-                <Button type="button" variant="secondary" onClick={() => setExportOpen((open) => !open)} aria-expanded={exportOpen} aria-haspopup="menu">
-                  <Download size={16} />
-                  Export
+              <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">
+                <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
+                  <FileUp size={16} />
+                  Import
                 </Button>
-                {exportOpen && typeof document !== "undefined" &&
-                  createPortal(
-                    <>
-                      <button
-                        type="button"
-                        aria-label="Close export menu"
-                        className="fixed inset-0 z-[9998] cursor-default bg-transparent"
-                        onClick={() => setExportOpen(false)}
-                      />
-                      <div className="fixed right-4 top-16 z-[9999] w-72 overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white p-1.5 shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
-                        {exportOptions.map((option) => (
-                          <button
-                            key={option.label}
-                            type="button"
-                            className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#f4f6f8]"
-                            onClick={() => handleExport(option.extension, option.label)}
-                          >
-                            <span className="mt-0.5 rounded-md bg-[#111418] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
-                              {option.extension}
-                            </span>
-                            <span>
-                              <span className="block text-sm font-semibold text-[#111418]">{option.label}</span>
-                              <span className="mt-0.5 block text-xs text-[#667085]">{option.description}</span>
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </>,
-                    document.body
-                  )}
-              </div>
+                <input ref={inputRef} type="file" accept="application/json" className="hidden" onChange={(event) => importJson(event.target.files?.[0])} />
+                <div>
+                  <Button type="button" variant="secondary" onClick={() => setExportOpen((open) => !open)} aria-expanded={exportOpen} aria-haspopup="menu">
+                    <Download size={16} />
+                    Export
+                  </Button>
+                  {exportOpen && typeof document !== "undefined" &&
+                    createPortal(
+                      <>
+                        <button
+                          type="button"
+                          aria-label="Close export menu"
+                          className="fixed inset-0 z-[9998] cursor-default bg-transparent"
+                          onClick={() => setExportOpen(false)}
+                        />
+                        <div className="fixed right-4 top-16 z-[9999] w-72 overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white p-1.5 shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
+                          {exportOptions.map((option) => (
+                            <button
+                              key={option.label}
+                              type="button"
+                              className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#f4f6f8]"
+                              onClick={() => handleExport(option.extension, option.label)}
+                            >
+                              <span className="mt-0.5 rounded-md bg-[#111418] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
+                                {option.extension}
+                              </span>
+                              <span>
+                                <span className="block text-sm font-semibold text-[#111418]">{option.label}</span>
+                                <span className="mt-0.5 block text-xs text-[#667085]">{option.description}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </>,
+                      document.body
+                    )}
+                </div>
               <Button type="button" variant="secondary" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 1600); }}>
                 <Save size={16} />
                 {saved ? "Saved" : "Save"}
