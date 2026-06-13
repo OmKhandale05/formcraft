@@ -125,35 +125,60 @@ export function AppearanceControls({ theme, onChange, compact = false }: Appeara
         <div className={cn("grid gap-3", compact ? "grid-cols-1" : "sm:grid-cols-2")}>
           {appearancePresets.map((preset) => {
             const selected = currentStyle === preset.theme.fieldStyle && (theme.buttonStyle ?? defaultAppearance.buttonStyle) === preset.theme.buttonStyle;
+            const isUnderline = preset.theme.fieldStyle === "underline";
+            const isFilled = preset.theme.fieldStyle === "filled";
+            const isGlass = preset.theme.fieldStyle === "glass";
+            const previewRadius = preset.theme.fieldRadius === 0 ? 0 : Math.min(preset.theme.fieldRadius ?? 14, 18);
             return (
               <button
                 key={preset.id}
                 type="button"
                 className={cn(
-                  "overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:border-[#3157d5]/50 hover:shadow-md",
+                  "flex min-h-[196px] flex-col overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:border-[#3157d5]/50 hover:shadow-md",
                   selected ? "border-[#3157d5] bg-[#f4f7ff] shadow-sm" : "border-[#d8e0ea] bg-[#fbfcfe]"
                 )}
                 onClick={() => onChange({ ...preset.theme, radius: preset.theme.fieldRadius === 0 ? "square" : "rounded" })}
               >
-                <div className="h-16 p-3" style={{ background: `linear-gradient(135deg, ${preset.accent}22, #ffffff 56%)` }}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#667085]">{preset.vibe}</span>
-                    {selected && <Check size={16} className="text-[#3157d5]" />}
-                  </div>
-                  <div className="mt-3 flex gap-1.5">
-                    <span
-                      className={cn("h-2 flex-1 border bg-white", preset.theme.fieldStyle === "underline" ? "rounded-none border-x-0 border-t-0" : "rounded-full")}
-                      style={{ borderColor: preset.accent }}
-                    />
-                    <span className="h-2 w-8 rounded-full" style={{ background: preset.accent }} />
+                <div className="h-[86px] p-3" style={{ background: `linear-gradient(135deg, ${preset.accent}24, #ffffff 62%)` }}>
+                  <div className="flex h-full flex-col justify-between">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="max-w-[92px] truncate rounded-full bg-white/85 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#667085] shadow-sm">{preset.vibe}</span>
+                      <span className={cn("flex h-5 w-5 items-center justify-center rounded-full border bg-white/80", selected ? "border-[#3157d5] text-[#3157d5]" : "border-white/70 text-transparent")}>
+                        <Check size={13} />
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-[minmax(0,1fr)_42px] items-end gap-2">
+                      <div className="space-y-1.5">
+                        <span
+                          className={cn("block h-3 border bg-white/90", isUnderline && "border-x-0 border-t-0 bg-transparent", isFilled && "bg-[#f1f5f9]", isGlass && "bg-white/60 shadow-sm backdrop-blur")}
+                          style={{ borderColor: preset.accent, borderRadius: isUnderline ? 0 : previewRadius }}
+                        />
+                        <span
+                          className={cn("block h-3 w-3/4 border bg-white/90", isUnderline && "border-x-0 border-t-0 bg-transparent", isFilled && "bg-[#f1f5f9]", isGlass && "bg-white/60 shadow-sm backdrop-blur")}
+                          style={{ borderColor: preset.accent, borderRadius: isUnderline ? 0 : previewRadius }}
+                        />
+                      </div>
+                      <span
+                        className={cn("h-7 rounded-full border", preset.theme.buttonStyle === "outline" || preset.theme.buttonStyle === "ghost" ? "bg-white/70" : "")}
+                        style={{
+                          background: preset.theme.buttonStyle === "outline" || preset.theme.buttonStyle === "ghost" ? "rgba(255,255,255,0.72)" : preset.accent,
+                          borderColor: preset.accent,
+                          borderRadius: preset.theme.buttonRadius ?? previewRadius
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="p-3">
+                <div className="flex flex-1 flex-col p-3">
                   <div className="mb-1 flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-[#111418]">{preset.name}</span>
-                    <span className="text-[11px] font-semibold text-[#98a2b3]">{preset.theme.buttonStyle}</span>
+                    <span className="min-w-0 truncate text-sm font-semibold text-[#111418]">{preset.name}</span>
+                    <span className="shrink-0 rounded-full bg-[#eef2f7] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#667085]">{preset.theme.buttonStyle}</span>
                   </div>
-                  <p className="text-xs leading-5 text-[#667085]">{preset.description}</p>
+                  <p className="line-clamp-2 text-xs leading-5 text-[#667085]">{preset.description}</p>
+                  <div className="mt-auto flex items-center gap-1.5 pt-3">
+                    <span className="h-1.5 flex-1 rounded-full bg-[#e5e9ef]" />
+                    <span className="h-1.5 w-8 rounded-full" style={{ background: preset.accent }} />
+                  </div>
                 </div>
               </button>
             );
