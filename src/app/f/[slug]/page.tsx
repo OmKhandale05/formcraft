@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { ArrowLeft, EyeOff, Globe2 } from "lucide-react";
+import { use } from "react";
 import { FormRenderer } from "@/components/form-renderer";
 import { Button } from "@/components/ui/button";
 import { useFormStore } from "@/store/form-store";
 
-export default function PublicFormPage({ params }: { params: { slug: string } }) {
+export default function PublicFormPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const publishedForm = useFormStore((state) => state.publishedForm);
   const addSubmission = useFormStore((state) => state.addSubmission);
-  const form = publishedForm.published && publishedForm.slug === params.slug ? publishedForm.form : null;
+  const form = publishedForm.published && publishedForm.slug === slug ? publishedForm.form : null;
 
   return (
     <main className="min-h-screen bg-[#f4f6f8] p-4 sm:p-8">
