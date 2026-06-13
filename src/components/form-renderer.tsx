@@ -97,22 +97,17 @@ function textareaMinHeightClass(density?: FormTheme["density"]) {
 
 function controlClass(theme: FormTheme, dark: boolean, rounded: boolean, kind: "input" | "textarea" = "input") {
   const style = theme.fieldStyle ?? defaultAppearance.fieldStyle;
-  const focus = theme.focusStyle ?? defaultAppearance.focusStyle;
   const density = theme.density ?? defaultAppearance.density;
   const radiusClass = rounded ? "rounded-[var(--field-radius)]" : "rounded-none";
 
   return cn(
-    "w-full border-[length:var(--field-border-width)] text-[#111827] transition duration-200 placeholder:text-[#98a2b3] focus:outline-none",
+    "formcraft-control w-full border-[length:var(--field-border-width)] text-[#111827] transition duration-200 placeholder:text-[#98a2b3] focus:outline-none",
     kind === "input" ? fieldHeightClass(density) : textareaMinHeightClass(density),
     radiusClass,
     style === "outline" && "border-[#d8e0ea] bg-white/90 shadow-sm",
     style === "filled" && "border-transparent bg-[#f1f5f9] shadow-none",
     style === "underline" && "rounded-none border-x-0 border-t-0 border-[#cbd5e1] bg-transparent px-0 shadow-none",
     style === "glass" && "border-white/60 bg-white/70 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur",
-    focus === "border" && "focus:border-[var(--accent)] focus:bg-white",
-    focus === "ring" && "focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/15",
-    focus === "glow" && "focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/20 focus:shadow-[0_16px_36px_rgba(49,87,213,0.16)]",
-    focus === "lift" && "focus:-translate-y-0.5 focus:border-[var(--accent)] focus:shadow-[0_16px_34px_rgba(17,24,39,0.16)]",
     dark && style !== "underline" && "border-white/15 bg-white/5 text-white placeholder:text-white/35",
     dark && style === "filled" && "bg-white/10",
     dark && style === "underline" && "border-white/20 text-white placeholder:text-white/35",
@@ -215,6 +210,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         "--field-border-width": `${form.theme.fieldBorderWidth ?? defaultAppearance.fieldBorderWidth}px`,
         fontFamily: getFontFamily(form.theme.fontFamily)
       } as CSSProperties}
+      data-focus-style={form.theme.focusStyle ?? defaultAppearance.focusStyle}
       className={cn(
         "mx-auto w-full border shadow-sm",
         formWidthClass(form.theme.formWidth),

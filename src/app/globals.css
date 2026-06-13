@@ -59,6 +59,34 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+.formcraft-control:focus,
+.formcraft-control:focus-visible,
+.formcraft-control:focus-within {
+  border-color: var(--accent);
+  outline: none;
+}
+
+form[data-focus-style="ring"] .formcraft-control:focus,
+form[data-focus-style="ring"] .formcraft-control:focus-visible,
+form[data-focus-style="ring"] .formcraft-control:focus-within {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+form[data-focus-style="glow"] .formcraft-control:focus,
+form[data-focus-style="glow"] .formcraft-control:focus-visible,
+form[data-focus-style="glow"] .formcraft-control:focus-within {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 16px 36px rgba(49, 87, 213, 0.16);
+}
+
+form[data-focus-style="lift"] .formcraft-control:focus,
+form[data-focus-style="lift"] .formcraft-control:focus-visible,
+form[data-focus-style="lift"] .formcraft-control:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(17, 24, 39, 0.16);
+}
+
 .formcraft-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #c8d0da transparent;
