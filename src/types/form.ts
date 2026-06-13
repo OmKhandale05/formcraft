@@ -85,7 +85,7 @@ export type FormTheme = {
   accentColor: string;
   radius: "rounded" | "square";
   mode: "light" | "dark";
-  fontFamily?: "inter" | "manrope" | "geist" | "poppins" | "dm-sans" | "serif";
+  fontFamily?: "inter" | "manrope" | "geist" | "poppins" | "dm-sans" | "serif" | "mono" | "rounded";
   fontScale?: "compact" | "comfortable" | "large";
   fieldStyle?: "outline" | "filled" | "underline" | "glass";
   fieldRadius?: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
+import { motion, type MotionProps } from "framer-motion";
 import { ArrowLeft, ArrowRight, Bold, Calculator, Check, CheckCircle2, ChevronDown, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
@@ -115,12 +115,12 @@ function controlClass(theme: FormTheme, dark: boolean, rounded: boolean, kind: "
   );
 }
 
-function fieldMotion(animation: FormTheme["animation"], index: number) {
-  const delay = Math.min(index * 0.035, 0.18);
-  if (animation === "fade") return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.22, delay } };
-  if (animation === "scale") return { initial: { opacity: 0, scale: 0.98 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.24, delay } };
+function fieldMotion(animation: FormTheme["animation"], index: number): MotionProps {
+  const delay = Math.min(index * 0.045, 0.22);
+  if (animation === "fade") return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.34, delay } };
+  if (animation === "scale") return { initial: { opacity: 0, scale: 0.94 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.34, delay, type: "spring", stiffness: 260, damping: 24 } };
   if (animation === "none") return { initial: false as const, animate: undefined, transition: undefined };
-  return { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.24, delay } };
+  return { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.34, delay, type: "spring", stiffness: 240, damping: 26 } };
 }
 
 type FormRendererProps = {
@@ -258,7 +258,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
 
       <div className={cn("grid sm:grid-cols-2", fieldGapClass(formDensity))}>
         {currentStepFields.map((field, index) => (
-          <motion.div key={field.id} {...fieldMotion(formAnimation, index)} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
+          <motion.div key={`${field.id}-${formAnimation}`} {...fieldMotion(formAnimation, index)} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
             <RenderedField
               field={field}
               register={register}

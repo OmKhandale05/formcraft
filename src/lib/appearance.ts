@@ -8,12 +8,14 @@ export type AppearancePreset = {
 };
 
 export const fontOptions = [
-  { value: "inter", label: "Inter", family: "Inter, ui-sans-serif, system-ui, sans-serif" },
-  { value: "manrope", label: "Manrope", family: "Manrope, Inter, ui-sans-serif, system-ui, sans-serif" },
-  { value: "geist", label: "Geist", family: "Geist, Inter, ui-sans-serif, system-ui, sans-serif" },
-  { value: "poppins", label: "Poppins", family: "Poppins, Inter, ui-sans-serif, system-ui, sans-serif" },
-  { value: "dm-sans", label: "DM Sans", family: "'DM Sans', Inter, ui-sans-serif, system-ui, sans-serif" },
-  { value: "serif", label: "Editorial", family: "Georgia, 'Times New Roman', serif" }
+  { value: "inter", label: "System Sans", family: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, system-ui, sans-serif" },
+  { value: "manrope", label: "Humanist", family: "'Avenir Next', Avenir, 'Nunito Sans', ui-sans-serif, system-ui, sans-serif" },
+  { value: "geist", label: "Modern UI", family: "'Helvetica Neue', Helvetica, Arial, ui-sans-serif, system-ui, sans-serif" },
+  { value: "poppins", label: "Geometric", family: "Futura, 'Trebuchet MS', 'Century Gothic', ui-sans-serif, system-ui, sans-serif" },
+  { value: "dm-sans", label: "Friendly", family: "'Trebuchet MS', Verdana, ui-sans-serif, system-ui, sans-serif" },
+  { value: "rounded", label: "Rounded", family: "'Arial Rounded MT Bold', 'Avenir Next Rounded', ui-rounded, ui-sans-serif, system-ui, sans-serif" },
+  { value: "mono", label: "Mono", family: "'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', ui-monospace, monospace" },
+  { value: "serif", label: "Editorial", family: "Georgia, 'Times New Roman', ui-serif, serif" }
 ] as const;
 
 export const appearancePresets: AppearancePreset[] = [
