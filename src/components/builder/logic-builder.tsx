@@ -61,14 +61,14 @@ export function LogicBuilder() {
   return (
     <section className="rounded-2xl border border-[#d8e0ea] bg-white/82 p-4 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-semibold text-[#111418]">
             <GitBranch size={16} />
             Logic builder
           </p>
           <p className="mt-1 text-xs leading-5 text-[#667085]">Write form behavior as simple if-this-then-that sentences.</p>
         </div>
-        <Button type="button" size="sm" variant="primary" disabled={!canCreateRules} onClick={addLogicRule}>
+        <Button type="button" size="sm" variant="primary" className="shrink-0 whitespace-nowrap px-3.5" disabled={!canCreateRules} onClick={addLogicRule}>
           <Plus size={14} />
           Add rule
         </Button>
