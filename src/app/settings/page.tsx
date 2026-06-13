@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { AppearanceControls } from "@/components/builder/appearance-controls";
 import { FormHealthPanel } from "@/components/builder/form-health-panel";
 import { LogicBuilder } from "@/components/builder/logic-builder";
+import { VersionHistoryPanel } from "@/components/builder/version-history-panel";
 import { FormRenderer } from "@/components/form-renderer";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { useFormStore } from "@/store/form-store";
@@ -39,6 +40,7 @@ export default function SettingsPage() {
               <Textarea id="description" className="mt-2" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
             </div>
             <FormHealthPanel form={form} />
+            <VersionHistoryPanel />
             <LogicBuilder />
             <AppearanceControls theme={form.theme} onChange={setTheme} />
           </div>

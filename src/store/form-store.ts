@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { FormField, FormSchema, FormTheme, LogicRule, Submission } from "@/types/form";
+import type { FormField, FormSchema, FormTheme, FormVersion, LogicRule, Submission } from "@/types/form";
 import { defaultForm } from "@/lib/templates";
 
 type FormStore = {
@@ -10,6 +10,7 @@ type FormStore = {
   selectedFieldId: string | null;
   selectedFieldIds: string[];
   submissions: Submission[];
+  versions: FormVersion[];
   setSelectedField: (id: string | null) => void;
   toggleFieldSelection: (id: string) => void;
   clearSelection: () => void;
@@ -28,6 +29,10 @@ type FormStore = {
   updateSelectedFields: (updates: Partial<FormField>) => void;
   reorderFields: (from: number, to: number) => void;
   replaceForm: (form: FormSchema) => void;
+  saveVersion: (name?: string, note?: string) => void;
+  restoreVersion: (id: string) => void;
+  duplicateVersion: (id: string) => void;
+  deleteVersion: (id: string) => void;
   addSubmission: (values: Record<string, unknown>) => void;
   clearSubmissions: () => void;
 };
@@ -41,6 +46,7 @@ export const useFormStore = create<FormStore>()(
       selectedFieldId: null,
       selectedFieldIds: [],
       submissions: [],
+      versions: [],
       setSelectedField: (id) => set({ selectedFieldId: id, selectedFieldIds: id ? [id] : [] }),
       toggleFieldSelection: (id) =>
         set((state) => {
@@ -202,6 +208,59 @@ export const useFormStore = create<FormStore>()(
           selectedFieldId: null,
           selectedFieldIds: []
         }),
+      saveVersion: (name, note) =>
+        set((state) => {
+          const createdAt = new Date().toISOString();
+          const version: FormVersion = {
+            id: `version-${crypto.randomUUID()}`,
+            name: name?.trim() || `${state.form.name || state.form.title} snapshot`,
+            note: note?.trim() || undefined,
+            createdAt,
+            form: {
+              ...state.form,
+              fields: state.form.fields.map((field) => ({ ...field, settings: field.settings ? { ...field.settings } : undefined, validation: field.validation ? { ...field.validation } : undefined, options: field.options ? [...field.options] : undefined })),
+              theme: { ...state.form.theme },
+              logicRules: state.form.logicRules?.map((rule) => ({ ...rule, targetFieldIds: [...rule.targetFieldIds] })),
+              updatedAt: createdAt
+            }
+          };
+          return { versions: [version, ...state.versions].slice(0, 20) };
+        }),
+      restoreVersion: (id) =>
+        set((state) => {
+          const version = state.versions.find((item) => item.id === id);
+          if (!version) return state;
+          return {
+            form: stamp({
+              ...version.form,
+              id: state.form.id
+            }),
+            selectedFieldId: null,
+            selectedFieldIds: []
+          };
+        }),
+      duplicateVersion: (id) =>
+        set((state) => {
+          const version = state.versions.find((item) => item.id === id);
+          if (!version) return state;
+          const createdAt = new Date().toISOString();
+          return {
+            versions: [
+              {
+                ...version,
+                id: `version-${crypto.randomUUID()}`,
+                name: `${version.name} copy`,
+                createdAt,
+                form: { ...version.form, id: `form-${crypto.randomUUID()}`, updatedAt: createdAt }
+              },
+              ...state.versions
+            ].slice(0, 20)
+          };
+        }),
+      deleteVersion: (id) =>
+        set((state) => ({
+          versions: state.versions.filter((version) => version.id !== id)
+        })),
       addSubmission: (values) =>
         set((state) => ({
           submissions: [
@@ -220,7 +279,8 @@ export const useFormStore = create<FormStore>()(
       name: "formcraft-workspace",
       partialize: (state) => ({
         form: state.form,
-        submissions: state.submissions
+        submissions: state.submissions,
+        versions: state.versions
       })
     }
   )

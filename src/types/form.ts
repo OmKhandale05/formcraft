@@ -132,3 +132,11 @@ export type Submission = {
   submittedAt: string;
   values: Record<string, unknown>;
 };
+
+export type FormVersion = {
+  id: string;
+  name: string;
+  note?: string;
+  createdAt: string;
+  form: FormSchema;
+};
