@@ -164,16 +164,16 @@ export default function BuilderPage() {
         <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-[#eef2f6]">
           <header className="relative z-20 shrink-0 border-b border-[#d6dfeb] bg-white/88 px-4 py-3 shadow-[0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-xl sm:px-5">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="min-w-[240px] flex-1">
-                <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#7b8797]">
+              <div className="flex min-w-[300px] flex-1 items-center gap-3">
+                <div className="hidden h-10 shrink-0 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-[#f8fafc] px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7b8797] shadow-sm sm:flex">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#16a34a]" />
-                  Builder workspace
+                  Builder
                 </div>
                 <Input
                   aria-label="Form name"
                   value={form.name}
                   onChange={(event) => setFormMeta({ name: event.target.value })}
-                  className="h-10 max-w-[360px] border-transparent bg-[#f3f6fa] text-[15px] font-bold shadow-none focus:bg-white"
+                  className="h-10 max-w-[360px] border-[#d8e0ea] bg-[#f3f6fa] text-[15px] font-bold shadow-sm focus:bg-white"
                 />
               </div>
               <div className="hidden h-10 shrink-0 items-center rounded-xl border border-[#d8e0ea] bg-[#f8fafc] px-3 text-xs font-semibold text-[#465366] shadow-sm xl:flex">
