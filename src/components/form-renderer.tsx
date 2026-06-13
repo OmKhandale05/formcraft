@@ -3,16 +3,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Bold, Calculator, Check, CheckCircle2, ChevronDown, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { defaultAppearance, getFontFamily } from "@/lib/appearance";
 import { evaluateFormula, formatFormulaValue } from "@/lib/formula";
 import { phoneCountries } from "@/lib/phone-countries";
 import { cn } from "@/lib/utils";
-import type { FormField, FormSchema } from "@/types/form";
+import type { FormField, FormSchema, FormTheme } from "@/types/form";
 
 function schemaForField(field: FormField) {
   if (["section", "divider", "file", "hidden", "formula"].includes(field.type)) return z.any().optional();
@@ -64,6 +65,69 @@ function validationNamesForField(field: FormField) {
   return [field.id];
 }
 
+function formWidthClass(width?: FormTheme["formWidth"]) {
+  if (width === "narrow") return "max-w-2xl";
+  if (width === "wide") return "max-w-5xl";
+  return "max-w-3xl";
+}
+
+function fieldGapClass(density?: FormTheme["density"]) {
+  if (density === "compact") return "gap-4";
+  if (density === "spacious") return "gap-7";
+  return "gap-5";
+}
+
+function fieldHeightClass(density?: FormTheme["density"]) {
+  if (density === "compact") return "h-9";
+  if (density === "spacious") return "h-12";
+  return "h-10";
+}
+
+function textScaleClass(scale?: FormTheme["fontScale"]) {
+  if (scale === "compact") return "text-[13px]";
+  if (scale === "large") return "text-base";
+  return "text-sm";
+}
+
+function textareaMinHeightClass(density?: FormTheme["density"]) {
+  if (density === "compact") return "min-h-20";
+  if (density === "spacious") return "min-h-32";
+  return "min-h-24";
+}
+
+function controlClass(theme: FormTheme, dark: boolean, rounded: boolean, kind: "input" | "textarea" = "input") {
+  const style = theme.fieldStyle ?? defaultAppearance.fieldStyle;
+  const focus = theme.focusStyle ?? defaultAppearance.focusStyle;
+  const density = theme.density ?? defaultAppearance.density;
+  const radiusClass = rounded ? "rounded-[var(--field-radius)]" : "rounded-none";
+
+  return cn(
+    "w-full border-[length:var(--field-border-width)] text-[#111827] transition duration-200 placeholder:text-[#98a2b3] focus:outline-none",
+    kind === "input" ? fieldHeightClass(density) : textareaMinHeightClass(density),
+    radiusClass,
+    style === "outline" && "border-[#d8e0ea] bg-white/90 shadow-sm",
+    style === "filled" && "border-transparent bg-[#f1f5f9] shadow-none",
+    style === "underline" && "rounded-none border-x-0 border-t-0 border-[#cbd5e1] bg-transparent px-0 shadow-none",
+    style === "glass" && "border-white/60 bg-white/70 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur",
+    focus === "border" && "focus:border-[var(--accent)] focus:bg-white",
+    focus === "ring" && "focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/15",
+    focus === "glow" && "focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/20 focus:shadow-[0_16px_36px_rgba(49,87,213,0.16)]",
+    focus === "lift" && "focus:-translate-y-0.5 focus:border-[var(--accent)] focus:shadow-[0_16px_34px_rgba(17,24,39,0.16)]",
+    dark && style !== "underline" && "border-white/15 bg-white/5 text-white placeholder:text-white/35",
+    dark && style === "filled" && "bg-white/10",
+    dark && style === "underline" && "border-white/20 text-white placeholder:text-white/35",
+    dark && "focus:bg-white/10"
+  );
+}
+
+function fieldMotion(animation: FormTheme["animation"], index: number) {
+  const delay = Math.min(index * 0.035, 0.18);
+  if (animation === "fade") return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.22, delay } };
+  if (animation === "scale") return { initial: { opacity: 0, scale: 0.98 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.24, delay } };
+  if (animation === "none") return { initial: false as const, animate: undefined, transition: undefined };
+  return { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.24, delay } };
+}
+
 type FormRendererProps = {
   form: FormSchema;
   onSubmit?: (values: Record<string, unknown>) => void;
@@ -110,6 +174,9 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
 
   const isDark = form.theme.mode === "dark";
   const rounded = form.theme.radius === "rounded";
+  const fieldRadius = form.theme.fieldRadius ?? (rounded ? defaultAppearance.fieldRadius : 0);
+  const formAnimation = form.theme.animation ?? defaultAppearance.animation;
+  const formDensity = form.theme.density ?? defaultAppearance.density;
   const currentStepValidationNames = currentStepFields.flatMap(validationNamesForField);
 
   const goToNextStep = async () => {
@@ -142,9 +209,16 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
 
   return (
     <form
-      style={{ "--accent": form.theme.accentColor } as React.CSSProperties}
+      style={{
+        "--accent": form.theme.accentColor,
+        "--field-radius": `${fieldRadius}px`,
+        "--field-border-width": `${form.theme.fieldBorderWidth ?? defaultAppearance.fieldBorderWidth}px`,
+        fontFamily: getFontFamily(form.theme.fontFamily)
+      } as CSSProperties}
       className={cn(
-        "border shadow-sm",
+        "mx-auto w-full border shadow-sm",
+        formWidthClass(form.theme.formWidth),
+        textScaleClass(form.theme.fontScale),
         compact ? "p-5" : "p-7 sm:p-8",
         rounded ? "rounded-2xl" : "rounded-none",
         isDark ? "border-white/10 bg-[#15161a] text-white" : "border-[#dce1e8] bg-white text-[#15161a]"
@@ -186,9 +260,9 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         </div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        {currentStepFields.map((field) => (
-          <div key={field.id} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
+      <div className={cn("grid sm:grid-cols-2", fieldGapClass(formDensity))}>
+        {currentStepFields.map((field, index) => (
+          <motion.div key={field.id} {...fieldMotion(formAnimation, index)} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
             <RenderedField
               field={field}
               register={register}
@@ -197,8 +271,9 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
               error={errors[field.id]?.message as string | undefined}
               dark={isDark}
               rounded={rounded}
+              theme={form.theme}
             />
-          </div>
+          </motion.div>
         ))}
       </div>
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
@@ -238,7 +313,8 @@ function RenderedField({
   watch,
   error,
   dark,
-  rounded
+  rounded,
+  theme
 }: {
   field: FormField;
   register: UseFormRegister<Record<string, unknown>>;
@@ -247,8 +323,10 @@ function RenderedField({
   error?: string;
   dark: boolean;
   rounded: boolean;
+  theme: FormTheme;
 }) {
-  const inputClass = cn(!rounded && "rounded-none", dark && "border-white/15 bg-white/5 text-white placeholder:text-white/35");
+  const inputClass = controlClass(theme, dark, rounded);
+  const textareaClass = controlClass(theme, dark, rounded, "textarea");
 
   if (field.type === "divider") return <div className={cn("h-px", dark ? "bg-white/10" : "bg-[#e5e9ef]")} />;
   if (field.type === "section") {
@@ -270,7 +348,7 @@ function RenderedField({
         {field.label}
         {field.required && <span className="ml-1 text-[var(--accent)]">*</span>}
       </Label>
-      {field.type === "textarea" && <Textarea id={field.id} placeholder={field.placeholder} className={inputClass} {...register(field.id)} />}
+      {field.type === "textarea" && <Textarea id={field.id} placeholder={field.placeholder} className={textareaClass} {...register(field.id)} />}
       {["text", "email", "number", "date"].includes(field.type) && (
         <Input id={field.id} type={field.type === "phone" ? "tel" : field.type} placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
       )}
@@ -284,6 +362,7 @@ function RenderedField({
             watch={watch}
             dark={dark}
             rounded={rounded}
+            theme={theme}
             label={field.label}
           />
           <Input id={field.id} type="tel" placeholder={field.placeholder} className={inputClass} {...register(field.id)} />
@@ -356,7 +435,7 @@ function RenderedField({
           />
         </div>
       )}
-      {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
+      {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} theme={theme} />}
       {field.type === "matrix" && <MatrixField field={field} register={register} setValue={setValue} watch={watch} dark={dark} />}
       {field.type === "formula" && <FormulaField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} />}
       {field.type === "payment" && (
@@ -388,6 +467,7 @@ function PhoneCountrySelect({
   watch,
   dark,
   rounded,
+  theme,
   label
 }: {
   name: string;
@@ -397,6 +477,7 @@ function PhoneCountrySelect({
   watch: UseFormWatch<Record<string, unknown>>;
   dark: boolean;
   rounded: boolean;
+  theme: FormTheme;
   label: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -415,9 +496,8 @@ function PhoneCountrySelect({
         aria-label={`${label} country code`}
         aria-expanded={open}
         className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-[#d8e0ea] bg-white/90 px-3 text-sm text-[#111827] shadow-sm transition focus:border-[var(--accent)] focus:bg-white focus:outline-none",
-          !rounded && "rounded-none",
-          dark && "border-white/15 bg-white/5 text-white"
+          controlClass(theme, dark, rounded),
+          "flex items-center justify-between gap-2"
         )}
         onClick={() => setOpen((value) => !value)}
       >
@@ -629,7 +709,7 @@ function registerSignature(id: string, setValue: UseFormSetValue<Record<string, 
   };
 }
 
-function RichTextField({ field, setValue, dark, rounded }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean }) {
+function RichTextField({ field, setValue, dark, rounded, theme }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean; theme: FormTheme }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarItems = [
     { command: "bold", label: "Bold", icon: Bold },
@@ -687,7 +767,7 @@ function RichTextField({ field, setValue, dark, rounded }: { field: FormField; s
   };
 
   return (
-    <div className={cn("overflow-hidden border", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-white")}>
+    <div className={cn("overflow-hidden", controlClass(theme, dark, rounded, "textarea"))}>
       <div className={cn("flex flex-wrap gap-1 border-b p-2", dark ? "border-white/10" : "border-[#d8e0ea]")}>
         {toolbarItems.map((item) => (
           <button

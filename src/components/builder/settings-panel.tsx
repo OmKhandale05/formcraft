@@ -1,7 +1,8 @@
 "use client";
 
-import { Copy, GripVertical, Moon, Palette, Plus, Square, Sun, Trash2, X } from "lucide-react";
+import { Copy, GripVertical, Palette, Plus, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { AppearanceControls } from "@/components/builder/appearance-controls";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { useFormStore } from "@/store/form-store";
 import type { FieldType, FormField, ValidationRule } from "@/types/form";
 
 const optionFieldTypes: FieldType[] = ["dropdown", "radio", "checkbox"];
-const themeColors = ["#2563eb", "#0f766e", "#d97706", "#db2777", "#7c3aed", "#111827"];
 const matrixColorPresets = ["#eef4ff", "#f8fafc", "#ffffff", "#fef3c7", "#ecfdf5", "#fdf2f8", "#f1f5f9", "#111827"];
 const defaultMatrixColors = {
   matrixHeaderColor: "#eef4ff",
@@ -868,48 +868,7 @@ export function FormDetailsPanel({ onClose }: { onClose: () => void }) {
           <Label htmlFor="right-form-description">Description</Label>
           <Textarea id="right-form-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
         </div>
-        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
-          <Label>Accent color</Label>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {themeColors.map((color) => (
-              <button
-                key={color}
-                type="button"
-                aria-label={`Use ${color}`}
-                className="h-9 w-9 rounded-xl border-2 border-white shadow ring-offset-2 transition hover:scale-105"
-                style={{ background: color, boxShadow: form.theme.accentColor === color ? `0 0 0 3px ${color}33` : undefined }}
-                onClick={() => setTheme({ accentColor: color })}
-              />
-            ))}
-            <Input type="color" value={form.theme.accentColor} onChange={(event) => setTheme({ accentColor: event.target.value })} className="h-9 w-14 p-1" />
-          </div>
-        </div>
-        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
-          <Label>Corner style</Label>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button type="button" size="sm" variant={form.theme.radius === "rounded" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "rounded" })}>
-              <Palette size={15} />
-              Rounded
-            </Button>
-            <Button type="button" size="sm" variant={form.theme.radius === "square" ? "primary" : "secondary"} onClick={() => setTheme({ radius: "square" })}>
-              <Square size={15} />
-              Square
-            </Button>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-[#d8e0ea] bg-white/78 p-4 shadow-sm">
-          <Label>Preview mode</Label>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button type="button" size="sm" variant={form.theme.mode === "light" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "light" })}>
-              <Sun size={15} />
-              Light
-            </Button>
-            <Button type="button" size="sm" variant={form.theme.mode === "dark" ? "primary" : "secondary"} onClick={() => setTheme({ mode: "dark" })}>
-              <Moon size={15} />
-              Dark
-            </Button>
-          </div>
-        </div>
+        <AppearanceControls theme={form.theme} onChange={setTheme} compact />
       </div>
     </aside>
   );

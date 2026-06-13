@@ -85,6 +85,15 @@ export type FormTheme = {
   accentColor: string;
   radius: "rounded" | "square";
   mode: "light" | "dark";
+  fontFamily?: "inter" | "manrope" | "geist" | "poppins" | "dm-sans" | "serif";
+  fontScale?: "compact" | "comfortable" | "large";
+  fieldStyle?: "outline" | "filled" | "underline" | "glass";
+  fieldRadius?: number;
+  fieldBorderWidth?: number;
+  focusStyle?: "border" | "ring" | "glow" | "lift";
+  animation?: "none" | "fade" | "slide" | "scale";
+  formWidth?: "narrow" | "medium" | "wide";
+  density?: "compact" | "comfortable" | "spacious";
 };
 
 export type FormSchema = {

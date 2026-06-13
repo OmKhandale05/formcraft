@@ -3,7 +3,16 @@ import type { FormField, FormSchema } from "@/types/form";
 const baseTheme = {
   accentColor: "#2563eb",
   radius: "rounded" as const,
-  mode: "light" as const
+  mode: "light" as const,
+  fontFamily: "inter" as const,
+  fontScale: "comfortable" as const,
+  fieldStyle: "outline" as const,
+  fieldRadius: 14,
+  fieldBorderWidth: 1,
+  focusStyle: "ring" as const,
+  animation: "slide" as const,
+  formWidth: "medium" as const,
+  density: "comfortable" as const
 };
 
 const initialUpdatedAt = "2026-06-10T00:00:00.000Z";
