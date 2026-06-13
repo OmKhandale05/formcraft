@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { FormField, FormSchema, FormTheme, Submission } from "@/types/form";
+import type { FormField, FormSchema, FormTheme, LogicRule, Submission } from "@/types/form";
 import { defaultForm } from "@/lib/templates";
 
 type FormStore = {
@@ -15,6 +15,9 @@ type FormStore = {
   clearSelection: () => void;
   setFormMeta: (updates: Partial<Pick<FormSchema, "name" | "title" | "description">>) => void;
   setTheme: (theme: Partial<FormTheme>) => void;
+  addLogicRule: () => void;
+  updateLogicRule: (id: string, updates: Partial<LogicRule>) => void;
+  deleteLogicRule: (id: string) => void;
   addField: (field: FormField, index?: number) => void;
   updateField: (id: string, updates: Partial<FormField>) => void;
   duplicateField: (id: string) => void;
@@ -54,6 +57,35 @@ export const useFormStore = create<FormStore>()(
       setTheme: (theme) =>
         set((state) => ({
           form: stamp({ ...state.form, theme: { ...state.form.theme, ...theme } })
+        })),
+      addLogicRule: () =>
+        set((state) => {
+          const fields = state.form.fields.filter((field) => !["section", "divider", "hidden", "formula"].includes(field.type));
+          const sourceField = fields[0];
+          const targetField = fields.find((field) => field.id !== sourceField?.id);
+          if (!sourceField || !targetField) return state;
+          const rule: LogicRule = {
+            id: `logic-${crypto.randomUUID()}`,
+            name: `Rule ${(state.form.logicRules?.length ?? 0) + 1}`,
+            enabled: true,
+            sourceFieldId: sourceField.id,
+            operator: "equals",
+            value: sourceField.options?.[0] ?? "",
+            action: "show",
+            targetFieldIds: [targetField.id]
+          };
+          return { form: stamp({ ...state.form, logicRules: [...(state.form.logicRules ?? []), rule] }) };
+        }),
+      updateLogicRule: (id, updates) =>
+        set((state) => ({
+          form: stamp({
+            ...state.form,
+            logicRules: (state.form.logicRules ?? []).map((rule) => (rule.id === id ? { ...rule, ...updates } : rule))
+          })
+        })),
+      deleteLogicRule: (id) =>
+        set((state) => ({
+          form: stamp({ ...state.form, logicRules: (state.form.logicRules ?? []).filter((rule) => rule.id !== id) })
         })),
       addField: (field, index) =>
         set((state) => {
@@ -103,7 +135,16 @@ export const useFormStore = create<FormStore>()(
         set((state) => {
           const selectedFieldIds = state.selectedFieldIds.filter((fieldId) => fieldId !== id);
           return {
-            form: stamp({ ...state.form, fields: state.form.fields.filter((field) => field.id !== id) }),
+            form: stamp({
+              ...state.form,
+              fields: state.form.fields.filter((field) => field.id !== id),
+              logicRules: (state.form.logicRules ?? [])
+                .map((rule) => ({
+                  ...rule,
+                  targetFieldIds: rule.targetFieldIds.filter((targetId) => targetId !== id)
+                }))
+                .filter((rule) => rule.sourceFieldId !== id && rule.targetFieldIds.length)
+            }),
             selectedFieldId: state.selectedFieldId === id ? selectedFieldIds.at(-1) ?? null : state.selectedFieldId,
             selectedFieldIds
           };
@@ -113,14 +154,23 @@ export const useFormStore = create<FormStore>()(
           const selected = new Set(state.selectedFieldIds);
           if (!selected.size) return state;
           return {
-            form: stamp({ ...state.form, fields: state.form.fields.filter((field) => !selected.has(field.id)) }),
+            form: stamp({
+              ...state.form,
+              fields: state.form.fields.filter((field) => !selected.has(field.id)),
+              logicRules: (state.form.logicRules ?? [])
+                .map((rule) => ({
+                  ...rule,
+                  targetFieldIds: rule.targetFieldIds.filter((targetId) => !selected.has(targetId))
+                }))
+                .filter((rule) => !selected.has(rule.sourceFieldId) && rule.targetFieldIds.length)
+            }),
             selectedFieldId: null,
             selectedFieldIds: []
           };
         }),
       deleteForm: () =>
         set((state) => ({
-          form: stamp({ ...state.form, fields: [] }),
+          form: stamp({ ...state.form, fields: [], logicRules: [] }),
           selectedFieldId: null,
           selectedFieldIds: [],
           submissions: []

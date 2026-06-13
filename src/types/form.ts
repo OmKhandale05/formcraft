@@ -101,6 +101,20 @@ export type FormTheme = {
   labelSpacing?: "compact" | "comfortable" | "spacious";
 };
 
+export type LogicOperator = "equals" | "notEquals" | "contains" | "notEmpty" | "empty" | "greaterThan" | "lessThan";
+export type LogicAction = "show" | "hide" | "require" | "optional";
+
+export type LogicRule = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  sourceFieldId: string;
+  operator: LogicOperator;
+  value?: string;
+  action: LogicAction;
+  targetFieldIds: string[];
+};
+
 export type FormSchema = {
   id: string;
   name: string;
@@ -108,6 +122,7 @@ export type FormSchema = {
   description: string;
   fields: FormField[];
   theme: FormTheme;
+  logicRules?: LogicRule[];
   updatedAt: string;
 };
 

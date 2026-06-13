@@ -4,16 +4,29 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, type MotionProps } from "framer-motion";
 import { ArrowLeft, ArrowRight, Bold, Calculator, Check, CheckCircle2, ChevronDown, CreditCard, Eraser, Italic, List, ListOrdered, PenLine, Quote, Star, Underline, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
-import { useForm, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
+import { useForm, useWatch, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { defaultAppearance, getFontFamily } from "@/lib/appearance";
 import { evaluateFormula, formatFormulaValue } from "@/lib/formula";
+import { evaluateLogic } from "@/lib/logic";
 import { phoneCountries } from "@/lib/phone-countries";
 import { cn } from "@/lib/utils";
 import type { FormField, FormSchema, FormTheme } from "@/types/form";
+
+function fieldHasValue(value: unknown) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") {
+    if ("start" in value || "end" in value) {
+      const range = value as { start?: unknown; end?: unknown };
+      return Boolean(String(range.start ?? "").trim() && String(range.end ?? "").trim());
+    }
+    return Object.values(value).some(fieldHasValue);
+  }
+  return String(value ?? "").trim().length > 0;
+}
 
 function schemaForField(field: FormField) {
   if (["section", "divider", "file", "hidden", "formula"].includes(field.type)) return z.any().optional();
@@ -22,41 +35,49 @@ function schemaForField(field: FormField) {
     let numberSchema = z.coerce.number({ error: "Enter a valid number" });
     if (field.validation?.min !== undefined) numberSchema = numberSchema.min(field.validation.min);
     if (field.validation?.max !== undefined) numberSchema = numberSchema.max(field.validation.max);
-    if (field.type === "rating") numberSchema = numberSchema.min(1, "Choose a rating");
-    return field.required ? numberSchema : numberSchema.optional().or(z.literal(""));
+    return numberSchema.optional().or(z.literal(""));
   }
 
   if (field.type === "checkbox") {
-    const checkboxSchema = z.array(z.string());
-    return field.required ? checkboxSchema.min(1, "Choose at least one option") : checkboxSchema.optional();
+    return z.array(z.string()).optional();
   }
 
   if (field.type === "daterange") {
-    const rangeSchema = z.object({
-      start: z.string().min(field.required ? 1 : 0, "Choose a start date"),
-      end: z.string().min(field.required ? 1 : 0, "Choose an end date")
-    });
-    return field.required ? rangeSchema : rangeSchema.optional();
+    return z.object({
+      start: z.string().optional(),
+      end: z.string().optional()
+    }).optional();
   }
 
   if (field.type === "matrix") return z.record(z.string(), z.string()).optional();
 
   let stringSchema = z.string();
-  if (field.required) stringSchema = stringSchema.min(1, "This field is required");
   if (field.type === "email") stringSchema = stringSchema.email("Enter a valid email");
   if (field.validation?.minLength) stringSchema = stringSchema.min(field.validation.minLength);
   if (field.validation?.maxLength) stringSchema = stringSchema.max(field.validation.maxLength);
 
-  return field.required ? stringSchema : stringSchema.optional().or(z.literal(""));
+  return stringSchema.optional().or(z.literal(""));
 }
 
-function buildZodSchema(fields: FormField[]) {
+function buildZodSchema(form: FormSchema) {
   return z.object(
-    fields.reduce<Record<string, z.ZodTypeAny>>((shape, field) => {
+    form.fields.reduce<Record<string, z.ZodTypeAny>>((shape, field) => {
       shape[field.id] = schemaForField(field);
       return shape;
     }, {})
-  );
+  ).superRefine((values, context) => {
+    const effects = evaluateLogic(form, values);
+    for (const field of form.fields) {
+      if (effects.hiddenFieldIds.has(field.id) || !effects.requiredFieldIds.has(field.id)) continue;
+      if (!fieldHasValue(values[field.id])) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: field.type === "checkbox" ? "Choose at least one option" : field.type === "rating" ? "Choose a rating" : "This field is required",
+          path: [field.id]
+        });
+      }
+    }
+  });
 }
 
 function validationNamesForField(field: FormField) {
@@ -212,7 +233,7 @@ type FormRendererProps = {
 export function FormRenderer({ form, onSubmit, compact = false }: FormRendererProps) {
   const [submitted, setSubmitted] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const schema = useMemo(() => buildZodSchema(form.fields), [form.fields]);
+  const schema = useMemo(() => buildZodSchema(form), [form]);
   const steps = useMemo(() => {
     const uniqueSteps = Array.from(new Set(form.fields.map((field) => field.step ?? 1))).sort((a, b) => a - b);
     return uniqueSteps.length ? uniqueSteps : [1];
@@ -220,9 +241,6 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
   const activeStepIndex = Math.min(currentStepIndex, steps.length - 1);
   const currentStep = steps[activeStepIndex] ?? steps[0];
   const isMultiStep = steps.length > 1;
-  const currentStepFields = form.fields.filter((field) => (field.step ?? 1) === currentStep || field.type === "hidden");
-  const currentVisibleFields = currentStepFields.filter((field) => field.type !== "hidden");
-  const stepSection = currentVisibleFields.find((field) => field.type === "section");
   const progress = ((activeStepIndex + 1) / steps.length) * 100;
   const {
     register,
@@ -230,6 +248,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
     setValue,
     watch,
     trigger,
+    control,
     formState: { errors }
   } = useForm<Record<string, unknown>>({
     resolver: zodResolver(schema),
@@ -246,6 +265,11 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
       return values;
     }, {})
   });
+  const watchedValues = useWatch({ control }) as Record<string, unknown>;
+  const logicEffects = useMemo(() => evaluateLogic(form, watchedValues), [form, watchedValues]);
+  const currentStepFields = form.fields.filter((field) => ((field.step ?? 1) === currentStep || field.type === "hidden") && !logicEffects.hiddenFieldIds.has(field.id));
+  const currentVisibleFields = currentStepFields.filter((field) => field.type !== "hidden");
+  const stepSection = currentVisibleFields.find((field) => field.type === "section");
 
   const isDark = form.theme.mode === "dark";
   const rounded = form.theme.radius === "rounded";
@@ -349,6 +373,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
               dark={isDark}
               rounded={rounded}
               theme={form.theme}
+              required={logicEffects.requiredFieldIds.has(field.id)}
             />
           </motion.div>
         ))}
@@ -392,7 +417,8 @@ function RenderedField({
   error,
   dark,
   rounded,
-  theme
+  theme,
+  required
 }: {
   field: FormField;
   register: UseFormRegister<Record<string, unknown>>;
@@ -402,6 +428,7 @@ function RenderedField({
   dark: boolean;
   rounded: boolean;
   theme: FormTheme;
+  required: boolean;
 }) {
   const inputClass = controlClass(theme, dark, rounded);
   const textareaClass = controlClass(theme, dark, rounded, "textarea");
@@ -424,7 +451,7 @@ function RenderedField({
     <div>
       <Label htmlFor={field.id} className={cn("block", labelSpacingClass(theme.labelSpacing), dark && "text-white")}>
         {field.label}
-        {field.required && <span className="ml-1 text-[var(--accent)]">*</span>}
+        {required && <span className="ml-1 text-[var(--accent)]">*</span>}
       </Label>
       {field.type === "textarea" && <Textarea id={field.id} placeholder={field.placeholder} className={textareaClass} {...register(field.id)} />}
       {["text", "email", "number", "date"].includes(field.type) && (

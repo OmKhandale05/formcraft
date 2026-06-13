@@ -55,7 +55,7 @@ export default function PreviewPage() {
                 </div>
                 <h2 className="mt-3 text-lg font-semibold">Copyable form code</h2>
                 <p className="mt-1 text-sm leading-6 text-[#aab4c3]">
-                  {form.fields.length} fields · {new Set(form.fields.map((field) => field.step ?? 1)).size} steps
+                  {form.fields.length} fields · {new Set(form.fields.map((field) => field.step ?? 1)).size} steps · {form.logicRules?.length ?? 0} rules
                 </p>
               </div>
               <Button type="button" size="sm" variant="secondary" onClick={copySchema}>
@@ -67,7 +67,7 @@ export default function PreviewPage() {
               <code className="select-text whitespace-pre">{schemaJson}</code>
             </pre>
             <p className="mt-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm leading-6 text-[#aab4c3]">
-              This is the exact schema used by the live preview, including field layout, validation, theme, and multi-step settings.
+              This is the exact schema used by the live preview, including field layout, validation, theme, logic rules, and multi-step settings.
             </p>
           </aside>
         </div>
