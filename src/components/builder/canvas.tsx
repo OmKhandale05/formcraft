@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { MouseEvent } from "react";
 import { Columns2, Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Rows3, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fieldCatalog, fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
+import { fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
 import { cn } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
 import type { FormField } from "@/types/form";
@@ -22,27 +22,30 @@ export function BuilderCanvas({ onEditForm }: { onEditForm: () => void }) {
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-5 rounded-2xl border border-[#d8e0ea] bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#edf1f6] pb-4">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#667085]">Live canvas</p>
-            <div className="flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#465366]">
+        <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-[#d8e0ea] bg-white shadow-[0_20px_55px_rgba(17,24,39,0.08)]">
+          <div className="relative p-5 sm:p-6">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[linear-gradient(90deg,rgba(49,87,213,0.12),rgba(15,118,110,0.08),transparent)]" />
+            <div className="relative mb-4 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#667085]">Live canvas</p>
+              <div className="flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-white/90 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
               <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
               {form.fields.length} fields
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold tracking-tight text-[#111418] sm:text-3xl">{form.title}</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#667085]">{form.description}</p>
+            <div className="relative flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-bold tracking-tight text-[#111418] sm:text-3xl">{form.title}</h1>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[#667085]">{form.description}</p>
+              </div>
+              <button
+                type="button"
+                className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-white/92 px-3.5 text-sm font-semibold text-[#20242b] shadow-sm transition hover:border-[#c5d0dc] hover:bg-white hover:shadow-md"
+                onClick={onEditForm}
+              >
+                <Pencil size={15} />
+                Edit details
+              </button>
             </div>
-            <button
-              type="button"
-              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-[#f8fafc] px-3.5 text-sm font-semibold text-[#20242b] transition hover:border-[#c5d0dc] hover:bg-white hover:shadow-sm"
-              onClick={onEditForm}
-            >
-              <Pencil size={15} />
-              Edit details
-            </button>
           </div>
         </div>
         <SortableContext items={form.fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
@@ -81,7 +84,7 @@ export function BuilderCanvas({ onEditForm }: { onEditForm: () => void }) {
                 </p>
               </div>
             ) : (
-              <div className="relative z-10 grid gap-3 sm:grid-cols-2">
+              <div className="relative z-10 grid gap-4 sm:grid-cols-2">
                 {form.fields.map((field, index) => (
                   <CanvasField key={field.id} field={field} index={index} />
                 ))}
@@ -103,8 +106,6 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
   const deleteField = useFormStore((state) => state.deleteField);
   const selected = selectedFieldId === field.id || selectedFieldIds.includes(field.id);
   const layout = field.layout ?? "full";
-  const catalogItem = fieldCatalog.find((item) => item.type === field.type);
-  const Icon = catalogItem?.icon ?? GripVertical;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id });
   const handleSelect = (event: MouseEvent<HTMLDivElement>) => {
     if (event.shiftKey) {
@@ -121,9 +122,9 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
       data-testid="builder-canvas-field"
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "group relative cursor-grab overflow-hidden rounded-xl border bg-[#fbfcfe] shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_34px_rgba(17,24,39,0.1)] active:cursor-grabbing",
+        "group card-hover relative cursor-grab rounded-2xl border bg-white p-4 shadow-[0_10px_24px_rgba(17,24,39,0.06)] active:cursor-grabbing",
         layout === "half" ? "sm:col-span-1" : "sm:col-span-2",
-        selected ? "border-[#3157d5] bg-[#f8faff] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
+        selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#dce3ec] hover:border-[#bfcadc]",
         isDragging && "opacity-50"
       )}
       onClick={handleSelect}
@@ -136,37 +137,19 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
           selected ? "bg-[#3157d5]" : "bg-transparent group-hover:bg-[#c7d2fe]"
         )}
       />
-      <div className="border-b border-[#eef2f7] px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#e3e9f2] bg-[#f8fafc] text-[#315279]" aria-hidden="true">
-            <Icon size={17} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-sm font-bold text-[#1f2937]">
-                {field.label}
-                {field.required && <span className="ml-1 text-[#dc2626]">*</span>}
-              </p>
-              <span className="rounded-full bg-[#eef3ff] px-2 py-0.5 text-[11px] font-bold text-[#3157d5]">{layout === "half" ? "Half" : "Full"}</span>
-            </div>
-            <p className="mt-0.5 text-xs font-medium text-[#8a94a6]">
-              Step {field.step ?? 1} · {field.type} · #{index + 1}
-            </p>
-          </div>
-          <div className={cn("flex opacity-0 transition group-hover:opacity-100", selected && "opacity-100")} onPointerDown={(event) => event.stopPropagation()}>
-            <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); duplicateField(field.id); }} aria-label="Duplicate field">
-              <Copy size={16} />
-            </Button>
-            <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); deleteField(field.id); }} aria-label="Delete field">
-              <Trash2 size={16} />
-            </Button>
-          </div>
+      <div className="flex items-start gap-3">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#e3e9f2] bg-[#f8fafc] text-[#a1aab7] transition group-hover:text-[#667085]" aria-hidden="true">
+          <GripVertical size={18} />
         </div>
-      </div>
-      <div className="p-4">
         <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-[#e9f7f5] px-2 py-1 text-xs font-semibold text-[#0f766e]">Step {field.step ?? 1}</span>
+            <span className="rounded-md bg-[#f1f4f8] px-2 py-1 text-xs font-semibold text-[#64748b]">{field.type}</span>
+            <span className="rounded-md bg-[#eef3ff] px-2 py-1 text-xs font-semibold text-[#3157d5]">{layout === "half" ? "1/2 row" : "full row"}</span>
+            <span className="text-xs text-[#9aa3af]">#{index + 1}</span>
+          </div>
           {field.type === "divider" ? (
-            <div className="my-2 h-px bg-[#d8e0ea]" />
+            <div className="my-3 h-px bg-[#d8e0ea]" />
           ) : field.type === "section" ? (
             <div>
               <h3 className="text-base font-semibold text-[#15161a]">{field.label}</h3>
@@ -174,75 +157,34 @@ function CanvasField({ field, index }: { field: FormField; index: number }) {
             </div>
           ) : (
             <div>
+              <p className="text-sm font-semibold text-[#1f2937]">
+                {field.label}
+                {field.required && <span className="ml-1 text-[#dc2626]">*</span>}
+              </p>
               {field.placeholder && <p className="mt-1 text-sm text-[#98a2b3]">{field.placeholder}</p>}
-              <FieldPreviewChrome field={field} />
+              {field.options?.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {field.options.map((option) => (
+                    <span key={option} className="rounded-md border border-[#d8e0ea] bg-[#fbfcfe] px-2.5 py-1 text-xs font-medium text-[#465366]">
+                      {option}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
           )}
+        </div>
+        <div className={cn("flex opacity-0 transition group-hover:opacity-100", selected && "opacity-100")} onPointerDown={(event) => event.stopPropagation()}>
+          <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); duplicateField(field.id); }} aria-label="Duplicate field">
+            <Copy size={16} />
+          </Button>
+          <Button type="button" size="icon" variant="ghost" onClick={(event) => { event.stopPropagation(); deleteField(field.id); }} aria-label="Delete field">
+            <Trash2 size={16} />
+          </Button>
         </div>
       </div>
     </div>
   );
-}
-
-function FieldPreviewChrome({ field }: { field: FormField }) {
-  if (["radio", "checkbox"].includes(field.type) && field.options?.length) {
-    return (
-      <div className="mt-3 flex flex-wrap gap-2">
-        {field.options.slice(0, 4).map((option) => (
-          <span key={option} className="inline-flex items-center gap-2 rounded-lg border border-[#d8e0ea] bg-[#fbfcfe] px-2.5 py-1.5 text-xs font-medium text-[#465366]">
-            <span className={cn("h-3 w-3 border border-[#bfcadc] bg-white", field.type === "radio" ? "rounded-full" : "rounded")} />
-            {option}
-          </span>
-        ))}
-      </div>
-    );
-  }
-
-  if (field.type === "rating") {
-    return <div className="mt-3 text-xl leading-none text-[#f59e0b]">★ ★ ★ ★ ★</div>;
-  }
-
-  if (field.type === "slider") {
-    return (
-      <div className="mt-4 flex items-center gap-3">
-        <span className="h-2 flex-1 rounded-full bg-[#e5eaf2]">
-          <span className="block h-2 w-1/2 rounded-full bg-[#3157d5]" />
-        </span>
-        <span className="text-xs font-semibold text-[#667085]">50</span>
-      </div>
-    );
-  }
-
-  if (field.type === "file" || field.type === "signature") {
-    return <div className="mt-3 rounded-xl border border-dashed border-[#bfcadc] bg-[#fbfcfe] px-3 py-5 text-center text-xs font-semibold text-[#667085]">{field.type === "file" ? "Drop file here" : "Signature area"}</div>;
-  }
-
-  if (field.type === "matrix") {
-    return (
-      <div className="mt-3 overflow-hidden rounded-xl border border-[#d8e0ea]">
-        <div className="grid grid-cols-3 bg-[#f3f6fb] text-[11px] font-bold text-[#667085]">
-          <span className="p-2">Row</span>
-          <span className="p-2">Option</span>
-          <span className="p-2">Option</span>
-        </div>
-        <div className="grid grid-cols-3 border-t border-[#d8e0ea] text-[11px] text-[#667085]">
-          <span className="p-2">Item</span>
-          <span className="p-2">○</span>
-          <span className="p-2">○</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (field.type === "dropdown") {
-    return <div className="mt-3 h-10 rounded-xl border border-[#d8e0ea] bg-[#fbfcfe] px-3 py-2 text-sm text-[#98a2b3]">Select option</div>;
-  }
-
-  if (field.type === "formula") {
-    return <div className="mt-3 rounded-xl border border-[#d8e0ea] bg-[#f8fafc] px-3 py-3 text-sm font-semibold text-[#465366]">Calculated result</div>;
-  }
-
-  return <div className="mt-3 h-10 rounded-xl border border-[#d8e0ea] bg-[#fbfcfe]" />;
 }
 
 function BulkSelectionToolbar() {
