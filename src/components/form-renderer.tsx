@@ -123,6 +123,31 @@ function fieldMotion(animation: FormTheme["animation"], index: number): MotionPr
   return { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.34, delay, type: "spring", stiffness: 240, damping: 26 } };
 }
 
+function hexToRgb(color?: string) {
+  if (!color?.startsWith("#")) return null;
+  const hex = color.slice(1);
+  const normalized = hex.length === 3 ? hex.split("").map((char) => char + char).join("") : hex;
+  if (normalized.length !== 6) return null;
+  const value = Number.parseInt(normalized, 16);
+  if (Number.isNaN(value)) return null;
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255
+  };
+}
+
+function readableTextColor(backgroundColor: string | undefined, fallback: string) {
+  const rgb = hexToRgb(backgroundColor);
+  if (!rgb) return fallback;
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.58 ? "#111827" : "#ffffff";
+}
+
+function mutedTextColor(textColor: string) {
+  return textColor === "#ffffff" ? "rgba(255,255,255,0.68)" : "#667085";
+}
+
 type FormRendererProps = {
   form: FormSchema;
   onSubmit?: (values: Record<string, unknown>) => void;
@@ -822,18 +847,20 @@ function MatrixField({
   const rowColor = field.settings?.matrixRowColor;
   const alternateRowColor = field.settings?.matrixAlternateRowColor;
   const borderColor = field.settings?.matrixBorderColor;
+  const defaultTextColor = dark ? "#ffffff" : "#111418";
+  const headerTextColor = readableTextColor(headerColor, defaultTextColor);
 
   return (
     <div className={cn("overflow-hidden rounded-xl border border-[#d8e0ea]", dark ? "bg-[#111418]" : "bg-white")} style={{ borderColor }}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] border-separate border-spacing-0 text-sm">
-          <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor }}>
+          <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor, color: headerTextColor }}>
             <tr>
               <th className="p-3 text-left font-semibold">Criteria</th>
               {columns.map((column) => (
                 <th key={column} className="p-3 text-center font-semibold" style={{ minWidth: widths[column] ?? 140 }}>
                   <span className="block">{column}</span>
-                  {descriptions[column] && <span className={cn("mt-1 block text-xs font-normal", dark ? "text-white/45" : "text-[#667085]")}>{descriptions[column]}</span>}
+                  {descriptions[column] && <span className="mt-1 block text-xs font-normal" style={{ color: mutedTextColor(headerTextColor) }}>{descriptions[column]}</span>}
                 </th>
               ))}
             </tr>
@@ -841,21 +868,22 @@ function MatrixField({
           <tbody>
             {visibleRows.map((row, rowIndex) => {
               const rowBackground = alternateRows && rowIndex % 2 === 1 ? alternateRowColor : rowColor;
+              const rowTextColor = readableTextColor(rowBackground, defaultTextColor);
               return (
                 <tr
                   key={row}
                   className={cn("border-t border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}
-                  style={{ backgroundColor: rowBackground, borderColor }}
+                  style={{ backgroundColor: rowBackground, borderColor, color: rowTextColor }}
                 >
                   <td className="p-3 font-medium">{row}</td>
                   {columns.map((column) => (
                     <td key={column} className="border-l border-[#e5e9ef] p-3 text-center" style={{ borderColor }}>
                       {inputType === "radio" && <input type="radio" value={column} {...register(`${field.id}.${row}`)} />}
                       {inputType === "checkbox" && <input type="checkbox" {...register(`${field.id}.${row}.${column}`)} />}
-                      {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28" {...register(`${field.id}.${row}.${column}`)} />}
-                      {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28 bg-white/92 text-[#111827] placeholder:text-[#98a2b3]" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24 bg-white/92 text-[#111827] placeholder:text-[#98a2b3]" {...register(`${field.id}.${row}.${column}`)} />}
                       {inputType === "dropdown" && (
-                        <Select aria-label={`${row} ${column}`} className="min-w-32" {...register(`${field.id}.${row}.${column}`)}>
+                        <Select aria-label={`${row} ${column}`} className="min-w-32 bg-white/92 text-[#111827]" {...register(`${field.id}.${row}.${column}`)}>
                           <option value="">Select</option>
                           {dropdownOptions.map((option) => (
                             <option key={option} value={option}>{option}</option>
