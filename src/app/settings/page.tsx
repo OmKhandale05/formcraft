@@ -3,6 +3,7 @@
 import { Palette } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AppearanceControls } from "@/components/builder/appearance-controls";
+import { FormHealthPanel } from "@/components/builder/form-health-panel";
 import { FormRenderer } from "@/components/form-renderer";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { useFormStore } from "@/store/form-store";
@@ -36,6 +37,7 @@ export default function SettingsPage() {
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" className="mt-2" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
             </div>
+            <FormHealthPanel form={form} />
             <AppearanceControls theme={form.theme} onChange={setTheme} />
           </div>
         </section>

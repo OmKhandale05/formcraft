@@ -95,6 +95,23 @@ function textareaMinHeightClass(density?: FormTheme["density"]) {
   return "min-h-24";
 }
 
+function formPaddingClass(padding?: FormTheme["formPadding"], compact?: boolean) {
+  if (compact) {
+    if (padding === "compact") return "p-4";
+    if (padding === "spacious") return "p-6";
+    return "p-5";
+  }
+  if (padding === "compact") return "p-5 sm:p-6";
+  if (padding === "spacious") return "p-8 sm:p-10";
+  return "p-7 sm:p-8";
+}
+
+function labelSpacingClass(spacing?: FormTheme["labelSpacing"]) {
+  if (spacing === "compact") return "mb-1.5";
+  if (spacing === "spacious") return "mb-3";
+  return "mb-2";
+}
+
 function controlClass(theme: FormTheme, dark: boolean, rounded: boolean, kind: "input" | "textarea" = "input") {
   const style = theme.fieldStyle ?? defaultAppearance.fieldStyle;
   const density = theme.density ?? defaultAppearance.density;
@@ -130,6 +147,27 @@ function surfaceClass(theme: FormTheme, dark: boolean, rounded: boolean) {
     dark && style === "filled" && "bg-white/10",
     dark && style === "underline" && "border-white/20 text-white"
   );
+}
+
+function themedButtonClass(theme: FormTheme, dark: boolean, tone: "primary" | "secondary" = "primary") {
+  const style = theme.buttonStyle ?? defaultAppearance.buttonStyle;
+  const width = theme.buttonWidth ?? defaultAppearance.buttonWidth;
+  const radius = theme.buttonRadius ?? defaultAppearance.buttonRadius;
+  const base = "border transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]";
+  const widthClass = width === "full" && tone === "primary" ? "w-full sm:w-full" : "w-full sm:w-auto";
+  const primary =
+    style === "outline"
+      ? "border-[var(--accent)] bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+      : style === "soft"
+        ? "border-transparent bg-[color-mix(in_srgb,var(--accent)_14%,white)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,white)]"
+        : style === "ghost"
+          ? "border-transparent bg-transparent text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
+          : "border-transparent bg-[var(--accent)] text-white shadow-[0_12px_26px_color-mix(in_srgb,var(--accent)_24%,transparent)] hover:brightness-95";
+  const secondary = dark
+    ? "border-white/15 bg-white/5 text-white/75 hover:bg-white/10 hover:text-white"
+    : "border-[#d8e0ea] bg-white/80 text-[#334155] hover:border-[#c5d0dc] hover:bg-white";
+
+  return cn(base, tone === "primary" ? primary : secondary, widthClass, "h-10 px-4 text-sm font-semibold", radius === 0 ? "!rounded-none" : "!rounded-[var(--button-radius)]");
 }
 
 function fieldMotion(animation: FormTheme["animation"], index: number): MotionProps {
@@ -250,6 +288,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         "--accent": form.theme.accentColor,
         "--field-radius": `${fieldRadius}px`,
         "--field-border-width": `${form.theme.fieldBorderWidth ?? defaultAppearance.fieldBorderWidth}px`,
+        "--button-radius": `${form.theme.buttonRadius ?? defaultAppearance.buttonRadius}px`,
         fontFamily: getFontFamily(form.theme.fontFamily)
       } as CSSProperties}
       data-focus-style={form.theme.focusStyle ?? defaultAppearance.focusStyle}
@@ -257,7 +296,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         "mx-auto w-full border shadow-sm",
         formWidthClass(form.theme.formWidth),
         textScaleClass(form.theme.fontScale),
-        compact ? "p-5" : "p-7 sm:p-8",
+        formPaddingClass(form.theme.formPadding, compact),
         rounded ? "rounded-2xl" : "rounded-none",
         isDark ? "border-white/10 bg-[#15161a] text-white" : "border-[#dce1e8] bg-white text-[#15161a]"
       )}
@@ -319,6 +358,7 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
           <Button
             type="button"
             variant="secondary"
+            className={themedButtonClass(form.theme, isDark, "secondary")}
             disabled={activeStepIndex === 0}
             onClick={() => setCurrentStepIndex((index) => Math.max(index - 1, 0))}
           >
@@ -328,12 +368,12 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         )}
         <div className="ml-auto">
           {isMultiStep && activeStepIndex < steps.length - 1 ? (
-            <Button type="button" variant="primary" onClick={goToNextStep}>
+            <Button type="button" variant="primary" className={themedButtonClass(form.theme, isDark)} onClick={goToNextStep}>
               Continue
               <ArrowRight size={16} />
             </Button>
           ) : (
-            <Button type="submit" variant="primary" className="w-full sm:w-auto">
+            <Button type="submit" variant="primary" className={themedButtonClass(form.theme, isDark)}>
               <CheckCircle2 size={16} />
               Submit response
             </Button>
@@ -382,7 +422,7 @@ function RenderedField({
 
   return (
     <div>
-      <Label htmlFor={field.id} className={cn("mb-2 block", dark && "text-white")}>
+      <Label htmlFor={field.id} className={cn("block", labelSpacingClass(theme.labelSpacing), dark && "text-white")}>
         {field.label}
         {field.required && <span className="ml-1 text-[var(--accent)]">*</span>}
       </Label>

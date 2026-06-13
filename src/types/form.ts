@@ -94,6 +94,11 @@ export type FormTheme = {
   animation?: "none" | "fade" | "slide" | "scale";
   formWidth?: "narrow" | "medium" | "wide";
   density?: "compact" | "comfortable" | "spacious";
+  buttonStyle?: "filled" | "outline" | "soft" | "ghost";
+  buttonRadius?: number;
+  buttonWidth?: "auto" | "full";
+  formPadding?: "compact" | "comfortable" | "spacious";
+  labelSpacing?: "compact" | "comfortable" | "spacious";
 };
 
 export type FormSchema = {

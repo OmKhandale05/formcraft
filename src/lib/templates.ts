@@ -12,7 +12,12 @@ const baseTheme = {
   focusStyle: "ring" as const,
   animation: "slide" as const,
   formWidth: "medium" as const,
-  density: "comfortable" as const
+  density: "comfortable" as const,
+  buttonStyle: "filled" as const,
+  buttonRadius: 14,
+  buttonWidth: "auto" as const,
+  formPadding: "comfortable" as const,
+  labelSpacing: "comfortable" as const
 };
 
 const initialUpdatedAt = "2026-06-10T00:00:00.000Z";
