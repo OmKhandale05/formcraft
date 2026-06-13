@@ -104,9 +104,33 @@ function barColor(score: number) {
   return "bg-[#dc2626]";
 }
 
-export function FormHealthPanel({ form }: { form: FormSchema }) {
+export function FormHealthPanel({ form, compact = false }: { form: FormSchema; compact?: boolean }) {
   const health = getHealth(form);
   const hasRecommendations = health.recommendations.length > 0;
+
+  if (compact) {
+    return (
+      <section className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold text-[#111418]">
+              <Gauge size={15} />
+              Form health
+            </p>
+            <p className="mt-1 text-xs text-[#667085]">{hasRecommendations ? `${health.recommendations.length} suggested fix${health.recommendations.length === 1 ? "" : "es"}` : "Structure looks ready"}</p>
+          </div>
+          <div className="text-right">
+            <p className={cn("text-xl font-bold leading-none", scoreColor(health.overall))}>{health.overall}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#98a2b3]">Score</p>
+          </div>
+        </div>
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#e5e9ef]">
+          <div className={cn("h-full rounded-full", barColor(health.overall))} style={{ width: `${health.overall}%` }} />
+        </div>
+        {hasRecommendations && <p className="mt-3 text-xs leading-5 text-[#92400e]">{health.recommendations[0]}</p>}
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl border border-[#d8e0ea] bg-white/82 p-4 shadow-sm">

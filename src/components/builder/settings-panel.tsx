@@ -3,6 +3,7 @@
 import { Copy, GripVertical, Palette, Plus, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { AppearanceControls } from "@/components/builder/appearance-controls";
+import { FormHealthPanel } from "@/components/builder/form-health-panel";
 import { Button } from "@/components/ui/button";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -108,6 +109,9 @@ export function FieldSettingsPanel() {
         <p className="text-sm font-bold text-[#1f2937]">Field settings</p>
         <div className="mt-5 rounded-2xl border border-dashed border-[#bfcadc] bg-white/78 p-5 text-sm leading-6 text-[#667085] shadow-sm">
           Select a field on the canvas to edit labels, validation, steps and options.
+        </div>
+        <div className="mt-5">
+          <FormHealthPanel form={form} compact />
         </div>
       </aside>
     );
@@ -339,6 +343,9 @@ export function FieldSettingsPanel() {
           </Select>
           <p className="mt-1 text-xs text-[#667085]">Converts this field while preserving compatible settings.</p>
         </div>
+      </div>
+      <div className="mt-5">
+        <FormHealthPanel form={form} compact />
       </div>
     </aside>
   );
@@ -869,6 +876,9 @@ export function FormDetailsPanel({ onClose }: { onClose: () => void }) {
           <Textarea id="right-form-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
         </div>
         <AppearanceControls theme={form.theme} onChange={setTheme} compact />
+      </div>
+      <div className="mt-5">
+        <FormHealthPanel form={form} compact />
       </div>
     </aside>
   );
