@@ -603,11 +603,14 @@ function PhoneCountrySelect({
         aria-expanded={open}
         className={cn(
           controlClass(theme, dark, rounded),
-          "flex items-center justify-between gap-2"
+          "flex min-w-0 items-center justify-between gap-3 pl-4 pr-3"
         )}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="truncate font-semibold">{selectedCountry.flag} {selectedCountry.code}</span>
+        <span className="flex min-w-0 items-center gap-1.5 truncate font-semibold">
+          <span className="shrink-0">{selectedCountry.flag}</span>
+          <span className="truncate">{selectedCountry.code}</span>
+        </span>
         <ChevronDown size={16} className={cn("shrink-0 text-[#667085] transition", open && "rotate-180", dark && "text-white/55")} />
       </button>
       {open && (
