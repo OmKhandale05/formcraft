@@ -22,17 +22,16 @@ export function BuilderCanvas({ onEditForm }: { onEditForm: () => void }) {
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto p-4 sm:p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-[#d8e0ea] bg-white shadow-[0_20px_55px_rgba(17,24,39,0.08)]">
-          <div className="relative p-5 sm:p-6">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[linear-gradient(90deg,rgba(49,87,213,0.12),rgba(15,118,110,0.08),transparent)]" />
-            <div className="relative mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-[#d8e0ea] bg-[linear-gradient(90deg,rgba(49,87,213,0.12),rgba(15,118,110,0.08),rgba(255,255,255,0.98)_72%)] shadow-[0_20px_55px_rgba(17,24,39,0.08)]">
+          <div className="p-5 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#667085]">Live canvas</p>
               <div className="flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-white/90 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
-              {form.fields.length} fields
+                <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
+                {form.fields.length} fields
               </div>
             </div>
-            <div className="relative flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <h1 className="text-2xl font-bold tracking-tight text-[#111418] sm:text-3xl">{form.title}</h1>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-[#667085]">{form.description}</p>

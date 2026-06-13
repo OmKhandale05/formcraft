@@ -176,14 +176,15 @@ export default function BuilderPage() {
                   className="h-10 max-w-[360px] border-transparent bg-[#f3f6fa] text-[15px] font-bold shadow-none focus:bg-white"
                 />
               </div>
-              <div className="hidden items-center gap-2 xl:flex">
-                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-[#d8e0ea] bg-white px-3 text-xs font-semibold text-[#465366] shadow-sm">
-                  <CheckCircle2 size={15} className="text-[#0f766e]" />
+              <div className="hidden items-center rounded-2xl border border-[#d8e0ea] bg-[#f8fafc] px-3 py-2 text-xs font-semibold text-[#465366] shadow-sm xl:flex">
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="text-[#0f766e]" />
                   {form.fields.length} fields
                 </span>
-                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-[#d8e0ea] bg-white px-3 text-xs font-semibold text-[#465366] shadow-sm">
-                  <Clock3 size={15} className="text-[#64748b]" />
-                  {formatTimestamp(form.updatedAt)}
+                <span className="mx-2 h-4 w-px bg-[#d8e0ea]" />
+                <span className="inline-flex items-center gap-1.5 text-[#687386]">
+                  <Clock3 size={14} className="text-[#64748b]" />
+                  Updated {formatTimestamp(form.updatedAt)}
                 </span>
               </div>
               <div className="ml-auto flex flex-wrap gap-2">

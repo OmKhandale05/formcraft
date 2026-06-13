@@ -23,10 +23,9 @@ export function FieldSidebar() {
 
   return (
     <div className="formcraft-scrollbar h-full overflow-y-auto border-r border-[#d8e0ea] bg-[#f7f9fc]/90 p-4 backdrop-blur-xl">
-      <div className="mb-4 overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_16px_38px_rgba(17,24,39,0.08)]">
-        <div className="relative p-4">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top_left,rgba(49,87,213,0.16),transparent_54%)]" />
-          <div className="relative flex items-start gap-3">
+      <div className="mb-4 overflow-hidden rounded-2xl border border-[#d8e0ea] bg-[radial-gradient(circle_at_top_left,rgba(49,87,213,0.16),rgba(255,255,255,0.95)_54%,#ffffff_100%)] shadow-[0_16px_38px_rgba(17,24,39,0.08)]">
+        <div className="p-4">
+          <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-[0_14px_28px_rgba(17,20,24,0.22)]">
               <Blocks size={18} />
             </span>
