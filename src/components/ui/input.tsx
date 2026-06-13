@@ -117,7 +117,7 @@ export function Select({ className, children, id, value, defaultValue, onChange,
         <div
           id={`${selectId}-menu`}
           role="listbox"
-          className="absolute left-0 top-[calc(100%+0.375rem)] z-[90] max-h-64 w-full min-w-[220px] overflow-y-auto rounded-xl border border-[#cfd9e7] bg-white p-1.5 shadow-[0_24px_60px_rgba(17,24,39,0.18)]"
+          className="absolute left-0 top-[calc(100%+0.375rem)] z-[90] max-h-56 w-full min-w-0 overflow-y-auto overflow-x-hidden rounded-xl border border-[#cfd9e7] bg-white p-1.5 shadow-[0_24px_60px_rgba(17,24,39,0.18)]"
         >
           {options.map((option) => {
             const active = option.value === currentValue;
@@ -129,13 +129,13 @@ export function Select({ className, children, id, value, defaultValue, onChange,
                 aria-selected={active}
                 disabled={option.disabled}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition disabled:pointer-events-none disabled:opacity-45",
+                  "flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition disabled:pointer-events-none disabled:opacity-45",
                   active ? "bg-[#eef3ff] font-semibold text-[#1d3fbf]" : "text-[#334155] hover:bg-[#f5f7fb]"
                 )}
                 onClick={() => selectValue(option.value)}
               >
                 <span className="min-w-0 flex-1 truncate">{option.label}</span>
-                {active && <Check size={15} className="shrink-0" />}
+                {active && <Check size={14} className="shrink-0" />}
               </button>
             );
           })}
