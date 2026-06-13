@@ -3,7 +3,7 @@
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { Download, Eye, FileUp, GripVertical, Save, Trash2 } from "lucide-react";
+import { CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, Save, Trash2 } from "lucide-react";
 import type { CSSProperties, PointerEvent } from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -161,16 +161,32 @@ export default function BuilderPage() {
   return (
     <AppShell>
       <DndContext id="formcraft-builder-dnd" sensors={sensors} collisionDetection={closestCenter} modifiers={[snapToGrid]} onDragEnd={handleDragEnd}>
-        <div className="flex h-screen max-h-screen flex-col overflow-hidden">
-          <header className="flex min-h-16 shrink-0 flex-wrap items-center gap-3 border-b border-[#d8e0ea] bg-white/82 px-4 backdrop-blur-xl sm:px-5">
-            <Input
-              aria-label="Form name"
-              value={form.name}
-              onChange={(event) => setFormMeta({ name: event.target.value })}
-              className="h-9 max-w-[260px] border-transparent bg-[#eef2f7] font-semibold shadow-none"
-            />
-            <p className="hidden text-xs text-[#68707d] sm:block">Saved locally · {formatTimestamp(form.updatedAt)}</p>
-            <div className="ml-auto flex flex-wrap gap-2">
+        <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-[#eef2f6]">
+          <header className="relative z-20 shrink-0 border-b border-[#d6dfeb] bg-white/88 px-4 py-3 shadow-[0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-xl sm:px-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="min-w-[240px] flex-1">
+                <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#7b8797]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#16a34a]" />
+                  Builder workspace
+                </div>
+                <Input
+                  aria-label="Form name"
+                  value={form.name}
+                  onChange={(event) => setFormMeta({ name: event.target.value })}
+                  className="h-10 max-w-[360px] border-transparent bg-[#f3f6fa] text-[15px] font-bold shadow-none focus:bg-white"
+                />
+              </div>
+              <div className="hidden items-center gap-2 xl:flex">
+                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-[#d8e0ea] bg-white px-3 text-xs font-semibold text-[#465366] shadow-sm">
+                  <CheckCircle2 size={15} className="text-[#0f766e]" />
+                  {form.fields.length} fields
+                </span>
+                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-[#d8e0ea] bg-white px-3 text-xs font-semibold text-[#465366] shadow-sm">
+                  <Clock3 size={15} className="text-[#64748b]" />
+                  {formatTimestamp(form.updatedAt)}
+                </span>
+              </div>
+              <div className="ml-auto flex flex-wrap gap-2">
               <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
                 <FileUp size={16} />
                 Import
@@ -220,14 +236,15 @@ export default function BuilderPage() {
                 <Trash2 size={16} />
                 Delete form
               </Button>
-              <Link href="/preview" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-white">
+              <Link href="/preview" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#111418] px-4 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(17,20,24,0.18)] transition hover:bg-[#20242b]">
                 <Eye size={16} />
                 Preview
               </Link>
+              </div>
             </div>
           </header>
           <div
-            className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:[grid-template-columns:var(--builder-columns)]"
+            className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f6_100%)] lg:[grid-template-columns:var(--builder-columns)]"
             style={builderGridStyle}
           >
             <div className="hidden min-h-0 overflow-hidden lg:block">
@@ -255,9 +272,9 @@ function ResizeHandle({ label, onPointerDown }: { label: string; onPointerDown: 
       className="group relative hidden min-h-0 cursor-col-resize items-center justify-center bg-transparent outline-none lg:flex"
       onPointerDown={onPointerDown}
     >
-      <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#d8e0ea] transition group-hover:bg-[#b8c4d4] group-focus-visible:bg-[#3157d5]/55" />
-      <span className="relative z-10 flex h-14 w-8 items-center justify-center rounded-full border border-[#d8e0ea] bg-white text-[#667085] shadow-[0_8px_22px_rgba(17,24,39,0.1)] transition group-hover:border-[#b8c4d4] group-hover:text-[#3157d5] group-hover:shadow-[0_12px_30px_rgba(49,87,213,0.16)] group-focus-visible:ring-4 group-focus-visible:ring-[#3157d5]/15">
-        <GripVertical size={18} />
+      <span className="absolute inset-y-4 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-[#d7e0ec] transition group-hover:bg-[#aebcce] group-focus-visible:bg-[#3157d5]/55" />
+      <span className="relative z-10 flex h-16 w-7 items-center justify-center rounded-full border border-[#cfd9e7] bg-white/95 text-[#667085] shadow-[0_12px_30px_rgba(17,24,39,0.12)] transition group-hover:border-[#aebcce] group-hover:text-[#3157d5] group-hover:shadow-[0_16px_34px_rgba(49,87,213,0.18)] group-focus-visible:ring-4 group-focus-visible:ring-[#3157d5]/15">
+        <GripVertical size={17} />
       </span>
     </button>
   );

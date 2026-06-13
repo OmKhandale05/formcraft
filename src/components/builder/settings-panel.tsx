@@ -104,9 +104,9 @@ export function FieldSettingsPanel() {
 
   if (!field) {
     return (
-      <aside className="h-full border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
-        <p className="text-sm font-semibold text-[#1f2937]">Field settings</p>
-        <div className="mt-5 rounded-2xl border border-dashed border-[#bfcadc] bg-white/70 p-5 text-sm leading-6 text-[#667085] shadow-sm">
+      <aside className="h-full border-l border-[#d8e0ea] bg-[#f7f9fc]/90 p-5 backdrop-blur-xl">
+        <p className="text-sm font-bold text-[#1f2937]">Field settings</p>
+        <div className="mt-5 rounded-2xl border border-dashed border-[#bfcadc] bg-white/78 p-5 text-sm leading-6 text-[#667085] shadow-sm">
           Select a field on the canvas to edit labels, validation, steps and options.
         </div>
       </aside>
@@ -118,10 +118,10 @@ export function FieldSettingsPanel() {
   const optionText = field.options?.join("\n") ?? "";
 
   return (
-    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
-      <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-[#f7f9fc]/90 p-5 backdrop-blur-xl">
+      <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-[0_14px_34px_rgba(17,24,39,0.07)]">
         <div>
-          <p className="text-sm font-semibold text-[#1f2937]">Field settings</p>
+          <p className="text-sm font-bold text-[#1f2937]">Field settings</p>
           <p className="text-xs text-[#667085]">{field.type}</p>
         </div>
         <div className="flex gap-1">
@@ -840,14 +840,14 @@ export function FormDetailsPanel({ onClose }: { onClose: () => void }) {
   const setTheme = useFormStore((state) => state.setTheme);
 
   return (
-    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-white/74 p-5 backdrop-blur-xl">
-      <div className="mb-5 flex items-start justify-between gap-3 rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+    <aside className="formcraft-scrollbar h-full overflow-y-auto border-l border-[#d8e0ea] bg-[#f7f9fc]/90 p-5 backdrop-blur-xl">
+      <div className="mb-5 flex items-start justify-between gap-3 rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-[0_14px_34px_rgba(17,24,39,0.07)]">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#111418] text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-[0_14px_28px_rgba(17,20,24,0.2)]">
             <Palette size={19} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#1f2937]">Form details</p>
+            <p className="text-sm font-bold text-[#1f2937]">Form details</p>
             <p className="text-xs text-[#667085]">Live canvas settings</p>
           </div>
         </div>
