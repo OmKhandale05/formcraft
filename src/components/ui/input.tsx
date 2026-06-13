@@ -117,7 +117,7 @@ export function Select({ className, children, id, value, defaultValue, onChange,
         <div
           id={`${selectId}-menu`}
           role="listbox"
-          className="absolute left-0 top-[calc(100%+0.375rem)] z-[90] max-h-56 w-full min-w-0 overflow-y-auto overflow-x-hidden rounded-xl border border-[#cfd9e7] bg-white p-1.5 shadow-[0_24px_60px_rgba(17,24,39,0.18)]"
+          className="absolute left-0 top-[calc(100%+0.375rem)] z-[90] max-h-56 w-max min-w-full max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden rounded-xl border border-[#cfd9e7] bg-white p-1.5 shadow-[0_24px_60px_rgba(17,24,39,0.18)]"
         >
           {options.map((option) => {
             const active = option.value === currentValue;
@@ -134,7 +134,7 @@ export function Select({ className, children, id, value, defaultValue, onChange,
                 )}
                 onClick={() => selectValue(option.value)}
               >
-                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                <span className="min-w-0 flex-1 whitespace-nowrap">{option.label}</span>
                 {active && <Check size={14} className="shrink-0" />}
               </button>
             );
