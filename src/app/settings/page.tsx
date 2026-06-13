@@ -32,7 +32,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <main className="grid min-h-screen gap-6 p-4 sm:p-6 xl:h-screen xl:grid-cols-[460px_minmax(0,1fr)] xl:overflow-hidden">
+      <main className="grid min-h-screen gap-6 p-4 sm:p-6 xl:h-screen xl:grid-cols-[560px_minmax(0,1fr)] xl:overflow-hidden">
         <section className="soft-panel flex min-h-0 flex-col overflow-hidden rounded-2xl p-0 xl:max-h-[calc(100vh-48px)]">
           <div className="border-b border-[#d8e0ea] p-5">
             <div className="flex items-start gap-3">
@@ -44,68 +44,81 @@ export default function SettingsPage() {
                 <p className="mt-1 text-sm leading-5 text-[#667085]">Control center for form details, appearance, logic, health and versions.</p>
               </div>
             </div>
-            <div className="formcraft-scrollbar mt-5 flex gap-2 overflow-x-auto pb-1">
-              {settingsTabs.map((tab) => {
-                const Icon = tab.icon;
-                const selected = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    className={cn(
-                      "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition",
-                      selected
-                        ? "border-[#111418] bg-[#111418] text-white shadow-[0_12px_28px_rgba(17,20,24,0.18)]"
-                        : "border-[#d8e0ea] bg-white/82 text-[#465366] hover:border-[#bfcadc] hover:bg-white"
-                    )}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    <Icon size={15} />
-                    {tab.label}
-                  </button>
-                );
-              })}
+          </div>
+
+          <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[190px_minmax(0,1fr)]">
+            <div className="border-b border-[#d8e0ea] bg-[#fbfcfe] p-3 md:border-b-0 md:border-r">
+              <p className="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#98a2b3]">Control center</p>
+              <div className="grid gap-1.5">
+                {settingsTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const selected = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      className={cn(
+                        "group flex items-start gap-2.5 rounded-xl border px-3 py-2.5 text-left transition",
+                        selected
+                          ? "border-[#111418] bg-[#111418] text-white shadow-[0_14px_30px_rgba(17,20,24,0.18)]"
+                          : "border-transparent bg-transparent text-[#465366] hover:border-[#d8e0ea] hover:bg-white"
+                      )}
+                      onClick={() => setActiveTab(tab.id)}
+                    >
+                      <span className={cn("mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition", selected ? "bg-white text-[#111418]" : "bg-white text-[#667085] ring-1 ring-[#d8e0ea] group-hover:text-[#111418]")}>
+                        <Icon size={15} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold">{tab.label}</span>
+                        <span className={cn("mt-0.5 block text-[11px] leading-4", selected ? "text-white/62" : "text-[#8a94a6]")}>{tab.description}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          <div className="border-b border-[#e5e9ef] bg-[#fbfcfe] px-5 py-4">
-            <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
-              <ActiveIcon size={16} />
-              {active.label}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-[#667085]">{active.description}</p>
-          </div>
+            <div className="flex min-h-0 flex-col">
+              <div className="border-b border-[#e5e9ef] bg-white px-5 py-4">
+                <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
+                  <ActiveIcon size={16} />
+                  {active.label}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-[#667085]">{active.description}</p>
+              </div>
 
-          <div className="formcraft-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
-            {activeTab === "basics" && (
-              <section className="space-y-5">
-                <div className="rounded-2xl border border-[#d8e0ea] bg-white/82 p-4 shadow-sm">
-                  <div className="mb-4">
-                    <p className="text-sm font-semibold text-[#111418]">Form identity</p>
-                    <p className="mt-1 text-xs leading-5 text-[#667085]">These details appear across the builder, preview and exports.</p>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="settings-form-name">Internal form name</Label>
-                      <Input id="settings-form-name" className="mt-2" value={form.name} onChange={(event) => setFormMeta({ name: event.target.value })} />
+              <div className="formcraft-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
+                {activeTab === "basics" && (
+                  <section className="space-y-5">
+                    <div className="rounded-2xl border border-[#d8e0ea] bg-white/82 p-4 shadow-sm">
+                      <div className="mb-4">
+                        <p className="text-sm font-semibold text-[#111418]">Form identity</p>
+                        <p className="mt-1 text-xs leading-5 text-[#667085]">These details appear across the builder, preview and exports.</p>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="settings-form-name">Internal form name</Label>
+                          <Input id="settings-form-name" className="mt-2" value={form.name} onChange={(event) => setFormMeta({ name: event.target.value })} />
+                        </div>
+                        <div>
+                          <Label htmlFor="settings-title">Public title</Label>
+                          <Input id="settings-title" className="mt-2" value={form.title} onChange={(event) => setFormMeta({ title: event.target.value })} />
+                        </div>
+                        <div>
+                          <Label htmlFor="settings-description">Description</Label>
+                          <Textarea id="settings-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="settings-title">Public title</Label>
-                      <Input id="settings-title" className="mt-2" value={form.title} onChange={(event) => setFormMeta({ title: event.target.value })} />
-                    </div>
-                    <div>
-                      <Label htmlFor="settings-description">Description</Label>
-                      <Textarea id="settings-description" className="mt-2 min-h-28" value={form.description} onChange={(event) => setFormMeta({ description: event.target.value })} />
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
+                  </section>
+                )}
 
-            {activeTab === "appearance" && <AppearanceControls theme={form.theme} onChange={setTheme} />}
-            {activeTab === "logic" && <LogicBuilder />}
-            {activeTab === "health" && <FormHealthPanel form={form} />}
-            {activeTab === "history" && <VersionHistoryPanel />}
+                {activeTab === "appearance" && <AppearanceControls theme={form.theme} onChange={setTheme} />}
+                {activeTab === "logic" && <LogicBuilder />}
+                {activeTab === "health" && <FormHealthPanel form={form} />}
+                {activeTab === "history" && <VersionHistoryPanel />}
+              </div>
+            </div>
           </div>
         </section>
 

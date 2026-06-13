@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, LayoutTemplate, Paintbrush, PanelLeft } from "lucide-react";
+import { BarChart3, FileText, LayoutTemplate, PanelLeft, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -10,7 +10,7 @@ const navItems = [
   { href: "/preview", label: "Preview", icon: FileText },
   { href: "/submissions", label: "Submissions", icon: BarChart3 },
   { href: "/templates", label: "Templates", icon: LayoutTemplate },
-  { href: "/settings", label: "Theme", icon: Paintbrush }
+  { href: "/settings", label: "Settings", icon: Settings2 }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
