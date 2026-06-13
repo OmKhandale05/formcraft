@@ -98,20 +98,37 @@ function textareaMinHeightClass(density?: FormTheme["density"]) {
 function controlClass(theme: FormTheme, dark: boolean, rounded: boolean, kind: "input" | "textarea" = "input") {
   const style = theme.fieldStyle ?? defaultAppearance.fieldStyle;
   const density = theme.density ?? defaultAppearance.density;
-  const radiusClass = rounded ? "rounded-[var(--field-radius)]" : "rounded-none";
+  const radiusClass = rounded ? "!rounded-[var(--field-radius)]" : "!rounded-none";
 
   return cn(
-    "formcraft-control w-full border-[length:var(--field-border-width)] text-[#111827] transition duration-200 placeholder:text-[#98a2b3] focus:outline-none",
+    "formcraft-control w-full !border-[length:var(--field-border-width)] text-[#111827] transition duration-200 placeholder:text-[#98a2b3] focus:outline-none",
     kind === "input" ? fieldHeightClass(density) : textareaMinHeightClass(density),
     radiusClass,
     style === "outline" && "border-[#d8e0ea] bg-white/90 shadow-sm",
     style === "filled" && "border-transparent bg-[#f1f5f9] shadow-none",
-    style === "underline" && "rounded-none border-x-0 border-t-0 border-[#cbd5e1] bg-transparent px-0 shadow-none",
+    style === "underline" && "!rounded-none border-x-0 border-t-0 border-[#cbd5e1] bg-transparent px-0 shadow-none",
     style === "glass" && "border-white/60 bg-white/70 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur",
     dark && style !== "underline" && "border-white/15 bg-white/5 text-white placeholder:text-white/35",
     dark && style === "filled" && "bg-white/10",
     dark && style === "underline" && "border-white/20 text-white placeholder:text-white/35",
     dark && "focus:bg-white/10"
+  );
+}
+
+function surfaceClass(theme: FormTheme, dark: boolean, rounded: boolean) {
+  const style = theme.fieldStyle ?? defaultAppearance.fieldStyle;
+  const radiusClass = rounded ? "rounded-[var(--field-radius)]" : "rounded-none";
+
+  return cn(
+    "border-[length:var(--field-border-width)] transition duration-200",
+    radiusClass,
+    style === "outline" && "border-[#d8e0ea] bg-white/90 shadow-sm",
+    style === "filled" && "border-transparent bg-[#f1f5f9] shadow-none",
+    style === "underline" && "rounded-none border-x-0 border-t-0 border-[#cbd5e1] bg-transparent shadow-none",
+    style === "glass" && "border-white/60 bg-white/70 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur",
+    dark && style !== "underline" && "border-white/15 bg-white/5 text-white",
+    dark && style === "filled" && "bg-white/10",
+    dark && style === "underline" && "border-white/20 text-white"
   );
 }
 
@@ -402,7 +419,7 @@ function RenderedField({
       {field.type === "radio" && (
         <div className="space-y-2">
           {field.options?.map((option) => (
-            <label key={option} className={cn("flex items-center gap-3 rounded-lg border p-3 text-sm", dark ? "border-white/10" : "border-[#dce1e8]")}>
+            <label key={option} className={cn("flex items-center gap-3 p-3 text-sm", surfaceClass(theme, dark, rounded))}>
               <input type="radio" value={option} {...register(field.id)} />
               {option}
             </label>
@@ -412,7 +429,7 @@ function RenderedField({
       {field.type === "checkbox" && (
         <div className="space-y-2">
           {field.options?.map((option) => (
-            <label key={option} className={cn("flex items-center gap-3 rounded-lg border p-3 text-sm", dark ? "border-white/10" : "border-[#dce1e8]")}>
+            <label key={option} className={cn("flex items-center gap-3 p-3 text-sm", surfaceClass(theme, dark, rounded))}>
               <input type="checkbox" value={option} {...register(field.id)} />
               {option}
             </label>
@@ -420,7 +437,7 @@ function RenderedField({
         </div>
       )}
       {field.type === "file" && (
-        <label className={cn("flex cursor-pointer items-center gap-3 border border-dashed p-4 text-sm", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/20 text-white/70" : "border-[#cdd5df] text-[#68707d]")}>
+        <label className={cn("flex cursor-pointer items-center gap-3 border-dashed p-4 text-sm", surfaceClass(theme, dark, rounded), dark ? "text-white/70" : "text-[#68707d]")}>
           <UploadCloud size={20} />
           <span>
             Drag files here or browse
@@ -431,8 +448,8 @@ function RenderedField({
           <input className="hidden" type="file" accept={field.settings?.acceptedFileTypes} {...register(field.id)} />
         </label>
       )}
-      {field.type === "rating" && <RatingField field={field} register={register} setValue={setValue} watch={watch} dark={dark} />}
-      {field.type === "signature" && <SignatureField field={field} setValue={setValue} dark={dark} rounded={rounded} />}
+      {field.type === "rating" && <RatingField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} theme={theme} />}
+      {field.type === "signature" && <SignatureField field={field} setValue={setValue} dark={dark} rounded={rounded} theme={theme} />}
       {field.type === "daterange" && (
         <div className="grid gap-3 sm:grid-cols-2">
           <Input type="date" aria-label={`${field.label} start`} className={inputClass} {...register(`${field.id}.start`)} />
@@ -440,7 +457,7 @@ function RenderedField({
         </div>
       )}
       {field.type === "slider" && (
-        <div className="rounded-xl border border-[#d8e0ea] bg-white/70 p-4">
+        <div className={cn("p-4", surfaceClass(theme, dark, rounded))}>
           <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[#667085]">
             <span>{field.settings?.sliderMin ?? 0}</span>
             <span className="rounded-full bg-[var(--accent)] px-2.5 py-1 text-white">{String(watch(field.id) ?? field.settings?.sliderMin ?? 0)}</span>
@@ -457,14 +474,15 @@ function RenderedField({
         </div>
       )}
       {field.type === "richtext" && <RichTextField field={field} setValue={setValue} dark={dark} rounded={rounded} theme={theme} />}
-      {field.type === "matrix" && <MatrixField field={field} register={register} setValue={setValue} watch={watch} dark={dark} />}
-      {field.type === "formula" && <FormulaField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} />}
+      {field.type === "matrix" && <MatrixField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} theme={theme} />}
+      {field.type === "formula" && <FormulaField field={field} register={register} setValue={setValue} watch={watch} dark={dark} rounded={rounded} theme={theme} />}
       {field.type === "payment" && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
           <input type="hidden" {...register(`${field.id}_currency`)} />
           <CurrencySelect
             value={String(watch(`${field.id}_currency`) || field.settings?.currency || "USD")}
             dark={dark}
+            className={inputClass}
             onChange={(currency) => setValue(`${field.id}_currency`, currency, { shouldDirty: true, shouldValidate: true })}
           />
           <Input id={field.id} type="number" min={0} step="0.01" placeholder="0.00" className={inputClass} {...register(field.id)} />
@@ -560,7 +578,8 @@ function FormulaField({
   setValue,
   watch,
   dark,
-  rounded
+  rounded,
+  theme
 }: {
   field: FormField;
   register: UseFormRegister<Record<string, unknown>>;
@@ -568,6 +587,7 @@ function FormulaField({
   watch: UseFormWatch<Record<string, unknown>>;
   dark: boolean;
   rounded: boolean;
+  theme: FormTheme;
 }) {
   const values = watch();
   const result = useMemo(() => evaluateFormula(field.settings?.formulaExpression, values), [field.settings?.formulaExpression, values]);
@@ -578,7 +598,7 @@ function FormulaField({
   }, [field.id, result.error, result.value, setValue]);
 
   return (
-    <div className={cn("border p-4", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-[#fbfcfe]")}>
+    <div className={cn("p-4", surfaceClass(theme, dark, rounded))}>
       <input type="hidden" {...register(field.id)} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#667085]">
@@ -600,13 +620,17 @@ function RatingField({
   register,
   setValue,
   watch,
-  dark
+  dark,
+  rounded,
+  theme
 }: {
   field: FormField;
   register: UseFormRegister<Record<string, unknown>>;
   setValue: UseFormSetValue<Record<string, unknown>>;
   watch: UseFormWatch<Record<string, unknown>>;
   dark: boolean;
+  rounded: boolean;
+  theme: FormTheme;
 }) {
   const scale = Math.min(Math.max(field.settings?.ratingScale ?? 5, 3), 10);
   const selectedValue = Number(watch(field.id) || 0);
@@ -631,8 +655,9 @@ function RatingField({
               className={cn(
                 "cursor-pointer transition",
                 isEmoji
-                  ? "flex h-11 min-w-11 items-center justify-center rounded-xl border px-3 text-sm font-semibold"
+                  ? "flex h-11 min-w-11 items-center justify-center px-3 text-sm font-semibold"
                   : "rounded-lg p-1.5 hover:scale-110 focus-visible:scale-110",
+                isEmoji && surfaceClass(theme, dark, rounded),
                 isEmoji && selected && "border-[var(--accent)] bg-[var(--accent)] text-white shadow-[0_10px_24px_rgba(49,87,213,0.22)]",
                 isEmoji && !selected && (dark ? "border-white/10 bg-white/5 text-white/75 hover:border-white/25 hover:bg-white/10" : "border-[#dce1e8] bg-[#fbfcfe] text-[#465366] hover:border-[var(--accent)] hover:bg-[#f4f7ff]")
               )}
@@ -662,7 +687,7 @@ function RatingField({
   );
 }
 
-function SignatureField({ field, setValue, dark, rounded }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean }) {
+function SignatureField({ field, setValue, dark, rounded, theme }: { field: FormField; setValue: UseFormSetValue<Record<string, unknown>>; dark: boolean; rounded: boolean; theme: FormTheme }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
 
@@ -681,7 +706,7 @@ function SignatureField({ field, setValue, dark, rounded }: { field: FormField; 
   };
 
   return (
-    <div className={cn("overflow-hidden border", rounded ? "rounded-xl" : "rounded-none", dark ? "border-white/15 bg-white/5" : "border-[#d8e0ea] bg-white")}>
+    <div className={cn("overflow-hidden", surfaceClass(theme, dark, rounded))}>
       <canvas
         ref={canvasRef}
         width={720}
@@ -704,7 +729,7 @@ function SignatureField({ field, setValue, dark, rounded }: { field: FormField; 
         }}
       />
       <input type="hidden" {...registerSignature(field.id, setValue)} />
-      <div className="flex items-center justify-between border-t border-[#d8e0ea] px-3 py-2 text-xs text-[#667085]">
+      <div className={cn("flex items-center justify-between border-t-[length:var(--field-border-width)] px-3 py-2 text-xs", dark ? "border-white/15 text-white/60" : "border-[#d8e0ea] text-[#667085]")}>
         <span className="inline-flex items-center gap-1.5"><PenLine size={13} /> Draw signature</span>
         <button
           type="button"
@@ -827,13 +852,17 @@ function MatrixField({
   register,
   setValue,
   watch,
-  dark
+  dark,
+  rounded,
+  theme
 }: {
   field: FormField;
   register: UseFormRegister<Record<string, unknown>>;
   setValue: UseFormSetValue<Record<string, unknown>>;
   watch: UseFormWatch<Record<string, unknown>>;
   dark: boolean;
+  rounded: boolean;
+  theme: FormTheme;
 }) {
   const rows = field.settings?.matrixRows?.length ? field.settings.matrixRows : ["Quality", "Speed", "Support"];
   const columns = field.settings?.matrixColumns?.length ? field.settings.matrixColumns : ["Poor", "Okay", "Great"];
@@ -849,9 +878,10 @@ function MatrixField({
   const borderColor = field.settings?.matrixBorderColor;
   const defaultTextColor = dark ? "#ffffff" : "#111418";
   const headerTextColor = readableTextColor(headerColor, defaultTextColor);
+  const matrixControlClass = cn(controlClass(theme, false, rounded), "bg-white/92 text-[#111827] placeholder:text-[#98a2b3]");
 
   return (
-    <div className={cn("overflow-hidden rounded-xl border border-[#d8e0ea]", dark ? "bg-[#111418]" : "bg-white")} style={{ borderColor }}>
+    <div className={cn("overflow-hidden", surfaceClass(theme, dark, rounded))} style={{ borderColor }}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] border-separate border-spacing-0 text-sm">
           <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor, color: headerTextColor }}>
@@ -872,18 +902,18 @@ function MatrixField({
               return (
                 <tr
                   key={row}
-                  className={cn("border-t border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}
+                  className={cn("border-t-[length:var(--field-border-width)] border-[#e5e9ef]", alternateRows && rowIndex % 2 === 1 && (dark ? "bg-white/[0.03]" : "bg-[#fbfcfe]"))}
                   style={{ backgroundColor: rowBackground, borderColor, color: rowTextColor }}
                 >
                   <td className="p-3 font-medium">{row}</td>
                   {columns.map((column) => (
-                    <td key={column} className="border-l border-[#e5e9ef] p-3 text-center" style={{ borderColor }}>
+                    <td key={column} className="border-l-[length:var(--field-border-width)] border-[#e5e9ef] p-3 text-center" style={{ borderColor }}>
                       {inputType === "radio" && <input type="radio" value={column} {...register(`${field.id}.${row}`)} />}
                       {inputType === "checkbox" && <input type="checkbox" {...register(`${field.id}.${row}.${column}`)} />}
-                      {inputType === "text" && <Input aria-label={`${row} ${column}`} className="min-w-28 bg-white/92 text-[#111827] placeholder:text-[#98a2b3]" {...register(`${field.id}.${row}.${column}`)} />}
-                      {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className="min-w-24 bg-white/92 text-[#111827] placeholder:text-[#98a2b3]" {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "text" && <Input aria-label={`${row} ${column}`} className={cn("min-w-28", matrixControlClass)} {...register(`${field.id}.${row}.${column}`)} />}
+                      {inputType === "number" && <Input type="number" aria-label={`${row} ${column}`} className={cn("min-w-24", matrixControlClass)} {...register(`${field.id}.${row}.${column}`)} />}
                       {inputType === "dropdown" && (
-                        <Select aria-label={`${row} ${column}`} className="min-w-32 bg-white/92 text-[#111827]" {...register(`${field.id}.${row}.${column}`)}>
+                        <Select aria-label={`${row} ${column}`} className={cn("min-w-32", matrixControlClass)} {...register(`${field.id}.${row}.${column}`)}>
                           <option value="">Select</option>
                           {dropdownOptions.map((option) => (
                             <option key={option} value={option}>{option}</option>
