@@ -13,8 +13,11 @@ import {
   Filter,
   Flag,
   Inbox,
+  PenLine,
   Search,
   Sparkles,
+  Star,
+  Table2,
   Trash2,
   X
 } from "lucide-react";
@@ -24,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { downloadFile, formatTimestamp, toCsv } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
-import type { Submission } from "@/types/form";
+import type { FieldType, FormField, Submission } from "@/types/form";
 
 type SubmissionStatus = "new" | "reviewed" | "archived";
 type SavedView = "all" | "new" | "flagged" | "reviewed" | "archived";
@@ -35,6 +38,11 @@ type SubmissionMeta = {
   flagged?: boolean;
   note?: string;
   status?: SubmissionStatus;
+};
+
+type AnswerMeta = {
+  label: string;
+  type: FieldType | "currency" | "unknown";
 };
 
 const metaStorageKey = "formcraft-submission-ops";
@@ -53,19 +61,30 @@ function valueToText(value: unknown) {
   return String(value ?? "");
 }
 
-function filledCount(submission: Submission) {
-  return Object.values(submission.values).filter((value) => {
-    if (Array.isArray(value)) return value.length > 0;
-    return value !== undefined && value !== null && String(value).trim() !== "";
-  }).length;
+function isFilledValue(value: unknown) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.values(value).some(isFilledValue);
+  return value !== undefined && value !== null && String(value).trim() !== "";
 }
 
-function responseSummary(submission: Submission) {
+function filledCount(submission: Submission) {
+  return Object.values(submission.values).filter(isFilledValue).length;
+}
+
+function answerMetaFor(fields: FormField[]) {
+  return fields.reduce<Record<string, AnswerMeta>>((lookup, field) => {
+    lookup[field.id] = { label: field.label, type: field.type };
+    if (field.type === "payment") lookup[`${field.id}_currency`] = { label: `${field.label} currency`, type: "currency" };
+    return lookup;
+  }, {});
+}
+
+function responseSummary(submission: Submission, answerMeta: Record<string, AnswerMeta>) {
   const entries = Object.entries(submission.values)
     .filter(([, value]) => valueToText(value).trim())
     .slice(0, 3);
   if (!entries.length) return "No visible answers captured";
-  return entries.map(([key, value]) => `${key}: ${valueToText(value)}`).join(" · ");
+  return entries.map(([key, value]) => `${answerMeta[key]?.label ?? key}: ${valueToText(value)}`).join(" · ");
 }
 
 function statusFor(meta?: SubmissionMeta): SubmissionStatus {
@@ -92,6 +111,134 @@ function averageRating(submissions: Submission[]) {
   return (ratings.reduce((total, value) => total + value, 0) / ratings.length).toFixed(1);
 }
 
+function answerTypeLabel(type: AnswerMeta["type"]) {
+  const labels: Record<AnswerMeta["type"], string> = {
+    checkbox: "Multi-select",
+    currency: "Currency",
+    date: "Date",
+    daterange: "Date range",
+    divider: "Divider",
+    dropdown: "Dropdown",
+    email: "Email",
+    file: "File upload",
+    formula: "Formula result",
+    hidden: "Hidden metadata",
+    matrix: "Matrix/grid",
+    number: "Number",
+    payment: "Payment amount",
+    phone: "Phone",
+    radio: "Single choice",
+    rating: "Rating",
+    richtext: "Rich text",
+    section: "Section",
+    signature: "Signature",
+    slider: "Slider",
+    text: "Text",
+    textarea: "Long answer",
+    unknown: "Answer"
+  };
+  return labels[type];
+}
+
+function dataUrlToDownloadName(label: string) {
+  return `${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "signature"}.png`;
+}
+
+function AnswerValue({ label, type, value }: { label: string; type: AnswerMeta["type"]; value: unknown }) {
+  const text = valueToText(value);
+
+  if (!isFilledValue(value)) {
+    return <p className="mt-2 text-sm text-[#98a2b3]">No answer provided</p>;
+  }
+
+  if (type === "signature" && typeof value === "string" && value.startsWith("data:image")) {
+    return (
+      <div className="mt-3 overflow-hidden rounded-xl border border-[#d8e0ea] bg-[#fbfcfe]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={value} alt={`${label} signature`} className="max-h-48 w-full bg-white object-contain p-3" />
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e7ebf0] px-3 py-2 text-xs text-[#667085]">
+          <span className="inline-flex items-center gap-1.5">
+            <PenLine size={13} />
+            Signature image saved with this response
+          </span>
+          <a className="font-semibold text-[#3157d5]" href={value} download={dataUrlToDownloadName(label)}>
+            Download PNG
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "rating") {
+    const rating = Number(value);
+    const stars = Number.isFinite(rating) ? Math.max(0, Math.min(5, Math.round(rating))) : 0;
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="flex gap-1 text-[#f59e0b]">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Star key={index} size={18} className={index < stars ? "fill-current" : "text-[#d8e0ea]"} />
+          ))}
+        </div>
+        <span className="text-sm font-semibold text-[#1f2937]">{text}</span>
+      </div>
+    );
+  }
+
+  if (type === "daterange" && value && typeof value === "object") {
+    const range = value as { start?: unknown; end?: unknown };
+    return (
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="rounded-xl border border-[#e5e9ef] bg-[#fbfcfe] p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8a94a6]">Start</p>
+          <p className="mt-1 text-sm font-semibold text-[#1f2937]">{String(range.start || "Not selected")}</p>
+        </div>
+        <div className="rounded-xl border border-[#e5e9ef] bg-[#fbfcfe] p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8a94a6]">End</p>
+          <p className="mt-1 text-sm font-semibold text-[#1f2937]">{String(range.end || "Not selected")}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "matrix" && value && typeof value === "object") {
+    const rows = Object.entries(value as Record<string, unknown>);
+    return (
+      <div className="mt-3 overflow-hidden rounded-xl border border-[#d8e0ea]">
+        <div className="flex items-center gap-2 border-b border-[#e7ebf0] bg-[#f8fafc] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#667085]">
+          <Table2 size={14} />
+          Matrix answers
+        </div>
+        <div className="divide-y divide-[#eef2f7]">
+          {rows.map(([row, rowValue]) => (
+            <div key={row} className="grid gap-2 px-3 py-2 sm:grid-cols-[140px_minmax(0,1fr)]">
+              <p className="text-sm font-semibold text-[#20242b]">{row}</p>
+              <p className="break-words text-sm text-[#667085]">{valueToText(rowValue) || "No answer"}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (Array.isArray(value)) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {value.map((item) => (
+          <span key={String(item)} className="rounded-full bg-[#eef3ff] px-2.5 py-1 text-xs font-semibold text-[#3157d5]">
+            {String(item)}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (type === "richtext") {
+    return <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#1f2937]">{text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() || "No answer"}</p>;
+  }
+
+  return <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#1f2937]">{text || "No answer"}</p>;
+}
+
 function topAnswer(submissions: Submission[]) {
   const counts = new Map<string, number>();
   submissions.forEach((submission) => {
@@ -115,6 +262,7 @@ function exportRows(submissions: Submission[], meta: Record<string, SubmissionMe
 }
 
 export default function SubmissionsPage() {
+  const form = useFormStore((state) => state.form);
   const submissions = useFormStore((state) => state.submissions);
   const clearSubmissions = useFormStore((state) => state.clearSubmissions);
   const [query, setQuery] = useState("");
@@ -125,6 +273,7 @@ export default function SubmissionsPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [copied, setCopied] = useState(false);
+  const answerMeta = useMemo(() => answerMetaFor(form.fields), [form.fields]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -165,7 +314,9 @@ export default function SubmissionsPage() {
           (view === "flagged" && itemMeta?.flagged) ||
           (view !== "flagged" && status === view);
         const matchesDate = withinDateFilter(submission, dateFilter);
-        const searchable = `${submission.id} ${submission.submittedAt} ${status} ${itemMeta?.note ?? ""} ${JSON.stringify(submission.values)}`.toLowerCase();
+        const searchable = `${submission.id} ${submission.submittedAt} ${status} ${itemMeta?.note ?? ""} ${Object.entries(submission.values)
+          .map(([key, value]) => `${answerMeta[key]?.label ?? key} ${valueToText(value)}`)
+          .join(" ")}`.toLowerCase();
         return matchesView && matchesDate && searchable.includes(normalizedQuery);
       })
       .sort((a, b) => {
@@ -174,7 +325,7 @@ export default function SubmissionsPage() {
         const dateB = new Date(b.submittedAt).getTime();
         return sortMode === "oldest" ? dateA - dateB : dateB - dateA;
       });
-  }, [dateFilter, meta, query, sortMode, submissions, view]);
+  }, [answerMeta, dateFilter, meta, query, sortMode, submissions, view]);
 
   const selectedRows = rows.filter((submission) => selectedIds.includes(submission.id));
   const newCount = submissions.filter((submission) => statusFor(meta[submission.id]) === "new").length;
@@ -386,7 +537,7 @@ export default function SubmissionsPage() {
                               </div>
                             </td>
                             <td className="max-w-[360px] px-4 py-4 text-[#1f2937]">
-                              <p className="line-clamp-2 leading-6">{responseSummary(submission)}</p>
+                              <p className="line-clamp-2 leading-6">{responseSummary(submission, answerMeta)}</p>
                               {itemMeta?.note && <p className="mt-2 text-xs font-medium text-[#667085]">Note: {itemMeta.note}</p>}
                             </td>
                             <td className="px-4 py-4">
@@ -480,13 +631,26 @@ export default function SubmissionsPage() {
             <aside className="formcraft-scrollbar ml-auto h-full w-full max-w-xl overflow-y-auto border-l border-[#d8e0ea] bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#98a2b3]">Submission detail</p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#111418]">{formatTimestamp(selected.submittedAt)}</h2>
-                  <p className="mt-1 text-sm text-[#667085]">{selected.id}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#98a2b3]">Submitted response</p>
+                  <h2 className="mt-2 text-xl font-semibold text-[#111418]">{form.title}</h2>
+                  <p className="mt-1 text-sm text-[#667085]">Received {formatTimestamp(selected.submittedAt)}</p>
                 </div>
                 <Button size="icon" variant="ghost" onClick={() => setSelected(null)} aria-label="Close drawer">
                   <X size={18} />
                 </Button>
+              </div>
+
+              <div className="mb-5 grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: "Status", value: statusFor(meta[selected.id]) },
+                  { label: "Answers", value: `${filledCount(selected)} filled` },
+                  { label: "Flagged", value: meta[selected.id]?.flagged ? "Yes" : "No" }
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8a94a6]">{item.label}</p>
+                    <p className="mt-1 text-sm font-semibold capitalize text-[#111418]">{item.value}</p>
+                  </div>
+                ))}
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
@@ -519,13 +683,37 @@ export default function SubmissionsPage() {
                 />
               </div>
 
+              <div className="mt-5 rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-4">
+                <p className="text-sm font-bold text-[#111418]">What you are seeing</p>
+                <p className="mt-2 text-sm leading-6 text-[#667085]">
+                  These are the answers saved when the user submitted the preview form. Labels come from your current form fields, and special answers like signatures,
+                  ratings, date ranges and matrix grids are shown in a readable format.
+                </p>
+              </div>
+
               <div className="mt-5 space-y-3">
-                {Object.entries(selected.values).map(([key, value]) => (
-                  <div key={key} className="rounded-2xl border border-[#e1e6ee] bg-white p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#68707d]">{key}</p>
-                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#1f2937]">{valueToText(value) || "—"}</p>
+                <div>
+                  <p className="mb-3 text-sm font-bold text-[#111418]">Submitted answers</p>
+                  <div className="space-y-3">
+                    {Object.entries(selected.values).map(([key, value]) => {
+                      const itemMeta = answerMeta[key] ?? { label: key, type: "unknown" as const };
+                      return (
+                        <div key={key} className="rounded-2xl border border-[#e1e6ee] bg-white p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-semibold text-[#111418]">{itemMeta.label}</p>
+                              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#8a94a6]">{answerTypeLabel(itemMeta.type)}</p>
+                            </div>
+                            <span className="rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-[#667085]">
+                              {isFilledValue(value) ? "Answered" : "Empty"}
+                            </span>
+                          </div>
+                          <AnswerValue label={itemMeta.label} type={itemMeta.type} value={value} />
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
               </div>
             </aside>
           </div>
