@@ -79,14 +79,6 @@ function answerMetaFor(fields: FormField[]) {
   }, {});
 }
 
-function responseSummary(submission: Submission, answerMeta: Record<string, AnswerMeta>) {
-  const entries = Object.entries(submission.values)
-    .filter(([, value]) => valueToText(value).trim())
-    .slice(0, 3);
-  if (!entries.length) return "No visible answers captured";
-  return entries.map(([key, value]) => `${answerMeta[key]?.label ?? key}: ${valueToText(value)}`).join(" · ");
-}
-
 function statusFor(meta?: SubmissionMeta): SubmissionStatus {
   return meta?.status ?? "new";
 }
@@ -109,6 +101,31 @@ function averageRating(submissions: Submission[]) {
   );
   if (!ratings.length) return null;
   return (ratings.reduce((total, value) => total + value, 0) / ratings.length).toFixed(1);
+}
+
+function submissionTypeFor(submission: Submission, answerMeta: Record<string, AnswerMeta>, formTitle: string) {
+  const fieldText = Object.entries(submission.values)
+    .map(([key, value]) => `${answerMeta[key]?.label ?? key} ${valueToText(value)}`)
+    .join(" ")
+    .toLowerCase();
+  const text = `${formTitle} ${fieldText}`.toLowerCase();
+
+  if (/(candidate|resume|cv|portfolio|job|role|experience|availability|apply|application)/.test(text)) {
+    return { label: "Candidate", reason: "Hiring or application response", tone: "bg-[#f5f3ff] text-[#6d28d9]" };
+  }
+  if (/(event|ticket|attendee|seat|dietary|workshop|registration|guest)/.test(text)) {
+    return { label: "Event", reason: "Registration or attendee response", tone: "bg-[#fff7ed] text-[#c2410c]" };
+  }
+  if (/(feedback|rating|survey|score|experience|satisfaction|improve|matrix)/.test(text)) {
+    return { label: "Feedback", reason: "Survey or product insight", tone: "bg-[#eef8f5] text-[#0f766e]" };
+  }
+  if (/(lead|demo|budget|company|team size|sales|purchase|pricing|intent)/.test(text)) {
+    return { label: "Lead", reason: "Sales or qualification response", tone: "bg-[#edf2ff] text-[#3157d5]" };
+  }
+  if (/(contact|message|support|phone|email|inquiry|request)/.test(text)) {
+    return { label: "Contact", reason: "General contact request", tone: "bg-[#f1f5f9] text-[#475569]" };
+  }
+  return { label: "Response", reason: "General form submission", tone: "bg-[#f1f5f9] text-[#475569]" };
 }
 
 function answerTypeLabel(type: AnswerMeta["type"]) {
@@ -314,9 +331,10 @@ export default function SubmissionsPage() {
           (view === "flagged" && itemMeta?.flagged) ||
           (view !== "flagged" && status === view);
         const matchesDate = withinDateFilter(submission, dateFilter);
+        const submissionType = submissionTypeFor(submission, answerMeta, form.title);
         const searchable = `${submission.id} ${submission.submittedAt} ${status} ${itemMeta?.note ?? ""} ${Object.entries(submission.values)
           .map(([key, value]) => `${answerMeta[key]?.label ?? key} ${valueToText(value)}`)
-          .join(" ")}`.toLowerCase();
+          .join(" ")} ${submissionType.label} ${submissionType.reason}`.toLowerCase();
         return matchesView && matchesDate && searchable.includes(normalizedQuery);
       })
       .sort((a, b) => {
@@ -325,7 +343,7 @@ export default function SubmissionsPage() {
         const dateB = new Date(b.submittedAt).getTime();
         return sortMode === "oldest" ? dateA - dateB : dateB - dateA;
       });
-  }, [answerMeta, dateFilter, meta, query, sortMode, submissions, view]);
+  }, [answerMeta, dateFilter, form.title, meta, query, sortMode, submissions, view]);
 
   const selectedRows = rows.filter((submission) => selectedIds.includes(submission.id));
   const newCount = submissions.filter((submission) => statusFor(meta[submission.id]) === "new").length;
@@ -471,7 +489,7 @@ export default function SubmissionsPage() {
               )}
 
               {rows.length === 0 ? (
-                <div className="p-12 text-center">
+                <div className="rounded-b-3xl p-12 text-center">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef3ff] text-[#3157d5]">
                     <Filter size={22} />
                   </div>
@@ -481,7 +499,7 @@ export default function SubmissionsPage() {
                   </p>
                 </div>
               ) : (
-                <div className="formcraft-scrollbar overflow-x-auto">
+                <div className="formcraft-scrollbar overflow-x-auto rounded-b-3xl">
                   <table className="w-full min-w-[860px] text-left text-sm">
                     <thead className="bg-[#f6f8fb] text-xs uppercase tracking-[0.12em] text-[#667085]">
                       <tr>
@@ -495,7 +513,7 @@ export default function SubmissionsPage() {
                         </th>
                         <th className="px-4 py-3">Submitted</th>
                         <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Response summary</th>
+                        <th className="px-4 py-3">Submission type</th>
                         <th className="px-4 py-3">Completeness</th>
                         <th className="px-4 py-3 text-right">Action</th>
                       </tr>
@@ -506,6 +524,7 @@ export default function SubmissionsPage() {
                         const status = statusFor(itemMeta);
                         const answerCount = Object.keys(submission.values).length;
                         const complete = answerCount ? Math.round((filledCount(submission) / answerCount) * 100) : 0;
+                        const submissionType = submissionTypeFor(submission, answerMeta, form.title);
                         return (
                           <tr key={submission.id} className="hover:bg-[#fbfcfe]">
                             <td className="px-4 py-4">
@@ -536,8 +555,9 @@ export default function SubmissionsPage() {
                                 {itemMeta?.flagged && <span className="rounded-full bg-[#fff7ed] px-2.5 py-1 text-xs font-bold text-[#c2410c]">flagged</span>}
                               </div>
                             </td>
-                            <td className="max-w-[360px] px-4 py-4 text-[#1f2937]">
-                              <p className="line-clamp-2 leading-6">{responseSummary(submission, answerMeta)}</p>
+                            <td className="max-w-[280px] px-4 py-4 text-[#1f2937]">
+                              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${submissionType.tone}`}>{submissionType.label}</span>
+                              <p className="mt-2 text-sm leading-5 text-[#667085]">{submissionType.reason}</p>
                               {itemMeta?.note && <p className="mt-2 text-xs font-medium text-[#667085]">Note: {itemMeta.note}</p>}
                             </td>
                             <td className="px-4 py-4">
