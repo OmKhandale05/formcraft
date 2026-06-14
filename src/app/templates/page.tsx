@@ -284,14 +284,25 @@ export default function TemplatesPage() {
                 Browse by workflow, inspect the schema, preview the form, customize key settings, and save your own reusable templates locally.
               </p>
             </div>
-            <div className="rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-4">
-              <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
-                <Sparkles size={16} />
-                Recommendation
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#667085]">
-                For portfolio demos, use templates with advanced fields and multi-step flows. They show schema design, UI states, and product thinking faster.
-              </p>
+            <div className="relative overflow-hidden rounded-2xl border border-[#cdd8e7] bg-[#111418] p-4 text-white shadow-[0_18px_45px_rgba(17,20,24,0.18)]">
+              <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-[#3157d5]/30" />
+              <div className="relative">
+                <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-xs font-bold text-white/80 ring-1 ring-white/15">
+                  <Sparkles size={13} />
+                  Builder&apos;s pick
+                </p>
+                <h2 className="mt-4 text-lg font-semibold tracking-tight">Launch-ready flows, not blank-page templates.</h2>
+                <p className="mt-2 text-sm leading-6 text-white/68">
+                  Start with a form that already has steps, logic-ready fields, and realistic data capture moments.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["Multi-step", "Advanced fields", "Preview-ready"].map((item) => (
+                    <span key={item} className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/78 ring-1 ring-white/12">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
