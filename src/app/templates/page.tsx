@@ -284,23 +284,27 @@ export default function TemplatesPage() {
                 Browse by workflow, inspect the schema, preview the form, customize key settings, and save your own reusable templates locally.
               </p>
             </div>
-            <div className="rounded-2xl border border-[#d8e0ea] bg-white p-3 shadow-sm">
-              <div className="flex items-start gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#111418] text-white shadow-[0_10px_24px_rgba(17,20,24,0.16)]">
-                  <Sparkles size={16} />
-                </span>
+            <div className="self-end rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-3 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Builder&apos;s pick</p>
-                  <h2 className="mt-1 text-sm font-bold leading-5 text-[#111418]">Launch-ready flows</h2>
-                  <p className="mt-1 text-xs leading-5 text-[#667085]">Multi-step templates with advanced fields and preview-ready structure.</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {["Steps", "Logic-ready", "Polished"].map((item) => (
-                      <span key={item} className="rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[11px] font-semibold text-[#465366]">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8a94a6]">Template intelligence</p>
+                  <p className="mt-1 text-sm font-semibold text-[#111418]">Pick a workflow, then personalize before build.</p>
                 </div>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d8e0ea] bg-white text-[#111418] shadow-sm">
+                  <Sparkles size={15} />
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {[
+                  ["5", "workflows"],
+                  ["Live", "preview"],
+                  ["Local", "saved"]
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-xl border border-[#e5e9ef] bg-white px-2.5 py-2">
+                    <p className="text-sm font-bold text-[#111418]">{value}</p>
+                    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8a94a6]">{label}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
