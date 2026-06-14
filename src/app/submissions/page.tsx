@@ -71,6 +71,11 @@ function filledCount(submission: Submission) {
   return Object.values(submission.values).filter(isFilledValue).length;
 }
 
+function completionPercent(submission: Submission) {
+  const answerCount = Object.keys(submission.values).length;
+  return answerCount ? Math.round((filledCount(submission) / answerCount) * 100) : 0;
+}
+
 function answerMetaFor(fields: FormField[]) {
   return fields.reduce<Record<string, AnswerMeta>>((lookup, field) => {
     lookup[field.id] = { label: field.label, type: field.type };
@@ -91,16 +96,6 @@ function withinDateFilter(submission: Submission, filter: DateFilter) {
   if (filter === "today") return new Date(submission.submittedAt).toDateString() === new Date().toDateString();
   const days = filter === "7d" ? 7 : 30;
   return now - submittedAt <= days * 24 * 60 * 60 * 1000;
-}
-
-function averageRating(submissions: Submission[]) {
-  const ratings = submissions.flatMap((submission) =>
-    Object.entries(submission.values)
-      .filter(([key, value]) => key.toLowerCase().includes("rating") && typeof value === "number")
-      .map(([, value]) => value as number)
-  );
-  if (!ratings.length) return null;
-  return (ratings.reduce((total, value) => total + value, 0) / ratings.length).toFixed(1);
 }
 
 function submissionTypeFor(submission: Submission, answerMeta: Record<string, AnswerMeta>, formTitle: string) {
@@ -256,17 +251,6 @@ function AnswerValue({ label, type, value }: { label: string; type: AnswerMeta["
   return <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#1f2937]">{text || "No answer"}</p>;
 }
 
-function topAnswer(submissions: Submission[]) {
-  const counts = new Map<string, number>();
-  submissions.forEach((submission) => {
-    Object.values(submission.values).forEach((value) => {
-      if (typeof value !== "string" || !value.trim() || value.length > 48) return;
-      counts.set(value, (counts.get(value) ?? 0) + 1);
-    });
-  });
-  return Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0] ?? null;
-}
-
 function exportRows(submissions: Submission[], meta: Record<string, SubmissionMeta>) {
   return submissions.map((submission) => ({
     id: submission.id,
@@ -353,8 +337,8 @@ export default function SubmissionsPage() {
   const todayCount = submissions.filter((submission) => withinDateFilter(submission, "today")).length;
   const latestSubmission = submissions[0]?.submittedAt ? formatTimestamp(submissions[0].submittedAt) : "No activity";
   const avgFilled = submissions.length ? Math.round(submissions.reduce((total, submission) => total + filledCount(submission), 0) / submissions.length) : 0;
-  const ratingInsight = averageRating(submissions);
-  const topAnswerInsight = topAnswer(submissions);
+  const avgCompletion = submissions.length ? Math.round(submissions.reduce((total, submission) => total + completionPercent(submission), 0) / submissions.length) : 0;
+  const reviewProgress = submissions.length ? Math.round((reviewedCount / submissions.length) * 100) : 0;
 
   const toggleSelection = (id: string) => {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -522,8 +506,7 @@ export default function SubmissionsPage() {
                       {rows.map((submission) => {
                         const itemMeta = meta[submission.id];
                         const status = statusFor(itemMeta);
-                        const answerCount = Object.keys(submission.values).length;
-                        const complete = answerCount ? Math.round((filledCount(submission) / answerCount) * 100) : 0;
+                        const complete = completionPercent(submission);
                         const submissionType = submissionTypeFor(submission, answerMeta, form.title);
                         return (
                           <tr key={submission.id} className="hover:bg-[#fbfcfe]">
@@ -587,19 +570,63 @@ export default function SubmissionsPage() {
           <aside className="min-w-0 space-y-4">
             <div className="rounded-3xl border border-[#d8e0ea] bg-white p-5 shadow-sm">
               <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
-                <Sparkles size={16} />
-                Response insights
+                <CheckCircle2 size={16} />
+                Review queue
               </p>
-              <div className="mt-4 space-y-3">
+              <p className="mt-2 text-sm leading-6 text-[#667085]">Operational signals that help you decide what to review, follow up, or export next.</p>
+              <div className="mt-4 grid gap-3">
                 <div className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Average rating</p>
-                  <p className="mt-2 text-2xl font-semibold text-[#111418]">{ratingInsight ?? "—"}</p>
-                  <p className="mt-1 text-xs text-[#667085]">Calculated from numeric fields with “rating” in the answer key.</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Needs review</p>
+                      <p className="mt-2 text-3xl font-semibold text-[#111418]">{newCount}</p>
+                    </div>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#edf2ff] text-[#3157d5]">
+                      <Inbox size={17} />
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="mt-4 w-full"
+                    onClick={() => {
+                      setView("new");
+                      setSelectedIds([]);
+                    }}
+                    disabled={!newCount}
+                  >
+                    Open new responses
+                  </Button>
                 </div>
                 <div className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Top short answer</p>
-                  <p className="mt-2 text-base font-semibold text-[#111418]">{topAnswerInsight ? topAnswerInsight[0] : "—"}</p>
-                  <p className="mt-1 text-xs text-[#667085]">{topAnswerInsight ? `${topAnswerInsight[1]} responses` : "Needs more response data."}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-[#667085]">Flagged follow-ups</p>
+                    <span className="rounded-full bg-[#fff7ed] px-2.5 py-1 text-xs font-bold text-[#c2410c]">{flaggedCount}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-[#667085]">Review progress</p>
+                    <span className="text-sm font-bold text-[#111418]">{reviewProgress}%</span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#edf1f6]">
+                    <div className="h-full rounded-full bg-[#0f766e]" style={{ width: `${reviewProgress}%` }} />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-[#667085]">Avg. completion</p>
+                    <span className="text-sm font-bold text-[#111418]">{avgCompletion}%</span>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Next best action</p>
+                  <p className="mt-2 text-sm leading-6 text-[#111418]">
+                    {newCount
+                      ? `Review ${newCount} new ${newCount === 1 ? "response" : "responses"} before exporting.`
+                      : flaggedCount
+                        ? "Check flagged follow-ups before archiving the queue."
+                        : submissions.length
+                          ? "Everything is reviewed. Export the current view or archive old responses."
+                          : "Submit a preview response to start testing the response workflow."}
+                  </p>
+                  <p className="mt-2 text-xs text-[#667085]">Latest: {latestSubmission}</p>
                 </div>
               </div>
             </div>
