@@ -284,23 +284,22 @@ export default function TemplatesPage() {
                 Browse by workflow, inspect the schema, preview the form, customize key settings, and save your own reusable templates locally.
               </p>
             </div>
-            <div className="relative overflow-hidden rounded-2xl border border-[#cdd8e7] bg-[#111418] p-4 text-white shadow-[0_18px_45px_rgba(17,20,24,0.18)]">
-              <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-[#3157d5]/30" />
-              <div className="relative">
-                <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-xs font-bold text-white/80 ring-1 ring-white/15">
-                  <Sparkles size={13} />
-                  Builder&apos;s pick
-                </p>
-                <h2 className="mt-4 text-lg font-semibold tracking-tight">Launch-ready flows, not blank-page templates.</h2>
-                <p className="mt-2 text-sm leading-6 text-white/68">
-                  Start with a form that already has steps, logic-ready fields, and realistic data capture moments.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {["Multi-step", "Advanced fields", "Preview-ready"].map((item) => (
-                    <span key={item} className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/78 ring-1 ring-white/12">
-                      {item}
-                    </span>
-                  ))}
+            <div className="rounded-2xl border border-[#d8e0ea] bg-white p-3 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#111418] text-white shadow-[0_10px_24px_rgba(17,20,24,0.16)]">
+                  <Sparkles size={16} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a94a6]">Builder&apos;s pick</p>
+                  <h2 className="mt-1 text-sm font-bold leading-5 text-[#111418]">Launch-ready flows</h2>
+                  <p className="mt-1 text-xs leading-5 text-[#667085]">Multi-step templates with advanced fields and preview-ready structure.</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {["Steps", "Logic-ready", "Polished"].map((item) => (
+                      <span key={item} className="rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[11px] font-semibold text-[#465366]">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
