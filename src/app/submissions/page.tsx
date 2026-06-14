@@ -15,7 +15,6 @@ import {
   Inbox,
   PenLine,
   Search,
-  Sparkles,
   Star,
   Table2,
   Trash2,
@@ -370,7 +369,7 @@ export default function SubmissionsPage() {
             </div>
             <div className="rounded-2xl border border-[#d8e0ea] bg-[#fbfcfe] p-4">
               <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
-                <Sparkles size={16} />
+                <BarChart3 size={16} />
                 Smart summary
               </p>
               <p className="mt-2 text-sm leading-6 text-[#667085]">

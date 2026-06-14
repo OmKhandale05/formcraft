@@ -1,7 +1,7 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { Blocks, Columns2, GripVertical, Rows3, Sparkles } from "lucide-react";
+import { Blocks, Columns2, GripVertical, Rows3 } from "lucide-react";
 import { useState } from "react";
 import { fieldCatalog } from "@/lib/field-catalog";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ export function FieldSidebar() {
       <div className="mb-4 rounded-2xl border border-[#d8e0ea] bg-white p-3 shadow-sm">
         <div className="mb-3 flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#eef3ff] text-[#3157d5]">
-            <Sparkles size={14} />
+            <Rows3 size={14} />
           </span>
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#667085]">Drop layout</p>

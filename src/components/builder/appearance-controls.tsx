@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Layers, MousePointer2, Moon, Sparkles, Sun } from "lucide-react";
+import { Check, Layers, MousePointer2, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { appearancePresets, defaultAppearance, fontOptions } from "@/lib/appearance";
@@ -113,7 +113,7 @@ export function AppearanceControls({ theme, onChange, compact = false }: Appeara
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold text-[#111418]">
-              <Sparkles size={16} />
+              <Layers size={16} />
               Style presets
             </p>
             <p className="mt-1 text-xs leading-5 text-[#667085]">Pick a feel first, fine-tune below.</p>

@@ -16,7 +16,6 @@ import {
   Paintbrush,
   Search,
   SearchCheck,
-  Sparkles,
   UsersRound,
   X
 } from "lucide-react";
@@ -291,7 +290,7 @@ export default function TemplatesPage() {
                   <p className="mt-1 text-sm font-semibold text-[#111418]">Pick a workflow, then personalize before build.</p>
                 </div>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d8e0ea] bg-white text-[#111418] shadow-sm">
-                  <Sparkles size={15} />
+                  <LayoutGrid size={15} />
                 </span>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2">
