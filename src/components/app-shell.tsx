@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, LayoutTemplate, PanelLeft, Settings2 } from "lucide-react";
+import { BarChart3, FileText, LayoutTemplate, LogIn, PanelLeft, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -69,9 +69,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <div className="relative flex items-center gap-2 border-t border-white/10 px-5 py-4 text-xs text-white/44">
-          <span className="h-2 w-2 rounded-full bg-[#d8ff63]" />
-          <span>Local autosave enabled</span>
+        <div className="relative border-t border-white/10 p-4">
+          <Link
+            href="/signin"
+            className={cn(
+              "mb-3 flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] text-sm font-semibold text-white/78 transition hover:bg-white hover:text-[#111418]",
+              pathname === "/signin" && "bg-white text-[#111418]"
+            )}
+          >
+            <LogIn size={16} />
+            Sign in
+          </Link>
+          <div className="flex items-center gap-2 px-1 text-xs text-white/44">
+            <span className="h-2 w-2 rounded-full bg-[#d8ff63]" />
+            <span>Local autosave enabled</span>
+          </div>
         </div>
       </aside>
       <div className="lg:pl-72">
@@ -93,6 +105,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/signin"
+              className={cn(
+                "inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium",
+                pathname === "/signin" ? "bg-[#111418] text-white" : "text-[#4b5563]"
+              )}
+            >
+              <LogIn size={16} />
+              Sign in
+            </Link>
           </div>
         </div>
         {children}
