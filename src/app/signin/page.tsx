@@ -37,9 +37,12 @@ const previewRows = [
 export default function SignInPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f4f6f8] px-4 py-5 text-[#111418] sm:px-6">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(17,20,24,0.08)_0%,transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(244,246,248,0.96)_58%,rgba(239,244,241,0.94)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.32] [background-image:linear-gradient(#cfd8e3_1px,transparent_1px),linear-gradient(90deg,#cfd8e3_1px,transparent_1px)] [background-size:42px_42px]" />
-      <div className="pointer-events-none absolute left-0 right-0 top-0 h-32 border-b border-white/70 bg-white/50 backdrop-blur-2xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(200,241,105,0.26),transparent_28%),radial-gradient(circle_at_78%_8%,rgba(99,102,241,0.16),transparent_30%),radial-gradient(circle_at_72%_78%,rgba(20,184,166,0.16),transparent_32%),linear-gradient(180deg,#fbfcfd_0%,#f4f6f8_48%,#eef4f1_100%)]" />
+      <div className="pointer-events-none absolute -left-20 top-24 h-72 w-[34rem] rotate-[-10deg] rounded-[4rem] bg-white/52 blur-2xl" />
+      <div className="pointer-events-none absolute right-[-9rem] top-28 h-[28rem] w-[32rem] rotate-12 rounded-[5rem] bg-[#dce8ff]/46 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-11rem] left-[18%] h-[24rem] w-[44rem] rounded-full bg-[#dff8ea]/58 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.18)_34%,rgba(17,20,24,0.04)_100%)]" />
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-32 border-b border-white/70 bg-white/42 backdrop-blur-2xl" />
 
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4">
         <div className="flex items-center gap-3">
