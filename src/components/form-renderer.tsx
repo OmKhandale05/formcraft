@@ -361,9 +361,9 @@ export function FormRenderer({ form, onSubmit, compact = false }: FormRendererPr
         </div>
       )}
 
-      <div className={cn("grid sm:grid-cols-2", fieldGapClass(formDensity))}>
+      <div className={cn("grid min-w-0 sm:grid-cols-2", fieldGapClass(formDensity))}>
         {currentStepFields.map((field, index) => (
-          <motion.div key={`${field.id}-${formAnimation}`} {...fieldMotion(formAnimation, index)} className={cn(field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
+          <motion.div key={`${field.id}-${formAnimation}`} {...fieldMotion(formAnimation, index)} className={cn("min-w-0", field.type === "hidden" && "hidden", (field.layout ?? "full") === "half" ? "sm:col-span-1" : "sm:col-span-2")}>
             <RenderedField
               field={field}
               register={register}
@@ -951,7 +951,7 @@ function MatrixField({
   const matrixControlClass = cn(controlClass(theme, false, rounded), "bg-white/92 text-[#111827] placeholder:text-[#98a2b3]");
 
   return (
-    <div className={cn("overflow-hidden", surfaceClass(theme, dark, rounded))} style={{ borderColor }}>
+    <div className={cn("min-w-0 overflow-hidden", surfaceClass(theme, dark, rounded))} style={{ borderColor }}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] border-separate border-spacing-0 text-sm">
           <thead className={dark ? "bg-white/5" : "bg-[#f8fafc]"} style={{ backgroundColor: headerColor, color: headerTextColor }}>

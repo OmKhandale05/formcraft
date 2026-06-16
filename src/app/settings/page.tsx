@@ -32,8 +32,8 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <main className="grid min-h-screen gap-6 p-4 sm:p-6 xl:h-screen xl:grid-cols-[560px_minmax(0,1fr)] xl:overflow-hidden">
-        <section className="soft-panel flex min-h-0 flex-col overflow-hidden rounded-2xl p-0 xl:max-h-[calc(100vh-48px)]">
+      <main className="grid min-h-screen min-w-0 grid-cols-1 gap-6 overflow-x-hidden p-4 sm:p-6 xl:h-screen xl:grid-cols-[560px_minmax(0,1fr)] xl:overflow-hidden">
+        <section className="soft-panel flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl p-0 xl:max-h-[calc(100vh-48px)]">
           <div className="shrink-0 border-b border-[#d8e0ea] p-5">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-lg">
@@ -46,10 +46,10 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             <div className="shrink-0 border-b border-[#d8e0ea] bg-[#fbfcfe] p-3">
               <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#98a2b3]">Control tabs</p>
-              <div className="grid grid-cols-5 gap-1 rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(17,24,39,0.04)]">
+              <div className="formcraft-scrollbar grid grid-flow-col auto-cols-[minmax(104px,1fr)] gap-1 overflow-x-auto rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(17,24,39,0.04)] sm:grid-flow-row sm:grid-cols-5 sm:auto-cols-auto">
                 {settingsTabs.map((tab) => {
                   const selected = activeTab === tab.id;
                   return (
@@ -72,7 +72,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
               <div className="border-b border-[#e5e9ef] bg-white px-5 py-4">
                 <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
                   <ActiveIcon size={16} />

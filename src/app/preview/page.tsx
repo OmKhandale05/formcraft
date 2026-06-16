@@ -55,13 +55,13 @@ export default function PreviewPage() {
             </Button>
           </div>
         </div>
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="rounded-3xl border border-[#d8e0ea] bg-white/54 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur sm:p-8">
+        <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="min-w-0 rounded-3xl border border-[#d8e0ea] bg-white/54 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur sm:p-8">
             <div className={cn("mx-auto transition-all", device === "mobile" ? "max-w-[390px]" : "max-w-3xl")}>
               <FormRenderer form={form} onSubmit={addSubmission} />
             </div>
           </div>
-          <aside className="min-h-0 rounded-3xl border border-[#d8e0ea] bg-[#111418] p-4 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
+          <aside className="min-h-0 min-w-0 rounded-3xl border border-[#d8e0ea] bg-[#111418] p-4 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-xs font-semibold text-[#dce6f5]">
@@ -106,7 +106,7 @@ export default function PreviewPage() {
               </button>
             </div>
 
-            <pre className={cn("formcraft-scrollbar overflow-auto rounded-2xl border border-white/10 bg-[#07090d] p-4 text-xs leading-5 text-[#d9e4f2] shadow-inner", codeTab === "json" ? "max-h-[720px]" : "max-h-72")}>
+            <pre className={cn("formcraft-scrollbar max-w-full overflow-auto rounded-2xl border border-white/10 bg-[#07090d] p-4 text-xs leading-5 text-[#d9e4f2] shadow-inner", codeTab === "json" ? "max-h-[720px]" : "max-h-72")}>
               <code className={cn("select-text", codeTab === "json" ? "whitespace-pre" : "whitespace-pre-wrap")}>{activeCode}</code>
             </pre>
             <p className="mt-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm leading-6 text-[#aab4c3]">
