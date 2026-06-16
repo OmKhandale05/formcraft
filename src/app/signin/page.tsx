@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
+  CheckCircle2,
   Database,
   GitBranch,
   KeyRound,
@@ -29,19 +30,21 @@ const productStats = [
 ];
 
 const previewRows = [
-  { label: "Contact details", tone: "bg-[#fff7ed] text-[#9a3412]", width: "w-[72%]" },
-  { label: "Logic rules", tone: "bg-[#ecfdf5] text-[#047857]", width: "w-[56%]" },
-  { label: "Theme tokens", tone: "bg-[#eef2ff] text-[#3730a3]", width: "w-[64%]" }
+  { label: "Contact details", tone: "bg-[#fff7ed] text-[#9a3412]", width: "w-[72%]", accent: "bg-[#fb923c]" },
+  { label: "Logic rules", tone: "bg-[#ecfdf5] text-[#047857]", width: "w-[56%]", accent: "bg-[#34d399]" },
+  { label: "Theme tokens", tone: "bg-[#eef2ff] text-[#3730a3]", width: "w-[64%]", accent: "bg-[#818cf8]" }
 ];
 
 export default function SignInPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f4f6f8] px-4 py-5 text-[#111418] sm:px-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(200,241,105,0.26),transparent_28%),radial-gradient(circle_at_78%_8%,rgba(99,102,241,0.16),transparent_30%),radial-gradient(circle_at_72%_78%,rgba(20,184,166,0.16),transparent_32%),linear-gradient(180deg,#fbfcfd_0%,#f4f6f8_48%,#eef4f1_100%)]" />
-      <div className="pointer-events-none absolute -left-20 top-24 h-72 w-[34rem] rotate-[-10deg] rounded-[4rem] bg-white/52 blur-2xl" />
-      <div className="pointer-events-none absolute right-[-9rem] top-28 h-[28rem] w-[32rem] rotate-12 rounded-[5rem] bg-[#dce8ff]/46 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-11rem] left-[18%] h-[24rem] w-[44rem] rounded-full bg-[#dff8ea]/58 blur-3xl" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.18)_34%,rgba(17,20,24,0.04)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_13%_12%,rgba(200,241,105,0.34),transparent_25%),radial-gradient(circle_at_84%_9%,rgba(99,102,241,0.2),transparent_29%),radial-gradient(circle_at_76%_82%,rgba(20,184,166,0.2),transparent_31%),linear-gradient(135deg,#fbfcfd_0%,#f5f7f9_42%,#eef5f1_100%)]" />
+      <div className="pointer-events-none absolute -left-24 top-24 h-80 w-[38rem] rotate-[-12deg] rounded-[5rem] bg-white/62 blur-2xl" />
+      <div className="pointer-events-none absolute right-[-11rem] top-20 h-[31rem] w-[36rem] rotate-12 rounded-[6rem] bg-[#dce8ff]/58 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-12rem] left-[14%] h-[25rem] w-[50rem] rounded-full bg-[#dff8ea]/68 blur-3xl" />
+      <div className="pointer-events-none absolute left-[5%] top-[19%] hidden h-24 w-24 rotate-12 rounded-[2rem] border border-white/80 bg-white/28 shadow-[0_22px_80px_rgba(17,24,39,0.08)] backdrop-blur-xl lg:block" />
+      <div className="pointer-events-none absolute right-[34%] top-[12%] hidden h-16 w-36 -rotate-6 rounded-full border border-white/80 bg-white/36 shadow-[0_18px_60px_rgba(17,24,39,0.08)] backdrop-blur-xl lg:block" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.22)_36%,rgba(17,20,24,0.05)_100%)]" />
       <div className="pointer-events-none absolute left-0 right-0 top-0 h-32 border-b border-white/70 bg-white/42 backdrop-blur-2xl" />
 
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4">
@@ -62,26 +65,44 @@ export default function SignInPage() {
 
       <section className="relative mx-auto grid min-h-[calc(100vh-6rem)] max-w-6xl items-center gap-6 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.58fr)]">
         <div className="space-y-5">
-          <div className="overflow-hidden rounded-[32px] border border-white/80 bg-white/78 shadow-[0_28px_90px_rgba(17,24,39,0.12)] backdrop-blur-xl">
-            <div className="border-b border-[#e7ecf2] bg-[linear-gradient(135deg,#ffffff_0%,#f4f8fb_54%,#eef7f2_100%)] p-6 sm:p-8">
-              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#d9e4ee] bg-white/80 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#667085] shadow-sm">
-                <KeyRound size={14} className="text-[#111418]" />
-                Team access
+          <div className="overflow-hidden rounded-[34px] border border-white/80 bg-white/80 shadow-[0_34px_110px_rgba(17,24,39,0.16)] backdrop-blur-xl">
+            <div className="relative overflow-hidden border-b border-[#e7ecf2] bg-[#101318] p-6 text-white sm:p-8">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(200,241,105,0.26),transparent_26%),radial-gradient(circle_at_88%_4%,rgba(129,140,248,0.28),transparent_30%),linear-gradient(135deg,#101318_0%,#1b2029_62%,#101318_100%)]" />
+              <div className="pointer-events-none absolute -right-24 -top-24 h-60 w-60 rounded-full border border-white/10 bg-white/10 blur-2xl" />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#c8f169]/70 to-transparent" />
+              <div className="relative">
+                <div className="mb-7 flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white/72 shadow-sm">
+                    <KeyRound size={14} className="text-[#c8f169]" />
+                    Team access
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-xs font-bold text-white/62">
+                    <CheckCircle2 size={14} className="text-[#34d399]" />
+                    Synced just now
+                  </div>
+                </div>
+                <h1 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-6xl">
+                  Sign in to your form command center.
+                </h1>
+                <p className="mt-5 max-w-2xl text-sm leading-6 text-white/68 sm:text-base">
+                  Build forms, tune themes, review submissions, and ship polished no-code workflows from one focused workspace.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-2">
+                  {["Schema-driven", "Drag and drop", "Export-ready"].map((tag) => (
+                    <span key={tag} className="rounded-full border border-white/12 bg-white/9 px-3 py-1.5 text-xs font-bold text-white/72">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-tight text-[#111418] sm:text-6xl">
-                Sign in to your form command center.
-              </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-6 text-[#5d6675] sm:text-base">
-                Build forms, tune themes, review submissions, and ship polished no-code workflows from one focused workspace.
-              </p>
             </div>
 
-            <div className="grid gap-0 border-b border-[#e7ecf2] bg-white/70 sm:grid-cols-3">
+            <div className="grid gap-0 border-b border-[#e7ecf2] bg-white/82 sm:grid-cols-3">
               {productStats.map((stat) => {
                 const Icon = stat.icon;
                 return (
-                  <div key={stat.label} className="border-[#e7ecf2] p-5 sm:border-r sm:last:border-r-0">
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[#e1e7ef] bg-[#f8fafc] text-[#111418]">
+                  <div key={stat.label} className="group border-[#e7ecf2] p-5 transition hover:bg-[#f8fafc] sm:border-r sm:last:border-r-0">
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[#e1e7ef] bg-[#f8fafc] text-[#111418] shadow-sm transition group-hover:-translate-y-0.5">
                       <Icon size={17} />
                     </div>
                     <p className="text-2xl font-black tracking-tight text-[#111418]">{stat.value}</p>
@@ -92,7 +113,8 @@ export default function SignInPage() {
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-[1.05fr_0.95fr] sm:p-6">
-              <div className="rounded-3xl border border-[#dce4ee] bg-[#111418] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+              <div className="relative overflow-hidden rounded-3xl border border-[#202631] bg-[#111418] p-4 text-white shadow-[0_22px_60px_rgba(17,20,24,0.22),inset_0_1px_0_rgba(255,255,255,0.12)]">
+                <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[#c8f169]/16 blur-2xl" />
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Live builder</p>
@@ -102,7 +124,8 @@ export default function SignInPage() {
                 </div>
                 <div className="space-y-3">
                   {previewRows.map((row) => (
-                    <div key={row.label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-3">
+                    <div key={row.label} className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.07] p-3">
+                      <span className={`absolute left-0 top-0 h-full w-1 ${row.accent}`} />
                       <div className="flex items-center justify-between gap-3">
                         <span className={`rounded-full px-2.5 py-1 text-xs font-black ${row.tone}`}>{row.label}</span>
                         <span className="h-2 w-2 rounded-full bg-[#c8f169]" />
@@ -123,9 +146,9 @@ export default function SignInPage() {
                 ].map((item) => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.title} className="rounded-3xl border border-[#dce4ee] bg-white/82 p-4 shadow-sm">
+                    <div key={item.title} className="rounded-3xl border border-[#dce4ee] bg-white/86 p-4 shadow-[0_12px_34px_rgba(17,24,39,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_46px_rgba(17,24,39,0.1)]">
                       <div className="flex gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f1f5f9] text-[#111418]">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-[0_12px_26px_rgba(17,20,24,0.16)]">
                           <Icon size={17} />
                         </span>
                         <span>
