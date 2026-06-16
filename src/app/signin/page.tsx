@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, GitBranch, LockKeyhole, Mail, PanelLeft, ShieldCheck } from "lucide-react";
+import { ArrowRight, GitBranch, LockKeyhole, Mail, PanelLeft, ShieldCheck } from "lucide-react";
 import { Input, Label } from "@/components/ui/input";
 
 const authOptions = [
@@ -13,7 +13,7 @@ export default function SignInPage() {
   return (
     <main className="min-h-screen bg-[#f6f7f9] px-4 py-5 text-[#111418] sm:px-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        <Link href="/builder" className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#111418] text-white shadow-[0_14px_28px_rgba(17,20,24,0.18)]">
             <PanelLeft size={17} />
           </span>
@@ -21,11 +21,7 @@ export default function SignInPage() {
             <span className="block text-sm font-bold text-[#111418]">FormCraft</span>
             <span className="text-xs text-[#667085]">No-code form builder</span>
           </span>
-        </Link>
-        <Link href="/builder" className="inline-flex h-9 items-center gap-2 rounded-xl border border-[#d8e0ea] bg-white px-3 text-sm font-semibold text-[#465366] shadow-sm transition hover:border-[#c5d0dc] hover:text-[#111418]">
-          <ArrowLeft size={15} />
-          Back to builder
-        </Link>
+        </div>
       </div>
 
       <section className="mx-auto grid min-h-[calc(100vh-6rem)] max-w-6xl items-center gap-6 py-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
