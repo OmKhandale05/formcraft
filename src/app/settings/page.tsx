@@ -49,7 +49,7 @@ export default function SettingsPage() {
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="shrink-0 border-b border-[#d8e0ea] bg-[#fbfcfe] p-3">
               <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#98a2b3]">Control tabs</p>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="grid grid-cols-5 gap-1 rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(17,24,39,0.04)]">
                 {settingsTabs.map((tab) => {
                   const selected = activeTab === tab.id;
                   return (
@@ -61,7 +61,7 @@ export default function SettingsPage() {
                         "group flex h-10 min-w-0 items-center justify-center rounded-lg border px-2 text-center transition",
                         selected
                           ? "border-[#111418] bg-[#111418] text-white shadow-[0_10px_22px_rgba(17,20,24,0.16)]"
-                          : "border-transparent bg-transparent text-[#465366] hover:border-[#d8e0ea] hover:bg-white"
+                          : "border-transparent bg-transparent text-[#465366] hover:bg-[#f6f8fb]"
                       )}
                       onClick={() => setActiveTab(tab.id)}
                     >
