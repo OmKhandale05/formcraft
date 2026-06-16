@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { ArrowRight, GitBranch, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { Input, Label } from "@/components/ui/input";
 
 const authOptions = [
-  { label: "Google", helper: "Mock provider", icon: Mail },
-  { label: "GitHub", helper: "Mock provider", icon: GitBranch },
-  { label: "Email link", helper: "Mock flow", icon: Mail }
+  { label: "Continue with Google", icon: Mail },
+  { label: "Continue with GitHub", icon: GitBranch }
 ];
 
 export default function SignInPage() {
@@ -18,19 +18,19 @@ export default function SignInPage() {
           <div className="rounded-3xl border border-[#d8e0ea] bg-white p-6 shadow-sm sm:p-8">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#d8e0ea] bg-[#fbfcfe] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#667085]">
               <ShieldCheck size={14} />
-              Demo workspace
+              Secure workspace
             </div>
             <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-[#111418] sm:text-5xl">
-              Sign in without slowing down the product demo.
+              Welcome back to FormCraft.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-[#667085] sm:text-base">
-              FormCraft keeps the portfolio preview open, while this page shows how authentication would fit into the SaaS experience.
+              Manage forms, review submissions, customize themes, and keep your workspace organized from one clean dashboard.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
-                ["Open demo", "No account required"],
-                ["Local data", "Saved in browser"],
-                ["Auth-ready", "Future backend slot"]
+                ["Forms", "Build and customize"],
+                ["Responses", "Review and export"],
+                ["Themes", "Control every detail"]
               ].map(([title, copy]) => (
                 <div key={title} className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-4">
                   <p className="text-sm font-bold text-[#111418]">{title}</p>
@@ -47,53 +47,65 @@ export default function SignInPage() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-[#111418]">Welcome back</h2>
-                <p className="text-sm text-[#667085]">Continue as a demo user.</p>
+                <p className="text-sm text-[#667085]">Sign in to continue to your workspace.</p>
               </div>
             </div>
 
             <div className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-4">
-              <p className="text-sm font-bold text-[#111418]">Portfolio preview mode</p>
-              <p className="mt-2 text-sm leading-6 text-[#667085]">
-                Authentication is intentionally mocked so recruiters can explore the full builder instantly.
-              </p>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="signin-email">Email address</Label>
+                  <Input id="signin-email" type="email" className="mt-2 bg-white" placeholder="you@company.com" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="signin-password">Password</Label>
+                    <Link href="/builder" className="text-xs font-semibold text-[#3157d5] hover:text-[#1d3fbf]">
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <Input id="signin-password" type="password" className="mt-2 bg-white" placeholder="Enter your password" />
+                </div>
+                <label className="flex items-center gap-2 text-sm font-medium text-[#465366]">
+                  <input type="checkbox" className="h-4 w-4 rounded border-[#cfd9e7]" />
+                  Keep me signed in
+                </label>
+              </div>
               <Link
                 href="/builder"
                 className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-[#111418] px-4 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(17,20,24,0.18)] transition hover:bg-[#20242b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                Continue as demo user
+                Sign in
                 <ArrowRight size={16} />
               </Link>
             </div>
 
-            <div className="mt-4 space-y-2">
+            <div className="my-4 flex items-center gap-3">
+              <span className="h-px flex-1 bg-[#e5e9ef]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#98a2b3]">or</span>
+              <span className="h-px flex-1 bg-[#e5e9ef]" />
+            </div>
+
+            <div className="space-y-2">
               {authOptions.map((option) => {
                 const Icon = option.icon;
                 return (
-                  <button
+                  <Link
                     key={option.label}
-                    type="button"
-                    className="flex w-full items-center justify-between rounded-2xl border border-[#e5e9ef] bg-white px-4 py-3 text-left opacity-70"
-                    disabled
+                    href="/builder"
+                    className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[#e5e9ef] bg-white px-4 py-3 text-sm font-semibold text-[#111418] transition hover:border-[#c5d0dc] hover:bg-[#fbfcfe]"
                   >
-                    <span className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f1f5f9] text-[#465366]">
-                        <Icon size={16} />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-[#111418]">{option.label}</span>
-                        <span className="text-xs text-[#667085]">{option.helper}</span>
-                      </span>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#f1f5f9] text-[#465366]">
+                      <Icon size={16} />
                     </span>
-                    <span className="rounded-full bg-[#f1f5f9] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#667085]">
-                      Soon
-                    </span>
-                  </button>
+                    {option.label}
+                  </Link>
                 );
               })}
             </div>
 
             <p className="mt-4 text-center text-xs leading-5 text-[#8a94a6]">
-              Real authentication can be connected later with Supabase, Clerk, Auth.js, or Firebase.
+              New to FormCraft? <Link href="/builder" className="font-semibold text-[#3157d5]">Create a workspace</Link>
             </p>
           </aside>
         </section>
