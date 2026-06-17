@@ -34,8 +34,8 @@ export default function SignInPage() {
         </div>
       </div>
 
-      <section className="relative mx-auto grid min-h-[calc(100vh-6rem)] max-w-6xl items-center gap-6 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)]">
-        <div className="max-w-3xl">
+      <section className="relative mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 py-8 lg:grid-cols-[minmax(0,0.95fr)_420px] lg:gap-16 lg:py-0 xl:gap-20">
+        <div className="max-w-[660px] lg:-mt-8">
           <p className="mb-5 text-sm font-semibold text-[#2f6f5e]">FormCraft workspace</p>
           <h1 className="text-4xl font-black leading-[1.02] tracking-tight text-[#171717] sm:text-6xl">
             Pick up your forms where you left off.
@@ -61,7 +61,7 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <aside className="rounded-[30px] border border-[#ded3c7] bg-[#fffaf4]/92 p-4 shadow-[0_26px_75px_rgba(74,58,42,0.16)] backdrop-blur-xl sm:p-5">
+        <aside className="w-full max-w-[420px] justify-self-center rounded-[30px] border border-[#ded3c7] bg-[#fffaf4]/92 p-4 shadow-[0_26px_75px_rgba(74,58,42,0.16)] backdrop-blur-xl sm:p-5 lg:justify-self-end lg:-mt-2">
           <div className="mb-5 rounded-[24px] border border-[#1f1f1f] bg-[#171717] p-5 text-white shadow-[0_16px_34px_rgba(23,23,23,0.2)]">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
