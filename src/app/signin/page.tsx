@@ -26,16 +26,16 @@ export default function SignInPage() {
       <div className="pointer-events-none absolute right-[-8rem] top-10 h-[30rem] w-[26rem] rounded-full bg-[#dbe7df]/60 blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 border-b border-[#e3d9cd]/70 bg-[#fffaf4]/50 backdrop-blur-xl" />
 
-      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:justify-items-center lg:gap-12 xl:gap-14">
-        <BrandLogo />
-        <div className="hidden items-center gap-2 justify-self-center rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
+      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:gap-12 xl:gap-14">
+        <BrandLogo className="justify-self-start" />
+        <div className="hidden items-center gap-2 justify-self-start rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
           <ShieldCheck size={14} className="text-[#2f6f5e]" />
           Secure demo workspace
         </div>
       </div>
 
-      <section className="relative mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 py-8 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:justify-items-center lg:gap-12 lg:py-0 xl:gap-14">
-        <div className="max-w-[590px] justify-self-center">
+      <section className="relative mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 py-8 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:gap-12 lg:py-0 xl:gap-14">
+        <div className="max-w-[590px] justify-self-start">
           <p className="mb-5 text-sm font-semibold text-[#2f6f5e]">FormCraft workspace</p>
           <h1 className="text-4xl font-black leading-[1.02] tracking-tight text-[#171717] sm:text-6xl">
             Pick up your forms where you left off.
@@ -61,7 +61,7 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <aside className="w-full max-w-[540px] justify-self-center rounded-[30px] border border-[#ded3c7] bg-[#fffaf4]/92 p-4 shadow-[0_30px_85px_rgba(74,58,42,0.18)] backdrop-blur-xl sm:p-5">
+        <aside className="w-full max-w-[540px] justify-self-start rounded-[30px] border border-[#ded3c7] bg-[#fffaf4]/92 p-4 shadow-[0_30px_85px_rgba(74,58,42,0.18)] backdrop-blur-xl sm:p-5">
           <div className="mb-5 rounded-[24px] border border-[#1f1f1f] bg-[#171717] p-5 text-white shadow-[0_16px_34px_rgba(23,23,23,0.2)]">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
