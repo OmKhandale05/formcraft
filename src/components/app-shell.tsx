@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, FileText, LayoutTemplate, LogIn, PanelLeft, Settings2 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -21,17 +22,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 overflow-hidden border-r border-[#222831] bg-[#0f1217] text-white lg:flex lg:flex-col">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_top_left,rgba(91,141,239,0.22),transparent_48%)]" />
         <div className="relative flex h-20 items-center gap-3 border-b border-white/10 px-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[#111418] shadow-[0_18px_34px_rgba(0,0,0,0.34)]">
-            <PanelLeft size={18} />
-          </div>
+          <BrandLogo dark subtext="Form studio" markClassName="shadow-[0_18px_34px_rgba(0,0,0,0.34)]" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-base font-semibold tracking-tight">FormCraft</p>
               <span className="rounded-full bg-[#d8ff63] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#111418]">
                 Studio
               </span>
             </div>
-            <p className="text-xs text-white/52">No-code form builder</p>
           </div>
         </div>
         <nav className="relative flex-1 space-y-1 px-4 py-5">
@@ -88,9 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="lg:pl-72">
         <div className="sticky top-0 z-20 flex min-h-14 items-center gap-2 border-b border-[#d8e0ea] bg-white/86 px-3 backdrop-blur lg:hidden">
-          <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#111418] text-white">
-            <PanelLeft size={16} />
-          </div>
+          <BrandLogo showText={false} markClassName="mr-2 h-8 w-8 rounded-xl shadow-none" />
           <div className="formcraft-scrollbar flex gap-1 overflow-x-auto">
             {navItems.map((item) => (
               <Link

@@ -8,10 +8,10 @@ import {
   GitBranch,
   LockKeyhole,
   Mail,
-  PanelLeft,
   PenLine,
   ShieldCheck
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { Input, Label } from "@/components/ui/input";
 
 const authOptions = [
@@ -36,15 +36,7 @@ export default function SignInPage() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 border-b border-[#e3d9cd]/70 bg-[#fffaf4]/50 backdrop-blur-xl" />
 
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-[#171717] text-white shadow-[0_14px_30px_rgba(23,23,23,0.18)]">
-            <PanelLeft size={18} />
-          </span>
-          <span>
-            <span className="block text-sm font-black text-[#171717]">FormCraft</span>
-            <span className="text-xs font-medium text-[#6f675f]">No-code form builder</span>
-          </span>
-        </div>
+        <BrandLogo />
         <div className="hidden items-center gap-2 rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
           <ShieldCheck size={14} className="text-[#2f6f5e]" />
           Secure demo workspace
