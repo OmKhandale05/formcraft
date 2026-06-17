@@ -43,6 +43,7 @@ const snapToGrid: Modifier = ({ transform }) => {
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 export default function BuilderPage() {
+  const hasHydrated = useFormStore((state) => state.hasHydrated);
   const form = useFormStore((state) => state.form);
   const setFormMeta = useFormStore((state) => state.setFormMeta);
   const addField = useFormStore((state) => state.addField);
@@ -157,6 +158,20 @@ export default function BuilderPage() {
     setExportOpen(false);
     deleteForm();
   };
+
+  if (!hasHydrated) {
+    return (
+      <AppShell>
+        <main className="flex h-screen items-center justify-center bg-[#eef2f6] p-6">
+          <div className="w-full max-w-md rounded-3xl border border-[#d8e0ea] bg-white p-6 text-center shadow-[0_24px_70px_rgba(17,24,39,0.1)]">
+            <div className="mx-auto mb-4 h-10 w-10 rounded-2xl border border-[#d8e0ea] bg-[#f6f8fb]" />
+            <p className="text-sm font-bold text-[#111418]">Loading current form</p>
+            <p className="mt-2 text-sm leading-6 text-[#667085]">Restoring your saved FormCraft workspace from this browser.</p>
+          </div>
+        </main>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

@@ -6,11 +6,13 @@ import type { FormField, FormSchema, FormTheme, FormVersion, LogicRule, Submissi
 import { defaultForm } from "@/lib/templates";
 
 type FormStore = {
+  hasHydrated: boolean;
   form: FormSchema;
   selectedFieldId: string | null;
   selectedFieldIds: string[];
   submissions: Submission[];
   versions: FormVersion[];
+  setHasHydrated: (hydrated: boolean) => void;
   setSelectedField: (id: string | null) => void;
   toggleFieldSelection: (id: string) => void;
   clearSelection: () => void;
@@ -42,11 +44,13 @@ const stamp = (form: FormSchema): FormSchema => ({ ...form, updatedAt: new Date(
 export const useFormStore = create<FormStore>()(
   persist(
     (set, get) => ({
+      hasHydrated: false,
       form: defaultForm,
       selectedFieldId: null,
       selectedFieldIds: [],
       submissions: [],
       versions: [],
+      setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
       setSelectedField: (id) => set({ selectedFieldId: id, selectedFieldIds: id ? [id] : [] }),
       toggleFieldSelection: (id) =>
         set((state) => {
@@ -281,7 +285,10 @@ export const useFormStore = create<FormStore>()(
         form: state.form,
         submissions: state.submissions,
         versions: state.versions
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      }
     }
   )
 );
