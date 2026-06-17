@@ -3,12 +3,14 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CalendarDays,
-  FileText,
+  Blocks,
+  CheckCircle2,
   GitBranch,
   LockKeyhole,
   Mail,
   PenLine,
+  Sparkles,
+  UploadCloud,
   ShieldCheck
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
@@ -19,13 +21,13 @@ const authOptions = [
   { label: "Continue with GitHub", icon: GitBranch }
 ];
 
-const recentForms = [
-  { title: "Event registration", meta: "42 responses", accent: "bg-[#2f6f5e]" },
-  { title: "Candidate screening", meta: "18 responses", accent: "bg-[#b85c38]" },
-  { title: "Product feedback", meta: "9 responses", accent: "bg-[#4564a6]" }
+const workflowCards = [
+  { title: "Build", copy: "Drag fields, arrange steps, and shape the flow.", icon: Blocks, accent: "bg-[#2f6f5e]" },
+  { title: "Style", copy: "Tune fonts, radius, focus states, and theme presets.", icon: Sparkles, accent: "bg-[#b85c38]" },
+  { title: "Export", copy: "Copy schema, embed code, or production-ready files.", icon: UploadCloud, accent: "bg-[#4564a6]" }
 ];
 
-const formFields = ["Full name", "Work email", "How did you hear about us?"];
+const proofPoints = ["Local autosave", "Schema-driven", "Submission-ready"];
 
 export default function SignInPage() {
   return (
@@ -58,64 +60,67 @@ export default function SignInPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="rounded-[28px] border border-[#dfd4c8] bg-[#fffaf4]/88 p-4 shadow-[0_18px_55px_rgba(74,58,42,0.1)]">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-[#8a7f73]">Recently opened</p>
-                  <p className="mt-1 text-lg font-black text-[#171717]">Your workspace</p>
+          <div className="rounded-[32px] border border-[#dfd4c8] bg-[#fffaf4]/86 p-4 shadow-[0_22px_70px_rgba(74,58,42,0.12)] backdrop-blur">
+            <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+              <div className="rounded-[26px] border border-[#e2d8cc] bg-white p-4 shadow-sm">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-[#8a7f73]">How teams use it</p>
+                    <h2 className="mt-1 text-xl font-black tracking-tight text-[#171717]">From idea to shareable form</h2>
+                  </div>
+                  <span className="hidden rounded-full border border-[#d8cdc0] bg-[#fffaf4] px-3 py-1 text-xs font-bold text-[#5f574f] sm:inline-flex">
+                    3-step flow
+                  </span>
                 </div>
-                <span className="rounded-full border border-[#d8cdc0] bg-white px-3 py-1 text-xs font-bold text-[#6f675f]">
-                  Today
-                </span>
+
+                <div className="space-y-3">
+                  {workflowCards.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.title} className="group rounded-2xl border border-[#e8ded4] bg-[#fffdf9] p-3 transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(74,58,42,0.1)]">
+                        <div className="flex gap-3">
+                          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm ${item.accent}`}>
+                            <Icon size={17} />
+                          </span>
+                          <span>
+                            <span className="flex items-center gap-2 text-sm font-black text-[#171717]">
+                              <span className="text-xs text-[#9a9086]">0{index + 1}</span>
+                              {item.title}
+                            </span>
+                            <span className="mt-1 block text-xs leading-5 text-[#6f675f]">{item.copy}</span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {recentForms.map((form) => (
-                  <div key={form.title} className="rounded-2xl border border-[#e7ded5] bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <span className={`h-9 w-1.5 rounded-full ${form.accent}`} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-black text-[#171717]">{form.title}</span>
-                        <span className="text-xs font-medium text-[#786f66]">{form.meta}</span>
-                      </span>
-                      <FileText size={16} className="text-[#8a7f73]" />
+              <div className="relative overflow-hidden rounded-[26px] border border-[#2b2b2b] bg-[#171717] p-5 text-white shadow-[0_22px_55px_rgba(23,23,23,0.2)]">
+                <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[#2f6f5e]/35 blur-3xl" />
+                <div className="relative">
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-white/42">Workspace quality</p>
+                  <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                      <p className="text-3xl font-black tracking-tight">21</p>
+                      <p className="mt-1 text-xs font-semibold text-white/52">field types</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                      <p className="text-3xl font-black tracking-tight">5</p>
+                      <p className="mt-1 text-xs font-semibold text-white/52">export formats</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-[28px] border border-[#d9cec2] bg-white shadow-[0_24px_70px_rgba(74,58,42,0.13)]">
-              <div className="border-b border-[#eadfd3] bg-[#fbf7f1] px-5 py-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-[#8a7f73]">Preview</p>
-                    <h2 className="mt-1 text-lg font-black text-[#171717]">Event registration</h2>
+                  <div className="mt-5 space-y-2">
+                    {proofPoints.map((point) => (
+                      <div key={point} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-semibold text-white/78">
+                        <CheckCircle2 size={15} className="text-[#8fd8bd]" />
+                        {point}
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-1.5 rounded-full border border-[#d8cdc0] bg-white px-2.5 py-1 text-xs font-bold text-[#5f574f]">
-                    <CalendarDays size={13} />
-                    Jun 16
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 p-5">
-                {formFields.map((field) => (
-                  <div key={field} className="rounded-2xl border border-[#e8ded4] bg-[#fffdf9] p-3">
-                    <div className="mb-2 text-xs font-black uppercase tracking-[0.1em] text-[#8a7f73]">{field}</div>
-                    <div className="h-9 rounded-xl border border-[#ddd2c7] bg-white" />
-                  </div>
-                ))}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-[#e8ded4] bg-[#fffdf9] p-3">
-                    <div className="mb-2 h-2.5 w-20 rounded-full bg-[#d8cdc0]" />
-                    <div className="h-8 rounded-xl bg-[#eef3ef]" />
-                  </div>
-                  <div className="rounded-2xl border border-[#e8ded4] bg-[#fffdf9] p-3">
-                    <div className="mb-2 h-2.5 w-16 rounded-full bg-[#d8cdc0]" />
-                    <div className="h-8 rounded-xl bg-[#f3eee7]" />
-                  </div>
+                  <p className="mt-5 text-sm leading-6 text-white/58">
+                    A focused builder workspace for product teams who need polished forms without waiting on engineering cycles.
+                  </p>
                 </div>
               </div>
             </div>
