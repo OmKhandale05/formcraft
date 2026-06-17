@@ -26,9 +26,9 @@ export default function SignInPage() {
       <div className="pointer-events-none absolute right-[-8rem] top-10 h-[30rem] w-[26rem] rounded-full bg-[#dbe7df]/60 blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 border-b border-[#e3d9cd]/70 bg-[#fffaf4]/50 backdrop-blur-xl" />
 
-      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4">
+      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:justify-items-center lg:gap-12 xl:gap-14">
         <BrandLogo />
-        <div className="hidden items-center gap-2 rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
+        <div className="hidden items-center gap-2 justify-self-center rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
           <ShieldCheck size={14} className="text-[#2f6f5e]" />
           Secure demo workspace
         </div>
