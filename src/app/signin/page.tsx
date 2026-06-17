@@ -30,7 +30,7 @@ export default function SignInPage() {
         <BrandLogo className="justify-self-start" />
         <div className="hidden items-center gap-2 justify-self-end rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
           <ShieldCheck size={14} className="text-[#2f6f5e]" />
-          Secure demo workspace
+          Secure workspace
         </div>
       </div>
 
@@ -68,7 +68,7 @@ export default function SignInPage() {
                 <LockKeyhole size={19} />
               </div>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/72">
-                Demo access
+                Team access
               </span>
             </div>
             <h2 className="text-2xl font-black tracking-tight">Welcome back</h2>
@@ -129,7 +129,7 @@ export default function SignInPage() {
           </div>
 
           <p className="mt-4 text-center text-xs leading-5 text-[#81786f]">
-            New to FormCraft? <Link href="/builder" className="font-bold text-[#2f6f5e]">Create a workspace</Link>
+            New to FormCraft? <Link href="/builder" className="font-bold text-[#2f6f5e]">Create an account</Link>
           </p>
         </aside>
       </section>
