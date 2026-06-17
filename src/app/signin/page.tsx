@@ -28,7 +28,7 @@ export default function SignInPage() {
 
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.72fr)_540px] lg:gap-12 xl:gap-14">
         <BrandLogo className="justify-self-start" />
-        <div className="hidden items-center gap-2 justify-self-start rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
+        <div className="hidden items-center gap-2 justify-self-end rounded-full border border-[#e0d6ca] bg-[#fffaf4]/80 px-3 py-2 text-xs font-bold text-[#5f574f] shadow-sm md:flex">
           <ShieldCheck size={14} className="text-[#2f6f5e]" />
           Secure demo workspace
         </div>
