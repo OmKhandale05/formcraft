@@ -2,20 +2,7 @@
 
 A polished no-code form builder for visually designing, previewing, validating, saving, and exporting production-style forms.
 
-FormCraft is built as a portfolio-grade SaaS product experience. It is not just a static UI mockup: the app uses a typed form schema, drag-and-drop builder interactions, local persistence, schema-driven rendering, validation, templates, submissions, version history, logic rules, and export flows.
-
-## Why This Project Exists
-
-Most portfolio form builders stop at "add a text field." FormCraft goes deeper. It demonstrates the kind of frontend product work that appears in real internal tools, workflow builders, survey platforms, CRMs, and startup SaaS dashboards:
-
-- complex drag-and-drop UX
-- schema-first data modeling
-- reusable field rendering
-- form validation logic
-- local workflow persistence
-- submission review operations
-- advanced field configuration
-- polished UI states, dialogs, toasts, and responsive layouts
+FormCraft helps teams design form workflows without writing code. The app uses a typed form schema, drag-and-drop builder interactions, local persistence, schema-driven rendering, validation, templates, submissions, version history, logic rules, and export flows.
 
 ## Product Walkthrough
 
@@ -159,25 +146,6 @@ src/
     form            Typed form schema, field, submission, and version models
 ```
 
-## Screenshots
-
-Add screenshots or GIFs here after capturing the running app:
-
-- Builder workspace
-- Field settings panel
-- Preview form
-- JSON / embed copy dialog
-- Submissions dashboard
-- Template setup modal
-- Settings appearance controls
-- Version history
-
-Suggested folder:
-
-```text
-docs/screenshots/
-```
-
 ## Getting Started
 
 Install dependencies:
@@ -223,17 +191,6 @@ FormCraft is local-first. It stores workspace data in the browser so the project
 
 Clearing browser storage will reset the local workspace.
 
-## Portfolio Value
-
-FormCraft is designed to show frontend and UI/UX product capability in one project:
-
-- building an app with a real workflow, not just a landing page
-- translating complex product requirements into usable UI
-- handling schema design and state management
-- creating reusable renderer architecture
-- designing polished dashboards, modals, toasts, empty states, and responsive layouts
-- thinking like a product engineer, not only a component builder
-
 ## Possible Next Improvements
 
 - Backend persistence and authentication
@@ -244,4 +201,3 @@ FormCraft is designed to show frontend and UI/UX product capability in one proje
 - More analytics for submissions
 - Shareable template marketplace
 - Undo / redo stack for builder edits
-
