@@ -189,6 +189,7 @@ export default function TemplatesPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templates[0]?.id ?? "");
   const [templateDraft, setTemplateDraft] = useState<TemplateDraft | null>(null);
   const [customSummary, setCustomSummary] = useState("");
+  const [setupOpen, setSetupOpen] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -236,6 +237,11 @@ export default function TemplatesPage() {
     if (!selectedTemplate) return;
     replaceForm(instantiateTemplate(selectedTemplate, { accentColor: draftAccentColor, mode: draftMode, name: draftName }));
     router.push("/builder");
+  };
+
+  const openTemplateSetup = (id: string) => {
+    setSelectedTemplateId(id);
+    setSetupOpen(true);
   };
 
   const updateTemplateDraft = (patch: Partial<Omit<TemplateDraft, "templateId">>) => {
@@ -309,7 +315,7 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section className="mx-auto mt-6 grid max-w-7xl gap-5 xl:grid-cols-[minmax(0,1fr)_430px]">
+        <section className="mx-auto mt-6 grid max-w-7xl gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0">
             <div className="sticky top-0 z-10 mb-4 rounded-2xl border border-[#d8e0ea] bg-white/90 p-3 shadow-sm backdrop-blur">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_240px]">
@@ -359,7 +365,7 @@ export default function TemplatesPage() {
                       selected ? "border-[#3157d5] ring-4 ring-[#3157d5]/10" : "border-[#d8e0ea] hover:border-[#c5d0dc]"
                     )}
                   >
-                    <button type="button" className="block w-full text-left" onClick={() => setSelectedTemplateId(template.id)}>
+                    <button type="button" className="block w-full text-left" onClick={() => openTemplateSetup(template.id)}>
                       <div className={cn("p-5 text-white", `bg-gradient-to-br ${template.gradient}`)}>
                         <div className="mb-5 flex items-center justify-between gap-4">
                           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/18">
@@ -412,81 +418,16 @@ export default function TemplatesPage() {
 
           <aside className="min-w-0">
             <div className="sticky top-6 space-y-4">
-              {selectedTemplate && selectedStats && previewTemplate && (
-                <div className="overflow-hidden rounded-3xl border border-[#d8e0ea] bg-white shadow-sm">
-                  <div className="border-b border-[#eef2f7] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#98a2b3]">Template preview</p>
-                        <h2 className="mt-2 text-xl font-semibold text-[#111418]">{previewTemplate.name}</h2>
-                        <p className="mt-2 text-sm leading-6 text-[#667085]">{previewTemplate.description}</p>
-                      </div>
-                      <span className="rounded-full bg-[#eef8f5] px-3 py-1 text-xs font-bold text-[#0f766e]">{selectedStats.health} health</span>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {templateTags(previewTemplate).map((tag) => (
-                        <span key={tag} className="rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-[#465366]">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="formcraft-scrollbar max-h-[360px] overflow-y-auto p-4">
-                    <FormRenderer form={previewTemplate} compact />
-                  </div>
-
-                  <div className="border-t border-[#eef2f7] p-5">
-                    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#111418]">
-                      <Eye size={16} />
-                      Schema at a glance
-                    </p>
-                    <div className="space-y-2">
-                      {previewFields(previewTemplate).map((field) => (
-                        <div key={field.id} className="flex items-center justify-between gap-3 rounded-xl border border-[#e5e9ef] bg-[#fbfcfe] px-3 py-2">
-                          <span className="min-w-0 truncate text-sm font-semibold text-[#20242b]">{field.label}</span>
-                          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-[#667085] ring-1 ring-[#d8e0ea]">
-                            {fieldTypeLabels[field.type]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              <div className="rounded-3xl border border-[#d8e0ea] bg-white p-5 shadow-sm">
+                <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
+                  <Paintbrush size={16} />
+                  How template setup works
+                </p>
+                <div className="mt-4 space-y-3 text-sm leading-6 text-[#667085]">
+                  <p>Click any template card to open a setup modal.</p>
+                  <p>Inside the modal you can rename it, change the accent color, choose step behavior, preview the form, and then send it to Builder.</p>
                 </div>
-              )}
-
-              {selectedTemplate && (
-                <div className="rounded-3xl border border-[#d8e0ea] bg-white p-5 shadow-sm">
-                  <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
-                    <Paintbrush size={16} />
-                    Customize before use
-                  </p>
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <Label htmlFor="template-name">Form name</Label>
-                      <Input id="template-name" className="mt-2" value={draftName} onChange={(event) => updateTemplateDraft({ name: event.target.value })} />
-                    </div>
-                    <div>
-                      <Label htmlFor="template-color">Accent color</Label>
-                      <div className="mt-2 flex items-center gap-2">
-                        <Input id="template-color" type="color" className="h-10 w-14 p-1" value={draftAccentColor} onChange={(event) => updateTemplateDraft({ accentColor: event.target.value })} />
-                        <Input value={draftAccentColor} onChange={(event) => updateTemplateDraft({ accentColor: event.target.value })} />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="template-mode">Step mode</Label>
-                      <Select id="template-mode" className="mt-2" value={draftMode} onChange={(event) => updateTemplateDraft({ mode: event.target.value as TemplateMode })}>
-                        <option value="keep">Keep template steps</option>
-                        <option value="single">Convert to single step</option>
-                      </Select>
-                    </div>
-                    <Button type="button" variant="primary" className="w-full" onClick={handleUseTemplate}>
-                      Use template
-                      <ArrowRight size={16} />
-                    </Button>
-                  </div>
-                </div>
-              )}
+              </div>
 
               <div className="rounded-3xl border border-[#d8e0ea] bg-white p-5 shadow-sm">
                 <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
@@ -512,6 +453,113 @@ export default function TemplatesPage() {
             </div>
           </aside>
         </section>
+
+        {setupOpen && selectedTemplate && selectedStats && previewTemplate && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#111418]/48 p-4 backdrop-blur-sm">
+            <div className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-[#d8e0ea] bg-white shadow-[0_34px_120px_rgba(17,24,39,0.34)]">
+              <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[#eef2f7] p-5">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#98a2b3]">Template setup</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#111418]">{previewTemplate.name}</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085]">{previewTemplate.description}</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close template setup"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#d8e0ea] bg-white text-[#465366] shadow-sm transition hover:border-[#bfcadc] hover:text-[#111418]"
+                  onClick={() => setSetupOpen(false)}
+                >
+                  <X size={17} />
+                </button>
+              </div>
+
+              <div className="formcraft-scrollbar grid min-h-0 flex-1 gap-0 overflow-y-auto lg:grid-cols-[360px_minmax(0,1fr)]">
+                <aside className="border-b border-[#eef2f7] bg-[#fbfcfe] p-5 lg:border-b-0 lg:border-r">
+                  <div className="rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+                    <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
+                      <Paintbrush size={16} />
+                      Customize before use
+                    </p>
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <Label htmlFor="template-modal-name">Form name</Label>
+                        <Input id="template-modal-name" className="mt-2" value={draftName} onChange={(event) => updateTemplateDraft({ name: event.target.value })} />
+                      </div>
+                      <div>
+                        <Label htmlFor="template-modal-color">Accent color</Label>
+                        <div className="mt-2 flex items-center gap-2">
+                          <Input id="template-modal-color" type="color" className="h-10 w-14 p-1" value={draftAccentColor} onChange={(event) => updateTemplateDraft({ accentColor: event.target.value })} />
+                          <Input value={draftAccentColor} onChange={(event) => updateTemplateDraft({ accentColor: event.target.value })} />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="template-modal-mode">Step mode</Label>
+                        <Select id="template-modal-mode" className="mt-2" value={draftMode} onChange={(event) => updateTemplateDraft({ mode: event.target.value as TemplateMode })}>
+                          <option value="keep">Keep template steps</option>
+                          <option value="single">Convert to single step</option>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-[#d8e0ea] bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-sm font-bold text-[#111418]">Readiness</p>
+                      <span className="rounded-full bg-[#eef8f5] px-3 py-1 text-xs font-bold text-[#0f766e]">{selectedStats.health} health</span>
+                    </div>
+                    <TemplateMetrics template={previewTemplate} />
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {templateTags(previewTemplate).map((tag) => (
+                        <span key={tag} className="rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-[#465366]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button type="button" variant="primary" className="mt-4 w-full" onClick={handleUseTemplate}>
+                    Use template in builder
+                    <ArrowRight size={16} />
+                  </Button>
+                </aside>
+
+                <div className="grid min-h-0 gap-0 xl:grid-cols-[minmax(0,1fr)_300px]">
+                  <div className="min-w-0 p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <p className="flex items-center gap-2 text-sm font-bold text-[#111418]">
+                        <Eye size={16} />
+                        Live preview
+                      </p>
+                      <span className="rounded-full border border-[#d8e0ea] bg-white px-3 py-1 text-xs font-bold text-[#667085]">
+                        Updates as you customize
+                      </span>
+                    </div>
+                    <div className="formcraft-scrollbar max-h-[58vh] overflow-y-auto rounded-2xl border border-[#d8e0ea] bg-[#f8fafc] p-4">
+                      <FormRenderer form={previewTemplate} compact />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#eef2f7] p-5 xl:border-l xl:border-t-0">
+                    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#111418]">
+                      <Eye size={16} />
+                      Schema at a glance
+                    </p>
+                    <div className="space-y-2">
+                      {previewFields(previewTemplate).map((field) => (
+                        <div key={field.id} className="flex items-center justify-between gap-3 rounded-xl border border-[#e5e9ef] bg-[#fbfcfe] px-3 py-2">
+                          <span className="min-w-0 truncate text-sm font-semibold text-[#20242b]">{field.label}</span>
+                          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-[#667085] ring-1 ring-[#d8e0ea]">
+                            {fieldTypeLabels[field.type]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </AppShell>
   );
