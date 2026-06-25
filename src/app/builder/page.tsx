@@ -5,7 +5,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
 import { CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, Save, Trash2 } from "lucide-react";
 import type { CSSProperties, PointerEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { BuilderCanvas } from "@/components/builder/canvas";
 import { FieldSettingsPanel, FormDetailsPanel } from "@/components/builder/settings-panel";
@@ -55,10 +55,34 @@ export default function BuilderPage() {
   const [leftWidth, setLeftWidth] = useState(330);
   const [rightWidth, setRightWidth] = useState(340);
   const inputRef = useRef<HTMLInputElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const builderGridStyle = {
     "--builder-columns": `${leftWidth}px 14px minmax(460px, 1fr) 14px ${rightWidth}px`
   } as CSSProperties;
+
+  useEffect(() => {
+    if (!exportOpen) return;
+
+    const closeOnOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (exportRef.current?.contains(event.target as Node)) return;
+      setExportOpen(false);
+    };
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExportOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("touchstart", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("touchstart", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [exportOpen]);
 
   const startResize = (pane: ResizePane, event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -207,7 +231,7 @@ export default function BuilderPage() {
                   Import
                 </Button>
                 <input ref={inputRef} type="file" accept="application/json" className="hidden" onChange={(event) => importJson(event.target.files?.[0])} />
-                <div className="relative">
+                <div ref={exportRef} className="relative">
                   <Button type="button" variant="secondary" onClick={() => setExportOpen((open) => !open)} aria-expanded={exportOpen} aria-haspopup="menu">
                     <Download size={16} />
                     Export
