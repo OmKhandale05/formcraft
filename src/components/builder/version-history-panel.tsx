@@ -1,7 +1,7 @@
 "use client";
 
-import { Copy, History, RotateCcw, Save, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CheckCircle2, Copy, History, RotateCcw, Save, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { VERSION_LIMIT, useFormStore } from "@/store/form-store";
@@ -30,7 +30,15 @@ export function VersionHistoryPanel() {
   const [note, setNote] = useState("");
   const [restoreId, setRestoreId] = useState<string | null>(null);
   const [limitNotice, setLimitNotice] = useState(false);
+  const [deletedVersionName, setDeletedVersionName] = useState<string | null>(null);
   const suggestedName = useMemo(() => `${form.name || form.title} v${versions.length + 1}`, [form.name, form.title, versions.length]);
+
+  useEffect(() => {
+    if (!deletedVersionName) return;
+
+    const timeoutId = window.setTimeout(() => setDeletedVersionName(null), 4200);
+    return () => window.clearTimeout(timeoutId);
+  }, [deletedVersionName]);
 
   const handleSave = () => {
     const saved = saveVersion(name || suggestedName, note);
@@ -42,6 +50,13 @@ export function VersionHistoryPanel() {
     setName("");
     setNote("");
     setLimitNotice(false);
+  };
+
+  const handleDeleteVersion = (id: string, versionName: string) => {
+    deleteVersion(id);
+    setRestoreId((current) => (current === id ? null : current));
+    setLimitNotice(false);
+    setDeletedVersionName(versionName);
   };
 
   return (
@@ -99,7 +114,7 @@ export function VersionHistoryPanel() {
                 <Button type="button" size="icon" variant="ghost" aria-label="Duplicate version" onClick={() => duplicateVersion(version.id)}>
                   <Copy size={14} />
                 </Button>
-                <Button type="button" size="icon" variant="danger" aria-label="Delete version" onClick={() => deleteVersion(version.id)}>
+                <Button type="button" size="icon" variant="danger" aria-label="Delete version" onClick={() => handleDeleteVersion(version.id, version.name)}>
                   <Trash2 size={14} />
                 </Button>
               </div>
@@ -131,6 +146,37 @@ export function VersionHistoryPanel() {
           </article>
         ))}
       </div>
+      {deletedVersionName && (
+        <div className="fixed bottom-5 right-5 z-[10001] w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
+          <div className="h-1 bg-[linear-gradient(90deg,#0f766e,#3157d5)]" />
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#99f6e4] bg-[#f0fdfa] text-[#0f766e]">
+                <CheckCircle2 size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0f766e]">Version deleted</p>
+                    <h2 className="mt-1 truncate text-base font-black text-[#111418]">{deletedVersionName}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Close deleted version notice"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#667085] transition hover:bg-[#f4f6f8] hover:text-[#111418]"
+                    onClick={() => setDeletedVersionName(null)}
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">
+                  This restore point was removed from local history. Your current form stays unchanged.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
