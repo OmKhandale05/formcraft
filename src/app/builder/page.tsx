@@ -3,7 +3,7 @@
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, History, Save, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, History, Save, Trash2, X } from "lucide-react";
 import type { CSSProperties, PointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { exportHtml, exportReactComponent, exportTypescriptType, exportZodSchema } from "@/lib/exporters";
 import { createField } from "@/lib/field-catalog";
 import { downloadFile, formatTimestamp, slugify } from "@/lib/utils";
-import { useFormStore } from "@/store/form-store";
+import { VERSION_LIMIT, useFormStore } from "@/store/form-store";
 import type { FieldLayoutPreference, FieldType, FormSchema } from "@/types/form";
 
 const exportOptions = [
@@ -59,6 +59,7 @@ export default function BuilderPage() {
   const saveVersion = useFormStore((state) => state.saveVersion);
   const versions = useFormStore((state) => state.versions);
   const [savedSnapshot, setSavedSnapshot] = useState<SavedSnapshotDetails | null>(null);
+  const [storageToastOpen, setStorageToastOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("field");
@@ -131,6 +132,13 @@ export default function BuilderPage() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [deleteOpen]);
+
+  useEffect(() => {
+    if (!storageToastOpen) return;
+
+    const timeoutId = window.setTimeout(() => setStorageToastOpen(false), 5200);
+    return () => window.clearTimeout(timeoutId);
+  }, [storageToastOpen]);
 
   const startResize = (pane: ResizePane, event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -236,15 +244,22 @@ export default function BuilderPage() {
     const createdAt = new Date().toISOString();
     const versionName = `${form.name || form.title} v${versions.length + 1}`;
     const ruleCount = form.logicRules?.filter((rule) => rule.enabled).length ?? 0;
+    const saved = saveVersion(versionName, `Saved from the builder top bar with ${form.fields.length} fields and ${ruleCount} active logic rules.`);
 
-    saveVersion(versionName, `Saved from the builder top bar with ${form.fields.length} fields and ${ruleCount} active logic rules.`);
+    if (!saved) {
+      setExportOpen(false);
+      setSavedSnapshot(null);
+      setStorageToastOpen(true);
+      return;
+    }
+
     setExportOpen(false);
     setSavedSnapshot({
       name: versionName,
       createdAt,
       fieldCount: form.fields.length,
       ruleCount,
-      versionCount: Math.min(versions.length + 1, 20)
+      versionCount: Math.min(versions.length + 1, VERSION_LIMIT)
     });
   };
 
@@ -445,6 +460,45 @@ export default function BuilderPage() {
                       <Trash2 size={16} />
                       Delete permanently
                     </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {storageToastOpen && (
+            <div className="fixed bottom-5 right-5 z-[10001] w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
+              <div className="h-1 bg-[linear-gradient(90deg,#f59e0b,#ef4444)]" />
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#fed7aa] bg-[#fff7ed] text-[#c2410c]">
+                    <AlertTriangle size={18} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-[#c2410c]">Version limit reached</p>
+                        <h2 className="mt-1 text-base font-black text-[#111418]">History is full at {VERSION_LIMIT}/{VERSION_LIMIT}</h2>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label="Close storage notice"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#667085] transition hover:bg-[#f4f6f8] hover:text-[#111418]"
+                        onClick={() => setStorageToastOpen(false)}
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">
+                      You have reached the local restore point limit. Delete an older version in History before saving a new one.
+                    </p>
+                    <Link
+                      href="/settings?tab=history"
+                      className="mt-3 inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-[#111418] px-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#20242b]"
+                      onClick={() => setStorageToastOpen(false)}
+                    >
+                      <History size={15} />
+                      Manage history
+                    </Link>
                   </div>
                 </div>
               </div>

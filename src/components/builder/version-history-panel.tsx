@@ -4,7 +4,7 @@ import { Copy, History, RotateCcw, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
-import { useFormStore } from "@/store/form-store";
+import { VERSION_LIMIT, useFormStore } from "@/store/form-store";
 
 function formatVersionDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -29,12 +29,19 @@ export function VersionHistoryPanel() {
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [restoreId, setRestoreId] = useState<string | null>(null);
+  const [limitNotice, setLimitNotice] = useState(false);
   const suggestedName = useMemo(() => `${form.name || form.title} v${versions.length + 1}`, [form.name, form.title, versions.length]);
 
   const handleSave = () => {
-    saveVersion(name || suggestedName, note);
+    const saved = saveVersion(name || suggestedName, note);
+    if (!saved) {
+      setLimitNotice(true);
+      return;
+    }
+
     setName("");
     setNote("");
+    setLimitNotice(false);
   };
 
   return (
@@ -47,7 +54,9 @@ export function VersionHistoryPanel() {
           </p>
           <p className="mt-1 text-xs leading-5 text-[#667085]">Save restore points before major edits, theme changes or logic updates.</p>
         </div>
-        <span className="shrink-0 rounded-full bg-[#eef2f7] px-2.5 py-1 text-xs font-bold text-[#667085]">{versions.length}/20</span>
+        <span className="shrink-0 rounded-full bg-[#eef2f7] px-2.5 py-1 text-xs font-bold text-[#667085]">
+          {versions.length}/{VERSION_LIMIT}
+        </span>
       </div>
 
       <div className="rounded-2xl border border-[#e5e9ef] bg-[#fbfcfe] p-3">
@@ -63,6 +72,11 @@ export function VersionHistoryPanel() {
           <Save size={15} />
           Save current version
         </Button>
+        {limitNotice && (
+          <div className="mt-3 rounded-2xl border border-[#fed7aa] bg-[#fff7ed] px-3 py-2.5 text-xs leading-5 text-[#9a3412]">
+            Version history is full at {VERSION_LIMIT}/{VERSION_LIMIT}. Delete an older restore point before saving another one.
+          </div>
+        )}
       </div>
 
       <div className="mt-4 space-y-3">

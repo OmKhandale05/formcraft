@@ -5,6 +5,8 @@ import { persist } from "zustand/middleware";
 import type { FormField, FormSchema, FormTheme, FormVersion, LogicRule, Submission } from "@/types/form";
 import { defaultForm } from "@/lib/templates";
 
+export const VERSION_LIMIT = 20;
+
 type FormStore = {
   hasHydrated: boolean;
   form: FormSchema;
@@ -31,7 +33,7 @@ type FormStore = {
   updateSelectedFields: (updates: Partial<FormField>) => void;
   reorderFields: (from: number, to: number) => void;
   replaceForm: (form: FormSchema) => void;
-  saveVersion: (name?: string, note?: string) => void;
+  saveVersion: (name?: string, note?: string) => boolean;
   restoreVersion: (id: string) => void;
   duplicateVersion: (id: string) => void;
   deleteVersion: (id: string) => void;
@@ -212,7 +214,9 @@ export const useFormStore = create<FormStore>()(
           selectedFieldId: null,
           selectedFieldIds: []
         }),
-      saveVersion: (name, note) =>
+      saveVersion: (name, note) => {
+        if (get().versions.length >= VERSION_LIMIT) return false;
+
         set((state) => {
           const createdAt = new Date().toISOString();
           const version: FormVersion = {
@@ -228,8 +232,11 @@ export const useFormStore = create<FormStore>()(
               updatedAt: createdAt
             }
           };
-          return { versions: [version, ...state.versions].slice(0, 20) };
-        }),
+          return { versions: [version, ...state.versions].slice(0, VERSION_LIMIT) };
+        });
+
+        return true;
+      },
       restoreVersion: (id) =>
         set((state) => {
           const version = state.versions.find((item) => item.id === id);
