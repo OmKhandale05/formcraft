@@ -20,6 +20,12 @@ function versionSummary(fieldCount: number, ruleCount: number) {
   return `${fieldCount} fields · ${ruleCount} rules`;
 }
 
+type HistoryToast = {
+  title: string;
+  name: string;
+  message: string;
+};
+
 export function VersionHistoryPanel() {
   const form = useFormStore((state) => state.form);
   const versions = useFormStore((state) => state.versions);
@@ -31,7 +37,7 @@ export function VersionHistoryPanel() {
   const [note, setNote] = useState("");
   const [restoreId, setRestoreId] = useState<string | null>(null);
   const [limitNotice, setLimitNotice] = useState(false);
-  const [deletedVersionName, setDeletedVersionName] = useState<string | null>(null);
+  const [historyToast, setHistoryToast] = useState<HistoryToast | null>(null);
   const [toastReady, setToastReady] = useState(false);
   const suggestedName = useMemo(() => `${form.name || form.title} v${versions.length + 1}`, [form.name, form.title, versions.length]);
 
@@ -40,14 +46,15 @@ export function VersionHistoryPanel() {
   }, []);
 
   useEffect(() => {
-    if (!deletedVersionName) return;
+    if (!historyToast) return;
 
-    const timeoutId = window.setTimeout(() => setDeletedVersionName(null), 4200);
+    const timeoutId = window.setTimeout(() => setHistoryToast(null), 4200);
     return () => window.clearTimeout(timeoutId);
-  }, [deletedVersionName]);
+  }, [historyToast]);
 
   const handleSave = () => {
-    const saved = saveVersion(name || suggestedName, note);
+    const versionName = name || suggestedName;
+    const saved = saveVersion(versionName, note);
     if (!saved) {
       setLimitNotice(true);
       return;
@@ -56,13 +63,22 @@ export function VersionHistoryPanel() {
     setName("");
     setNote("");
     setLimitNotice(false);
+    setHistoryToast({
+      title: "Version saved",
+      name: versionName,
+      message: "This restore point was saved to local history and is ready to restore anytime."
+    });
   };
 
   const handleDeleteVersion = (id: string, versionName: string) => {
     deleteVersion(id);
     setRestoreId((current) => (current === id ? null : current));
     setLimitNotice(false);
-    setDeletedVersionName(versionName);
+    setHistoryToast({
+      title: "Version deleted",
+      name: versionName,
+      message: "This restore point was removed from local history. Your current form stays unchanged."
+    });
   };
 
   return (
@@ -153,7 +169,7 @@ export function VersionHistoryPanel() {
         ))}
       </div>
       {toastReady &&
-        deletedVersionName &&
+        historyToast &&
         createPortal(
         <div className="fixed bottom-5 right-5 z-[10001] w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
           <div className="h-1 bg-[linear-gradient(90deg,#0f766e,#3157d5)]" />
@@ -165,21 +181,19 @@ export function VersionHistoryPanel() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0f766e]">Version deleted</p>
-                    <h2 className="mt-1 truncate text-base font-black text-[#111418]">{deletedVersionName}</h2>
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0f766e]">{historyToast.title}</p>
+                    <h2 className="mt-1 truncate text-base font-black text-[#111418]">{historyToast.name}</h2>
                   </div>
                   <button
                     type="button"
-                    aria-label="Close deleted version notice"
+                    aria-label="Close version history notice"
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#667085] transition hover:bg-[#f4f6f8] hover:text-[#111418]"
-                    onClick={() => setDeletedVersionName(null)}
+                    onClick={() => setHistoryToast(null)}
                   >
                     <X size={15} />
                   </button>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">
-                  This restore point was removed from local history. Your current form stays unchanged.
-                </p>
+                <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">{historyToast.message}</p>
               </div>
             </div>
           </div>
