@@ -21,6 +21,7 @@ import {
   X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -38,6 +39,13 @@ type SubmissionMeta = {
   note?: string;
   status?: SubmissionStatus;
 };
+
+type SubmissionToast = {
+  title: string;
+  message: string;
+};
+
+type SubmissionToastAction = "reviewed" | "flagged" | "unflagged" | "archived";
 
 type AnswerMeta = {
   label: string;
@@ -273,7 +281,20 @@ export default function SubmissionsPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [copied, setCopied] = useState(false);
+  const [toastReady, setToastReady] = useState(false);
+  const [submissionToast, setSubmissionToast] = useState<SubmissionToast | null>(null);
   const answerMeta = useMemo(() => answerMetaFor(form.fields), [form.fields]);
+
+  useEffect(() => {
+    window.requestAnimationFrame(() => setToastReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (!submissionToast) return;
+
+    const timeoutId = window.setTimeout(() => setSubmissionToast(null), 4200);
+    return () => window.clearTimeout(timeoutId);
+  }, [submissionToast]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -301,6 +322,40 @@ export default function SubmissionsPage() {
       next[id] = { ...next[id], ...patch };
     });
     persistMeta(next);
+  };
+
+  const showSubmissionToast = (action: SubmissionToastAction, count = 1) => {
+    const responseLabel = count === 1 ? "response" : "responses";
+    const copy = {
+      reviewed: {
+        title: count === 1 ? "Marked reviewed" : "Responses marked reviewed",
+        message: `${count} ${responseLabel} moved into the reviewed workflow.`
+      },
+      flagged: {
+        title: count === 1 ? "Response flagged" : "Responses flagged",
+        message: `${count} ${responseLabel} marked for follow-up.`
+      },
+      unflagged: {
+        title: "Flag removed",
+        message: "This response is no longer marked for follow-up."
+      },
+      archived: {
+        title: count === 1 ? "Response archived" : "Responses archived",
+        message: `${count} ${responseLabel} moved out of the active review queue.`
+      }
+    } satisfies Record<SubmissionToastAction, SubmissionToast>;
+
+    setSubmissionToast(copy[action]);
+  };
+
+  const updateManyWithToast = (ids: string[], patch: SubmissionMeta, action: "reviewed" | "flagged" | "archived") => {
+    updateMany(ids, patch);
+    showSubmissionToast(action, ids.length);
+  };
+
+  const updateOneWithToast = (id: string, patch: SubmissionMeta, action: SubmissionToastAction) => {
+    updateMeta(id, patch);
+    showSubmissionToast(action);
   };
 
   const rows = useMemo(() => {
@@ -449,15 +504,15 @@ export default function SubmissionsPage() {
               {selectedIds.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 border-b border-[#eef2f7] bg-[#fbfcfe] px-4 py-3">
                   <p className="mr-auto text-sm font-semibold text-[#465366]">{selectedIds.length} selected</p>
-                  <Button size="sm" variant="secondary" onClick={() => updateMany(selectedIds, { status: "reviewed" })}>
+                  <Button size="sm" variant="secondary" onClick={() => updateManyWithToast(selectedIds, { status: "reviewed" }, "reviewed")}>
                     <BadgeCheck size={14} />
                     Mark reviewed
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => updateMany(selectedIds, { flagged: true })}>
+                  <Button size="sm" variant="secondary" onClick={() => updateManyWithToast(selectedIds, { flagged: true }, "flagged")}>
                     <Flag size={14} />
                     Flag
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => updateMany(selectedIds, { status: "archived" })}>
+                  <Button size="sm" variant="secondary" onClick={() => updateManyWithToast(selectedIds, { status: "archived" }, "archived")}>
                     <Archive size={14} />
                     Archive
                   </Button>
@@ -700,15 +755,18 @@ export default function SubmissionsPage() {
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <Button variant="secondary" onClick={() => updateMeta(selected.id, { status: "reviewed" })}>
+                <Button variant="secondary" onClick={() => updateOneWithToast(selected.id, { status: "reviewed" }, "reviewed")}>
                   <BadgeCheck size={16} />
                   Mark reviewed
                 </Button>
-                <Button variant="secondary" onClick={() => updateMeta(selected.id, { flagged: !meta[selected.id]?.flagged })}>
+                <Button
+                  variant="secondary"
+                  onClick={() => updateOneWithToast(selected.id, { flagged: !meta[selected.id]?.flagged }, meta[selected.id]?.flagged ? "unflagged" : "flagged")}
+                >
                   <Flag size={16} />
                   {meta[selected.id]?.flagged ? "Unflag" : "Flag"}
                 </Button>
-                <Button variant="secondary" onClick={() => updateMeta(selected.id, { status: "archived" })}>
+                <Button variant="secondary" onClick={() => updateOneWithToast(selected.id, { status: "archived" }, "archived")}>
                   <Archive size={16} />
                   Archive
                 </Button>
@@ -764,6 +822,38 @@ export default function SubmissionsPage() {
             </aside>
           </div>
         )}
+        {toastReady &&
+          submissionToast &&
+          createPortal(
+            <div className="fixed bottom-5 right-5 z-[10001] w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
+              <div className="h-1 bg-[linear-gradient(90deg,#0f766e,#3157d5)]" />
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#99f6e4] bg-[#f0fdfa] text-[#0f766e]">
+                    <CheckCircle2 size={18} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0f766e]">{submissionToast.title}</p>
+                        <h2 className="mt-1 text-base font-black text-[#111418]">Submission updated</h2>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label="Close submission notice"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#667085] transition hover:bg-[#f4f6f8] hover:text-[#111418]"
+                        onClick={() => setSubmissionToast(null)}
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">{submissionToast.message}</p>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
       </main>
     </AppShell>
   );
