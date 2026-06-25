@@ -4,7 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { MouseEvent } from "react";
-import { Columns2, Copy, GripVertical, Grid3X3, Layers3, MousePointer2, Pencil, Rows3, Trash2 } from "lucide-react";
+import { Columns2, Copy, GripVertical, Layers3, MousePointer2, Pencil, Rows3, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fullWidthOnlyFieldTypes } from "@/lib/field-catalog";
 import { cn } from "@/lib/utils";
@@ -62,10 +62,6 @@ export function BuilderCanvas({ onEditForm }: { onEditForm: () => void }) {
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(100,116,139,0.16)_1px,transparent_0)] [background-size:20px_20px]" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/80 to-transparent" />
             <div className="relative z-10 mb-4 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8e0ea] bg-white/92 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
-                <Grid3X3 size={13} />
-                8px snap grid
-              </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8e0ea] bg-white/92 px-3 py-1 text-xs font-semibold text-[#465366] shadow-sm">
                 <MousePointer2 size={13} />
                 Shift+click multi-select
