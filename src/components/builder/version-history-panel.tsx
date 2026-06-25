@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Copy, History, RotateCcw, Save, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { VERSION_LIMIT, useFormStore } from "@/store/form-store";
@@ -31,7 +32,12 @@ export function VersionHistoryPanel() {
   const [restoreId, setRestoreId] = useState<string | null>(null);
   const [limitNotice, setLimitNotice] = useState(false);
   const [deletedVersionName, setDeletedVersionName] = useState<string | null>(null);
+  const [toastReady, setToastReady] = useState(false);
   const suggestedName = useMemo(() => `${form.name || form.title} v${versions.length + 1}`, [form.name, form.title, versions.length]);
+
+  useEffect(() => {
+    window.requestAnimationFrame(() => setToastReady(true));
+  }, []);
 
   useEffect(() => {
     if (!deletedVersionName) return;
@@ -146,7 +152,9 @@ export function VersionHistoryPanel() {
           </article>
         ))}
       </div>
-      {deletedVersionName && (
+      {toastReady &&
+        deletedVersionName &&
+        createPortal(
         <div className="fixed bottom-5 right-5 z-[10001] w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]">
           <div className="h-1 bg-[linear-gradient(90deg,#0f766e,#3157d5)]" />
           <div className="p-4">
@@ -175,8 +183,9 @@ export function VersionHistoryPanel() {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body
+        )}
     </section>
   );
 }
