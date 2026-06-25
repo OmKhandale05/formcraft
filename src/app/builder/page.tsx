@@ -340,9 +340,10 @@ export default function BuilderPage() {
                   <div
                     role="dialog"
                     aria-label="Saved locally"
-                    className="absolute right-0 top-[calc(100%+8px)] z-[9999] w-[320px] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]"
+                    className="absolute left-1/2 top-[calc(100%+10px)] z-[9999] w-[320px] -translate-x-1/2 overflow-visible rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]"
                   >
-                    <div className="border-b border-[#e5e9ef] bg-[linear-gradient(135deg,#f0fdfa_0%,#ffffff_58%,#eef2ff_100%)] p-4">
+                    <span className="absolute left-1/2 top-[-6px] h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#d8e0ea] bg-[#f0fdfa]" />
+                    <div className="overflow-hidden rounded-t-2xl border-b border-[#e5e9ef] bg-[linear-gradient(135deg,#f0fdfa_0%,#ffffff_58%,#eef2ff_100%)] p-4">
                       <div className="flex items-start gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#99f6e4] bg-white text-[#0f766e] shadow-[0_12px_24px_rgba(15,118,110,0.12)]">
                           <CheckCircle2 size={18} />
@@ -354,7 +355,7 @@ export default function BuilderPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="p-4">
+                    <div className="overflow-hidden rounded-b-2xl p-4">
                       <div className="grid grid-cols-3 gap-2">
                         <div className="rounded-xl border border-[#e5e9ef] bg-[#f8fafc] p-2">
                           <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8b95a7]">Fields</p>
