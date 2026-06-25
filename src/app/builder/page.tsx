@@ -51,6 +51,7 @@ export default function BuilderPage() {
   const deleteForm = useFormStore((state) => state.deleteForm);
   const [saved, setSaved] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("field");
   const [leftWidth, setLeftWidth] = useState(330);
   const [rightWidth, setRightWidth] = useState(340);
@@ -83,6 +84,20 @@ export default function BuilderPage() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [exportOpen]);
+
+  useEffect(() => {
+    if (!deleteOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDeleteOpen(false);
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [deleteOpen]);
 
   const startResize = (pane: ResizePane, event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -172,14 +187,16 @@ export default function BuilderPage() {
     void extension;
   };
 
-  const handleDeleteForm = () => {
+  const requestDeleteForm = () => {
     if (form.fields.length === 0) return;
 
-    const confirmed = window.confirm("Delete all fields from this form? This will clear the canvas and local submissions.");
-    if (!confirmed) return;
-
     setExportOpen(false);
+    setDeleteOpen(true);
+  };
+
+  const confirmDeleteForm = () => {
     deleteForm();
+    setDeleteOpen(false);
   };
 
   if (!hasHydrated) {
@@ -269,7 +286,7 @@ export default function BuilderPage() {
                 <Save size={16} />
                 {saved ? "Saved" : "Save"}
               </Button>
-              <Button type="button" variant="danger" onClick={handleDeleteForm} disabled={form.fields.length === 0}>
+              <Button type="button" variant="danger" onClick={requestDeleteForm} disabled={form.fields.length === 0}>
                 <Trash2 size={16} />
                 Delete form
               </Button>
@@ -294,6 +311,48 @@ export default function BuilderPage() {
               {rightPanelMode === "form" ? <FormDetailsPanel onClose={() => setRightPanelMode("field")} /> : <FieldSettingsPanel />}
             </div>
           </div>
+          {deleteOpen && (
+            <div
+              aria-modal="true"
+              className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#111418]/45 p-4 backdrop-blur-sm"
+              onMouseDown={() => setDeleteOpen(false)}
+              role="dialog"
+            >
+              <div
+                className="w-full max-w-[460px] overflow-hidden rounded-[28px] border border-[#d8e0ea] bg-white shadow-[0_34px_100px_rgba(17,24,39,0.34)]"
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <div className="border-b border-[#f0d7dc] bg-[linear-gradient(135deg,#fff7f7_0%,#ffffff_58%,#fff1f2_100%)] p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#fecdd3] bg-white text-[#be123c] shadow-[0_12px_24px_rgba(190,18,60,0.12)]">
+                      <Trash2 size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-[#be123c]">Delete form</p>
+                      <h2 className="mt-2 text-2xl font-black leading-tight text-[#111418]">Clear this canvas?</h2>
+                      <p className="mt-2 text-sm leading-6 text-[#5f6b7a]">
+                        This removes {form.fields.length} fields from <span className="font-semibold text-[#111418]">{form.name}</span> and clears its locally stored submissions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="rounded-2xl border border-[#fee2e2] bg-[#fff7f8] px-4 py-3 text-sm leading-6 text-[#7f1d1d]">
+                    This action cannot be undone. Export the form JSON first if you want a backup.
+                  </div>
+                  <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <Button type="button" variant="secondary" onClick={() => setDeleteOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="button" variant="danger" onClick={confirmDeleteForm}>
+                      <Trash2 size={16} />
+                      Delete permanently
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </DndContext>
     </AppShell>
