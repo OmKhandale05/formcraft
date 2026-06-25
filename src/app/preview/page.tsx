@@ -60,7 +60,17 @@ export default function PreviewPage() {
             <h1 className="text-xl font-semibold text-[#111418]">Preview</h1>
             <p className="mt-1 text-sm text-[#667085]">Render the current JSON schema as an accessible, validated form.</p>
           </div>
-          <div className="ml-auto flex rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-sm">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Button type="button" variant="secondary" size="sm" onClick={() => openCodeDialog("json")}>
+              <Code2 size={16} />
+              JSON schema
+            </Button>
+            <Button type="button" variant="secondary" size="sm" onClick={() => openCodeDialog("embed")}>
+              <PanelsTopLeft size={16} />
+              Embed code
+            </Button>
+          </div>
+          <div className="flex rounded-xl border border-[#d8e0ea] bg-white p-1 shadow-sm">
             <Button type="button" variant={device === "desktop" ? "primary" : "ghost"} size="sm" onClick={() => setDevice("desktop")}>
               <Monitor size={16} />
               Desktop
@@ -71,64 +81,10 @@ export default function PreviewPage() {
             </Button>
           </div>
         </div>
-        <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="min-w-0 rounded-3xl border border-[#d8e0ea] bg-white/54 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur sm:p-8">
-            <div className={cn("mx-auto transition-all", device === "mobile" ? "max-w-[390px]" : "max-w-3xl")}>
-              <FormRenderer form={form} onSubmit={addSubmission} />
-            </div>
+        <div className="min-w-0 rounded-3xl border border-[#d8e0ea] bg-white/54 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_24px_60px_rgba(17,24,39,0.08)] backdrop-blur sm:p-8">
+          <div className={cn("mx-auto transition-all", device === "mobile" ? "max-w-[390px]" : "max-w-4xl")}>
+            <FormRenderer form={form} onSubmit={addSubmission} />
           </div>
-          <aside className="min-h-0 min-w-0 rounded-3xl border border-[#d8e0ea] bg-[#111418] p-4 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
-            <div className="mb-4">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-xs font-semibold text-[#dce6f5]">
-                  <Code2 size={14} />
-                  Export preview
-                </div>
-                <h2 className="mt-3 text-lg font-semibold">Copy form code</h2>
-                <p className="mt-1 text-sm leading-6 text-[#aab4c3]">
-                  Open a focused code popup when you need the schema or embed snippet.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <button
-                type="button"
-                className="group rounded-2xl border border-white/10 bg-white/8 p-4 text-left transition hover:border-white/20 hover:bg-white/12"
-                onClick={() => openCodeDialog("json")}
-              >
-                <span className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#111418]">
-                    <Code2 size={18} />
-                  </span>
-                  <span>
-                    <span className="block text-sm font-bold text-white">View JSON schema</span>
-                    <span className="mt-1 block text-xs leading-5 text-[#aab4c3]">
-                      {form.fields.length} fields · {new Set(form.fields.map((field) => field.step ?? 1)).size} steps · {form.logicRules?.length ?? 0} rules
-                    </span>
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                className="group rounded-2xl border border-white/10 bg-white/8 p-4 text-left transition hover:border-white/20 hover:bg-white/12"
-                onClick={() => openCodeDialog("embed")}
-              >
-                <span className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#111418]">
-                    <PanelsTopLeft size={18} />
-                  </span>
-                  <span>
-                    <span className="block text-sm font-bold text-white">View embed code</span>
-                    <span className="mt-1 block text-xs leading-5 text-[#aab4c3]">Snippet for mounting this FormCraft form inside another site.</span>
-                  </span>
-                </span>
-              </button>
-            </div>
-            <p className="mt-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm leading-6 text-[#aab4c3]">
-              Code stays hidden until needed, keeping preview focused on the form experience.
-            </p>
-          </aside>
         </div>
         {codeDialog && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#111418]/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
