@@ -3,7 +3,7 @@
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, Save, Trash2 } from "lucide-react";
+import { CheckCircle2, Clock3, Download, Eye, FileUp, GripVertical, History, Save, Trash2 } from "lucide-react";
 import type { CSSProperties, PointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
@@ -29,6 +29,13 @@ const exportOptions = [
 type ExportExtension = (typeof exportOptions)[number]["extension"];
 type ResizePane = "left" | "right";
 type RightPanelMode = "field" | "form";
+type SavedSnapshotDetails = {
+  name: string;
+  createdAt: string;
+  fieldCount: number;
+  ruleCount: number;
+  versionCount: number;
+};
 
 const snapToGrid: Modifier = ({ transform }) => {
   const grid = 8;
@@ -49,7 +56,9 @@ export default function BuilderPage() {
   const reorderFields = useFormStore((state) => state.reorderFields);
   const replaceForm = useFormStore((state) => state.replaceForm);
   const deleteForm = useFormStore((state) => state.deleteForm);
-  const [saved, setSaved] = useState(false);
+  const saveVersion = useFormStore((state) => state.saveVersion);
+  const versions = useFormStore((state) => state.versions);
+  const [savedSnapshot, setSavedSnapshot] = useState<SavedSnapshotDetails | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("field");
@@ -57,6 +66,7 @@ export default function BuilderPage() {
   const [rightWidth, setRightWidth] = useState(340);
   const inputRef = useRef<HTMLInputElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const saveRef = useRef<HTMLDivElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const builderGridStyle = {
     "--builder-columns": `${leftWidth}px 14px minmax(460px, 1fr) 14px ${rightWidth}px`
@@ -84,6 +94,29 @@ export default function BuilderPage() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [exportOpen]);
+
+  useEffect(() => {
+    if (!savedSnapshot) return;
+
+    const closeOnOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (saveRef.current?.contains(event.target as Node)) return;
+      setSavedSnapshot(null);
+    };
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSavedSnapshot(null);
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("touchstart", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("touchstart", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [savedSnapshot]);
 
   useEffect(() => {
     if (!deleteOpen) return;
@@ -199,6 +232,22 @@ export default function BuilderPage() {
     setDeleteOpen(false);
   };
 
+  const handleSaveCurrentVersion = () => {
+    const createdAt = new Date().toISOString();
+    const versionName = `${form.name || form.title} v${versions.length + 1}`;
+    const ruleCount = form.logicRules?.filter((rule) => rule.enabled).length ?? 0;
+
+    saveVersion(versionName, `Saved from the builder top bar with ${form.fields.length} fields and ${ruleCount} active logic rules.`);
+    setExportOpen(false);
+    setSavedSnapshot({
+      name: versionName,
+      createdAt,
+      fieldCount: form.fields.length,
+      ruleCount,
+      versionCount: Math.min(versions.length + 1, 20)
+    });
+  };
+
   if (!hasHydrated) {
     return (
       <AppShell>
@@ -282,10 +331,58 @@ export default function BuilderPage() {
                     </>
                   )}
                 </div>
-              <Button type="button" variant="secondary" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 1600); }}>
-                <Save size={16} />
-                {saved ? "Saved" : "Save"}
-              </Button>
+              <div ref={saveRef} className="relative">
+                <Button type="button" variant="secondary" onClick={handleSaveCurrentVersion} aria-expanded={Boolean(savedSnapshot)} aria-haspopup="dialog">
+                  {savedSnapshot ? <CheckCircle2 size={16} /> : <Save size={16} />}
+                  {savedSnapshot ? "Saved" : "Save"}
+                </Button>
+                {savedSnapshot && (
+                  <div
+                    role="dialog"
+                    aria-label="Saved locally"
+                    className="absolute right-0 top-[calc(100%+8px)] z-[9999] w-[320px] overflow-hidden rounded-2xl border border-[#d8e0ea] bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]"
+                  >
+                    <div className="border-b border-[#e5e9ef] bg-[linear-gradient(135deg,#f0fdfa_0%,#ffffff_58%,#eef2ff_100%)] p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#99f6e4] bg-white text-[#0f766e] shadow-[0_12px_24px_rgba(15,118,110,0.12)]">
+                          <CheckCircle2 size={18} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0f766e]">Saved locally</p>
+                          <h2 className="mt-1 truncate text-base font-black text-[#111418]">{savedSnapshot.name}</h2>
+                          <p className="mt-1 text-xs leading-5 text-[#667085]">{formatTimestamp(savedSnapshot.createdAt)}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-xl border border-[#e5e9ef] bg-[#f8fafc] p-2">
+                          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8b95a7]">Fields</p>
+                          <p className="mt-1 text-sm font-black text-[#111418]">{savedSnapshot.fieldCount}</p>
+                        </div>
+                        <div className="rounded-xl border border-[#e5e9ef] bg-[#f8fafc] p-2">
+                          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8b95a7]">Rules</p>
+                          <p className="mt-1 text-sm font-black text-[#111418]">{savedSnapshot.ruleCount}</p>
+                        </div>
+                        <div className="rounded-xl border border-[#e5e9ef] bg-[#f8fafc] p-2">
+                          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8b95a7]">History</p>
+                          <p className="mt-1 text-sm font-black text-[#111418]">{savedSnapshot.versionCount}/20</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 rounded-xl border border-[#dbe4f0] bg-[#fbfcfe] px-3 py-2.5 text-xs leading-5 text-[#5f6b7a]">
+                        This restore point is available in Settings under Version history.
+                      </div>
+                      <Link
+                        href="/settings?tab=history"
+                        className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-[#d8e0ea] bg-white px-3 text-sm font-bold text-[#111418] shadow-sm transition hover:bg-[#f6f8fb]"
+                      >
+                        <History size={15} />
+                        View in history
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
               <Button type="button" variant="danger" onClick={requestDeleteForm} disabled={form.fields.length === 0}>
                 <Trash2 size={16} />
                 Delete form

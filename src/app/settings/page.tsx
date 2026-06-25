@@ -1,7 +1,7 @@
 "use client";
 
 import { Activity, FileText, GitBranch, History, Palette, Settings2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { AppearanceControls } from "@/components/builder/appearance-controls";
 import { FormHealthPanel } from "@/components/builder/form-health-panel";
@@ -29,6 +29,13 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("basics");
   const active = settingsTabs.find((tab) => tab.id === activeTab) ?? settingsTabs[0];
   const ActiveIcon = active.icon;
+
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (settingsTabs.some((tab) => tab.id === requestedTab)) {
+      window.requestAnimationFrame(() => setActiveTab(requestedTab as SettingsTab));
+    }
+  }, []);
 
   return (
     <AppShell>
