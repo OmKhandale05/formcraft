@@ -242,6 +242,10 @@ npm run test:feedback
 
 The browser test uses an isolated workspace, exercises live predictions, filters, persistence, failure handling and mobile layout, and writes local screenshots into ignored `test-results/`.
 
+### Host The Python API
+
+The [deployment guide](backend/DEPLOYMENT.md) covers the included Render Blueprint, manual deployments, exact frontend origins, readiness checks and connecting a Vercel preview before production. The build trains the model; startup loads it and listens on the hosting provider's port. Hosting configuration does not deploy the service by itself.
+
 ## Local Persistence
 
 FormCraft is local-first. It stores workspace data in the browser so the project can work without a backend:

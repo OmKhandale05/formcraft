@@ -99,6 +99,18 @@ API model versions include `+contrast-v1` to distinguish the policy from the sav
 
 Set `FORMCRAFT_ALLOWED_ORIGINS` to a comma-separated list of frontend origins for another environment. Local ports 3000 and 3001 are allowed by default. Set `FORMCRAFT_MODEL_PATH` only to a trusted model artifact you trained.
 
+## Hosting
+
+Follow the [deployment guide](DEPLOYMENT.md) to host the API on Render and connect a Vercel branch preview. The repository includes a free-plan Blueprint with auto-deployment disabled, a model-training build script and a port-aware startup command. Production requires explicit frontend origins, and `/health` returns HTTP 503 if the model is not ready.
+
+Verify a running service with:
+
+```bash
+backend/.venv/bin/python -m backend.check_deployment \
+  --api-url http://localhost:8000 \
+  --origin http://localhost:3000
+```
+
 Run tests:
 
 ```bash
