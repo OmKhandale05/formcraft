@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "fastapi",
+  "buildCommand": "python scripts/build_vercel.py",
+  "functions": {
+    "app.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{.venv/**,.build-venv/**,data/**,tests/**,evaluation/**,scripts/**,__pycache__/**,**/__pycache__/**,*.md,artifacts/*.json,artifacts/*.md,train.py,adapt.py,evaluate_feedback.py,check_deployment.py,requirements-dev.txt}"
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "ml_feedback": true
+    }
+  }
+}

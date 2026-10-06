@@ -10,8 +10,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StringConstraints, model_validator
-from backend.sentiment import inference_version, predict_feedback
-from backend.config import allowed_origins
+if __package__:
+    from .sentiment import inference_version, predict_feedback
+    from .config import allowed_origins
+else:
+    # Vercel imports app.py directly when backend is the project root.
+    from sentiment import inference_version, predict_feedback
+    from config import allowed_origins
 
 MODEL_PATH = Path(os.getenv("FORMCRAFT_MODEL_PATH", Path(__file__).parent / "artifacts" / "sentiment.joblib"))
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
@@ -51,7 +56,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="FormCraft Feedback Analysis", version="1.0.0", lifespan=lifespan)
-origins = allowed_origins(os.getenv("FORMCRAFT_ALLOWED_ORIGINS"), production=os.getenv("FORMCRAFT_ENV") == "production")
+origins = allowed_origins(os.getenv("FORMCRAFT_ALLOWED_ORIGINS"), production=os.getenv("FORMCRAFT_ENV") == "production" or os.getenv("VERCEL") == "1")
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["POST", "GET"], allow_headers=["Content-Type"])
 
 
