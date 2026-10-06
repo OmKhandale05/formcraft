@@ -200,7 +200,7 @@ From the repository root:
 
 ```bash
 python3 -m venv backend/.venv
-backend/.venv/bin/python -m pip install -r backend/requirements.txt
+backend/.venv/bin/python -m pip install -r backend/requirements-dev.txt
 backend/.venv/bin/python -m backend.train
 backend/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
@@ -244,7 +244,7 @@ The browser test uses an isolated workspace, exercises live predictions, filters
 
 ### Host The Python API
 
-The [deployment guide](backend/DEPLOYMENT.md) covers the included Render Blueprint, manual deployments, exact frontend origins, readiness checks and connecting a Vercel preview before production. The build trains the model; startup loads it and listens on the hosting provider's port. Hosting configuration does not deploy the service by itself.
+The [Vercel API guide](backend/VERCEL.md) covers a separate FastAPI project in the same Vercel account, isolated build-time training, exact frontend origins and testing a branch preview before production. The [Render guide](backend/DEPLOYMENT.md) remains available as an alternative. Hosting configuration does not deploy the service by itself.
 
 ## Local Persistence
 

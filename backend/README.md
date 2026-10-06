@@ -8,7 +8,7 @@ Run from the repository root with Python 3.9 or newer:
 
 ```bash
 python3 -m venv backend/.venv
-backend/.venv/bin/python -m pip install -r backend/requirements.txt
+backend/.venv/bin/python -m pip install -r backend/requirements-dev.txt
 backend/.venv/bin/python -m backend.train
 ```
 
@@ -132,7 +132,9 @@ Set `FORMCRAFT_ALLOWED_ORIGINS` to a comma-separated list of frontend origins fo
 
 ## Hosting
 
-Follow the [deployment guide](DEPLOYMENT.md) to host the API on Render and connect a Vercel branch preview. The repository includes a free-plan Blueprint with auto-deployment disabled, a model-training build script and a port-aware startup command. Production requires explicit frontend origins, and `/health` returns HTTP 503 if the model is not ready.
+Follow the [Vercel API guide](VERCEL.md) to host FastAPI as a separate Vercel project and connect a frontend branch preview. Deployment configuration lives inside `backend`, so it does not replace the Next.js site's settings. Runtime dependencies stay in `requirements.txt`; training and tests use `requirements-dev.txt`. The build trains in an isolated temporary environment, then bundles the saved model for prediction at startup. The API requires explicit frontend origins on Vercel, including previews, and `/health` returns HTTP 503 if the model is not ready.
+
+The [Render guide](DEPLOYMENT.md) and Blueprint remain supported as an alternative.
 
 Verify a running service with:
 
