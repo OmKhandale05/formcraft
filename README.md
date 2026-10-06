@@ -227,7 +227,9 @@ Evaluate the frozen model against 60 authored form-style examples:
 backend/.venv/bin/python -m backend.evaluate_feedback
 ```
 
-The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **46/60 correct (76.7%)**, per-sentiment metrics and every mistake. These are synthetic examples with assistant-authored labels, not a real customer benchmark. Negative recall is **65%**, highlighting missed complaints. The model is not retrained by this evaluation. See the Python guide to evaluate your own separately labeled examples.
+The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **47/60 correct (78.3%)** with the mixed-complaint policy, versus **46/60** for the unadjusted classifier. Negative recall is **70%**, so complaints are still missed. These synthetic examples have assistant-authored labels and were used to develop the policy; they are not an untouched customer benchmark. The classifier is not retrained by evaluation. See the Python guide to evaluate your own separately labeled examples.
+
+Inference combines ML with a narrow product rule: praise followed by an explicit unresolved payment complaint, such as "excellent but payment not done", takes priority as Negative. This does not guarantee correct interpretation of all mixed feedback. Click Analyze feedback again to refresh previously saved results after a service update.
 
 ### Feedback Checks
 

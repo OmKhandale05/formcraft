@@ -1,16 +1,18 @@
 # Form Feedback Evaluation
 
-Model: `tweeteval-tfidf-lr-v1`
+Model: `tweeteval-tfidf-lr-v1+contrast-v1`
 
 Synthetic examples authored and labeled by the coding assistant before running predictions. Not collected from users or independently reviewed by human annotators.
 
 ## Results
 
 - Examples: 60
-- Correct: 46/60
-- Accuracy: 76.7%
-- Macro F1: 0.770
+- Correct: 47/60
+- Accuracy: 78.3%
+- Macro F1: 0.789
 - Always-neutral baseline macro F1: 0.167
+
+Unadjusted classifier accuracy: 76.7%. The mixed-complaint policy is included in the results above.
 
 Accuracy counts correct predictions. Macro F1 gives each sentiment equal importance.
 
@@ -18,9 +20,9 @@ Accuracy counts correct predictions. Macro F1 gives each sentiment equal importa
 
 | Sentiment | Precision | Recall | F1 | Examples |
 |---|---:|---:|---:|---:|
-| negative | 1.000 | 0.650 | 0.788 | 20 |
+| negative | 1.000 | 0.700 | 0.824 | 20 |
 | neutral | 0.630 | 0.850 | 0.723 | 20 |
-| positive | 0.800 | 0.800 | 0.800 | 20 |
+| positive | 0.842 | 0.800 | 0.821 | 20 |
 
 ## Confusion Matrix
 
@@ -28,7 +30,7 @@ Rows are expected labels; columns are model predictions.
 
 | Expected / Predicted | Negative | Neutral | Positive |
 |---|---:|---:|---:|
-| negative | 13 | 6 | 1 |
+| negative | 14 | 6 | 0 |
 | neutral | 0 | 17 | 3 |
 | positive | 0 | 4 | 16 |
 
@@ -42,7 +44,7 @@ Small category counts are diagnostic, not reliable performance estimates.
 | application | 4 | 6 |
 | contact | 5 | 5 |
 | event | 7 | 8 |
-| mixed | 3 | 6 |
+| mixed | 4 | 6 |
 | mobile | 2 | 3 |
 | negation | 6 | 7 |
 | payment | 5 | 6 |
@@ -117,14 +119,6 @@ Expected: **negative**. Predicted: **neutral**.
 
 Label reason: Explicit confusion.
 
-### n14: mixed
-
-> The design is attractive, but payment fails every time and I cannot book.
-
-Expected: **negative**. Predicted: **positive**.
-
-Label reason: Blocking payment failure dominates praise.
-
 ### n16: survey
 
 > The required questions ask for information that is irrelevant. Very annoying.
@@ -171,7 +165,8 @@ Positive means explicit satisfaction or praise. Negative means explicit dissatis
 
 ## Limits
 
-- Small authored diagnostic set; not real submissions or an independently human-labeled benchmark.
+- Small authored development set; not real submissions or an independently human-labeled benchmark.
 - Label choices for mixed feedback are subjective; review the labeling policy.
-- No training or tuning uses this dataset in this script. If it is used to tune a model later, obtain a new untouched test set.
+- The classifier is frozen, but mixed-feedback inference was developed after reviewing this set. These are development results; an untouched test set is needed for final evaluation.
+- The contrast policy combines ML clause predictions with explicit transaction-failure rules; it does not establish general language understanding.
 - Scores do not estimate production accuracy.

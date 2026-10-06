@@ -1,17 +1,22 @@
 {
-  "model_version": "tweeteval-tfidf-lr-v1",
+  "model_version": "tweeteval-tfidf-lr-v1+contrast-v1",
+  "raw_classifier": {
+    "version": "tweeteval-tfidf-lr-v1",
+    "accuracy": 0.7666666666666667,
+    "macro_f1": 0.770427681065979
+  },
   "dataset": "FormCraft authored feedback diagnostic v1",
   "provenance": "Synthetic examples authored and labeled by the coding assistant before running predictions. Not collected from users or independently reviewed by human annotators.",
   "labeling_policy": "Positive means explicit satisfaction or praise. Negative means explicit dissatisfaction or an unresolved failure. Neutral means factual information, a request without expressed dissatisfaction, or balanced mixed feedback without a dominant sentiment. Mixed feedback with an unresolved blocking failure is negative. These conventions should be reviewed by humans before a real benchmark is created.",
-  "evaluated_at": "2026-10-06T11:36:40.955751+00:00",
+  "evaluated_at": "2026-10-06T12:11:14.767762+00:00",
   "examples": 60,
   "label_counts": {
     "positive": 20,
     "negative": 20,
     "neutral": 20
   },
-  "accuracy": 0.7666666666666667,
-  "macro_f1": 0.770427681065979,
+  "accuracy": 0.7833333333333333,
+  "macro_f1": 0.7891488291988917,
   "baseline": {
     "strategy": "Always neutral (fixed before evaluation)",
     "macro_f1": 0.16666666666666666
@@ -19,8 +24,8 @@
   "classification_report": {
     "negative": {
       "precision": 1.0,
-      "recall": 0.65,
-      "f1-score": 0.7878787878787878,
+      "recall": 0.7,
+      "f1-score": 0.8235294117647058,
       "support": 20.0
     },
     "neutral": {
@@ -30,22 +35,22 @@
       "support": 20.0
     },
     "positive": {
-      "precision": 0.8,
+      "precision": 0.8421052631578947,
       "recall": 0.8,
-      "f1-score": 0.8,
+      "f1-score": 0.8205128205128205,
       "support": 20.0
     },
-    "accuracy": 0.7666666666666667,
+    "accuracy": 0.7833333333333333,
     "macro avg": {
-      "precision": 0.8098765432098766,
-      "recall": 0.7666666666666666,
-      "f1-score": 0.770427681065979,
+      "precision": 0.8239116309291749,
+      "recall": 0.7833333333333332,
+      "f1-score": 0.7891488291988917,
       "support": 60.0
     },
     "weighted avg": {
-      "precision": 0.8098765432098766,
-      "recall": 0.7666666666666667,
-      "f1-score": 0.7704276810659789,
+      "precision": 0.8239116309291747,
+      "recall": 0.7833333333333333,
+      "f1-score": 0.7891488291988917,
       "support": 60.0
     }
   },
@@ -57,9 +62,9 @@
     ],
     "rows_actual_columns_predicted": [
       [
-        13,
+        14,
         6,
-        1
+        0
       ],
       [
         0,
@@ -92,7 +97,7 @@
     },
     "mixed": {
       "examples": 6,
-      "correct": 3
+      "correct": 4
     },
     "mobile": {
       "examples": 3,
@@ -130,6 +135,7 @@
       "label": "positive",
       "category": "event",
       "note": "Explicit praise for registration.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -139,6 +145,7 @@
       "label": "positive",
       "category": "application",
       "note": "Explicit satisfaction.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -148,6 +155,7 @@
       "label": "positive",
       "category": "contact",
       "note": "Helpful support with resolved issue.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -157,6 +165,7 @@
       "label": "positive",
       "category": "payment",
       "note": "Explicit praise.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -166,6 +175,7 @@
       "label": "positive",
       "category": "survey",
       "note": "Positive assessment of questions.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -175,6 +185,7 @@
       "label": "positive",
       "category": "event",
       "note": "Gratitude for a simple process.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -184,6 +195,7 @@
       "label": "positive",
       "category": "application",
       "note": "Satisfied with upload.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -193,6 +205,7 @@
       "label": "positive",
       "category": "contact",
       "note": "Explicit happiness.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -202,6 +215,7 @@
       "label": "positive",
       "category": "event",
       "note": "Positive assessment of confirmation.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -211,6 +225,7 @@
       "label": "positive",
       "category": "product",
       "note": "Explicit product praise.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -220,6 +235,7 @@
       "label": "positive",
       "category": "product",
       "note": "Positive recommendation.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -229,6 +245,7 @@
       "label": "positive",
       "category": "mobile",
       "note": "Positive mobile experience.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -238,6 +255,7 @@
       "label": "positive",
       "category": "negation",
       "note": "Negated trouble with explicit success.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -247,6 +265,7 @@
       "label": "positive",
       "category": "negation",
       "note": "Negated criticism with praise.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -256,6 +275,7 @@
       "label": "positive",
       "category": "mixed",
       "note": "Overall satisfaction dominates mild criticism.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -265,6 +285,7 @@
       "label": "positive",
       "category": "mixed",
       "note": "Past issue resolved; current sentiment positive.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -274,6 +295,7 @@
       "label": "positive",
       "category": "short",
       "note": "Explicit praise.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -283,6 +305,7 @@
       "label": "positive",
       "category": "short",
       "note": "Short explicit praise.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -292,6 +315,7 @@
       "label": "positive",
       "category": "accessibility",
       "note": "Explicit gratitude and improvement.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": true
     },
@@ -301,6 +325,7 @@
       "label": "positive",
       "category": "payment",
       "note": "Explicit appreciation.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -310,6 +335,7 @@
       "label": "negative",
       "category": "event",
       "note": "Unresolved blocking failure.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -319,6 +345,7 @@
       "label": "negative",
       "category": "application",
       "note": "Failure and explicit frustration.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -328,6 +355,7 @@
       "label": "negative",
       "category": "contact",
       "note": "Explicit disappointment.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -337,6 +365,7 @@
       "label": "negative",
       "category": "payment",
       "note": "Unresolved payment failure.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -346,6 +375,7 @@
       "label": "negative",
       "category": "survey",
       "note": "Explicit criticism.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -355,6 +385,7 @@
       "label": "negative",
       "category": "product",
       "note": "Data loss and explicit criticism.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -364,6 +395,7 @@
       "label": "negative",
       "category": "mobile",
       "note": "Broken mobile experience.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -373,6 +405,7 @@
       "label": "negative",
       "category": "product",
       "note": "Explicit dissatisfaction.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -382,6 +415,7 @@
       "label": "negative",
       "category": "accessibility",
       "note": "Explicit confusion.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -391,6 +425,7 @@
       "label": "negative",
       "category": "product",
       "note": "Explicit negative assessment.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -400,6 +435,7 @@
       "label": "negative",
       "category": "negation",
       "note": "Negative recommendation.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -409,6 +445,7 @@
       "label": "negative",
       "category": "negation",
       "note": "Negated happiness.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -418,6 +455,7 @@
       "label": "negative",
       "category": "negation",
       "note": "Negated ease of use.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -427,8 +465,9 @@
       "label": "negative",
       "category": "mixed",
       "note": "Blocking payment failure dominates praise.",
-      "predicted": "positive",
-      "correct": false
+      "raw_predicted": "positive",
+      "predicted": "negative",
+      "correct": true
     },
     {
       "id": "n15",
@@ -436,6 +475,7 @@
       "label": "negative",
       "category": "mixed",
       "note": "Unresolved issue and explicit unhappiness.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -445,6 +485,7 @@
       "label": "negative",
       "category": "survey",
       "note": "Explicit annoyance.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -454,6 +495,7 @@
       "label": "negative",
       "category": "short",
       "note": "Short explicit criticism.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": false
     },
@@ -463,6 +505,7 @@
       "label": "negative",
       "category": "event",
       "note": "Failure with negative consequence.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -472,6 +515,7 @@
       "label": "negative",
       "category": "accessibility",
       "note": "Accessibility failure.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -481,6 +525,7 @@
       "label": "negative",
       "category": "application",
       "note": "Data loss and explicit distress.",
+      "raw_predicted": "negative",
       "predicted": "negative",
       "correct": true
     },
@@ -490,6 +535,7 @@
       "label": "neutral",
       "category": "event",
       "note": "Factual preference.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": false
     },
@@ -499,6 +545,7 @@
       "label": "neutral",
       "category": "contact",
       "note": "Factual information.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -508,6 +555,7 @@
       "label": "neutral",
       "category": "application",
       "note": "Factual application intent.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -517,6 +565,7 @@
       "label": "neutral",
       "category": "payment",
       "note": "Request without expressed dissatisfaction.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -526,6 +575,7 @@
       "label": "neutral",
       "category": "product",
       "note": "Usage frequency.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -535,6 +585,7 @@
       "label": "neutral",
       "category": "request",
       "note": "Feature request without sentiment.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -544,6 +595,7 @@
       "label": "neutral",
       "category": "event",
       "note": "Information request.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -553,6 +605,7 @@
       "label": "neutral",
       "category": "application",
       "note": "Factual upload statement.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -562,6 +615,7 @@
       "label": "neutral",
       "category": "payment",
       "note": "Factual identifier.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -571,6 +625,7 @@
       "label": "neutral",
       "category": "contact",
       "note": "Scheduling request.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -580,6 +635,7 @@
       "label": "neutral",
       "category": "mobile",
       "note": "Factual device information.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -589,6 +645,7 @@
       "label": "neutral",
       "category": "event",
       "note": "Factual quantity request.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -598,6 +655,7 @@
       "label": "neutral",
       "category": "negation",
       "note": "Negation without a negative opinion.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -607,6 +665,7 @@
       "label": "neutral",
       "category": "negation",
       "note": "Factual absence of information.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -616,6 +675,7 @@
       "label": "neutral",
       "category": "mixed",
       "note": "Explicitly balanced mixed opinion.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": false
     },
@@ -625,6 +685,7 @@
       "label": "neutral",
       "category": "mixed",
       "note": "Balanced mixed opinion without dominant sentiment.",
+      "raw_predicted": "positive",
       "predicted": "positive",
       "correct": false
     },
@@ -634,6 +695,7 @@
       "label": "neutral",
       "category": "short",
       "note": "Short factual response.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -643,6 +705,7 @@
       "label": "neutral",
       "category": "request",
       "note": "Information request without sentiment.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -652,6 +715,7 @@
       "label": "neutral",
       "category": "accessibility",
       "note": "Capability question without judgment.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     },
@@ -661,14 +725,16 @@
       "label": "neutral",
       "category": "payment",
       "note": "Factual method selection.",
+      "raw_predicted": "neutral",
       "predicted": "neutral",
       "correct": true
     }
   ],
   "limitations": [
-    "Small authored diagnostic set; not real submissions or an independently human-labeled benchmark.",
+    "Small authored development set; not real submissions or an independently human-labeled benchmark.",
     "Label choices for mixed feedback are subjective; review the labeling policy.",
-    "No training or tuning uses this dataset in this script. If it is used to tune a model later, obtain a new untouched test set.",
+    "The classifier is frozen, but mixed-feedback inference was developed after reviewing this set. These are development results; an untouched test set is needed for final evaluation.",
+    "The contrast policy combines ML clause predictions with explicit transaction-failure rules; it does not establish general language understanding.",
     "Scores do not estimate production accuracy."
   ],
   "training_overlap_check": {

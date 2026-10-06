@@ -47,17 +47,17 @@ The script produces:
 - [Readable report](artifacts/form_feedback_evaluation.md): metrics, confusion matrix, category counts and every mistake with its label reason.
 - [JSON report](artifacts/form_feedback_evaluation.json): every prediction, metrics, labeling policy, dataset/model hashes and training-overlap audit.
 
-The initial frozen model gets **46/60 correct (76.7% accuracy)** with **0.770 macro F1**. It identifies **13/20 negative examples**, so it still misses important complaints. Only **3/6 mixed-sentiment cases** are correct. These small-set scores do not estimate real-world accuracy and are not directly comparable to the TweetEval benchmark.
+The unadjusted frozen classifier gets **46/60 correct (76.7% accuracy)** with **0.770 macro F1**. With the mixed-complaint inference policy, the service gets **47/60 correct (78.3% accuracy)** and **0.789 macro F1**, identifying **14/20 negative examples**. These are development-set results: the policy was added after inspecting errors in this set. They do not estimate real-world accuracy and are not directly comparable to the TweetEval benchmark.
 
 ### Concepts In Simple Terms
 
 - **Domain shift:** training examples are tweets, but the product receives form feedback. Familiar language changes, so a model can make different kinds of mistakes.
 - **Ground truth:** the expected label attached to each example. Our labels follow the written policy; a future real benchmark needs independent human review, especially for mixed feedback.
 - **Balanced evaluation:** each sentiment has 20 examples, so a large neutral class cannot hide weak complaint detection.
-- **Recall:** finding the complaints that are actually negative. Here, negative recall is 13/20, or 65%; seven complaints are missed.
-- **Confusion matrix:** a table showing where labels get mixed up. Of 20 negative examples, 13 are predicted negative, six neutral and one positive.
+- **Recall:** finding the complaints that are actually negative. The unadjusted classifier finds 13/20 (65%); the mixed-complaint policy finds 14/20 (70%). Six complaints are still missed.
+- **Confusion matrix:** a table showing where labels get mixed up. After adjustment, of 20 negative examples, 14 are predicted negative and six neutral.
 - **Error analysis:** read the mistakes to find patterns. For example, "The design is attractive, but payment fails every time and I cannot book" is labeled negative by our policy but predicted positive.
-- **Frozen evaluation:** the script only predicts; it does not retrain or overwrite the model. If these examples later guide model tuning, they become development data. A new untouched test set is then needed for a fair final score.
+- **Frozen classifier:** the script does not retrain or overwrite the model. The inference policy was developed after reviewing errors, so these examples now serve as development data. A new untouched test set is needed for a fair final score.
 
 When downloaded training text is available, the evaluator rejects case-insensitive exact overlap. If it is missing, the report explicitly says the audit could not run. Exact checks cannot rule out paraphrases or independently prove unseen data for an arbitrary model.
 
@@ -88,6 +88,14 @@ Interactive API documentation: `http://localhost:8000/docs`. `GET /health` repor
 ```
 
 The service does not save submitted text or train on it. Inference uses the artifact loaded once at startup. If it is missing, analysis returns HTTP 503 with a training instruction.
+
+### Mixed Feedback Policy
+
+The service combines the trained classifier with a narrow, explicit complaint policy. When feedback includes `but` or `however`, it examines the last contrasting clause. A negative clause prediction or an explicit blocking payment/checkout/transaction complaint takes priority over introductory praise. Resolved issues are excluded from this adjustment. Common `payemnt`/`paymnt` typos are normalized for the policy check.
+
+For example, "this is excellent but payment not done" becomes Negative because the unresolved payment is the actionable complaint. "this is excellent and payment was successful" keeps the classifier's normal prediction. This is **hybrid inference**: learned ML plus a documented product rule, not new training or general language understanding. Complex sentences and unfamiliar wording can still be misclassified.
+
+API model versions include `+contrast-v1` to distinguish the policy from the saved classifier. Evaluation uses the same inference function as the API and records unadjusted predictions for comparison. After updating the service, click Analyze feedback again to refresh older locally saved results.
 
 Set `FORMCRAFT_ALLOWED_ORIGINS` to a comma-separated list of frontend origins for another environment. Local ports 3000 and 3001 are allowed by default. Set `FORMCRAFT_MODEL_PATH` only to a trusted model artifact you trained.
 

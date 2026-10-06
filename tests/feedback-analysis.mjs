@@ -18,6 +18,7 @@ const submissions = [
   { id: "positive-1", text: "I love this excellent product, it is amazing and wonderful!" },
   { id: "negative-1", text: "I hate this terrible product. It is awful and broken." },
   { id: "neutral-1", text: "The meeting is scheduled for Monday at 10am." },
+  { id: "mixed-1", text: "this is excellent but payemnt not done" },
   { id: "blank-1", text: "   " },
 ].map(({ id, text }) => ({ id, formId: form.id, submittedAt: stamp, values: { message: text, name: "Alex" } }));
 
@@ -30,23 +31,24 @@ try {
   const analyze = panel.getByRole("button", { name: "Analyze feedback" });
   await analyze.waitFor();
   await analyze.click();
-  await page.getByRole("status").filter({ hasText: "Analyzed 3 answers" }).waitFor();
+  await page.getByRole("status").filter({ hasText: "Analyzed 4 answers" }).waitFor();
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("formcraft-feedback-analysis-v1")));
-  assert.equal(Object.keys(stored).length, 3, "Blank answers are skipped");
+  assert.equal(Object.keys(stored).length, 4, "Blank answers are skipped");
   assert.equal(stored[JSON.stringify([form.id, "message", "positive-1"])].sentiment, "positive");
   assert.equal(stored[JSON.stringify([form.id, "message", "negative-1"])].sentiment, "negative");
-  assert.equal(await page.locator("tbody tr").count(), 4);
+  assert.equal(stored[JSON.stringify([form.id, "message", "mixed-1"])].sentiment, "negative", "Unresolved payment outweighs praise");
+  assert.equal(await page.locator("tbody tr").count(), 5);
   await panel.getByRole("button", { name: "Sentiment filter" }).click();
   await panel.getByRole("option", { name: "Negative", exact: true }).click();
-  assert.equal(await page.locator("tbody tr").count(), 1);
-  await page.getByRole("button", { name: "View", exact: true }).click();
+  assert.equal(await page.locator("tbody tr").count(), 2);
+  await page.getByRole("button", { name: "View", exact: true }).first().click();
   await page.getByText("Predicted sentiment", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Close drawer" }).click();
   await page.reload();
-  await panel.getByText("3 / 3 analyzed", { exact: true }).waitFor();
+  await panel.getByText("4 / 4 analyzed", { exact: true }).waitFor();
   await panel.getByRole("button", { name: "Feedback field" }).click();
   await panel.getByRole("option", { name: "Name", exact: true }).click();
-  await panel.getByText("0 / 4 analyzed", { exact: true }).waitFor();
+  await panel.getByText("0 / 5 analyzed", { exact: true }).waitFor();
   await panel.getByRole("button", { name: "Feedback field" }).click();
   await panel.getByRole("option", { name: "Your feedback", exact: true }).click();
   await page.route("**/analyze", (route) => route.abort());
@@ -54,7 +56,7 @@ try {
   await page.getByRole("alert").filter({ hasText: "Feedback analysis is unavailable" }).waitFor();
   await page.unroute("**/analyze");
   await page.reload();
-  await panel.getByText("3 / 3 analyzed", { exact: true }).waitFor();
+  await panel.getByText("4 / 4 analyzed", { exact: true }).waitFor();
   await mkdir("test-results", { recursive: true });
   await page.screenshot({ path: "test-results/feedback-desktop.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });

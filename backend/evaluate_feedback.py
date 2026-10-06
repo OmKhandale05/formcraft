@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 
 from backend.train import LABELS, ROOT
+from backend.sentiment import adjust_predictions, inference_version
 
 
 class Example(BaseModel):
@@ -60,13 +61,16 @@ def check_overlap(dataset, training_path):
 def evaluate(dataset, model):
     examples = dataset.examples
     actual = [item.label for item in examples]
-    predicted = model["pipeline"].predict([item.text for item in examples]).tolist()
+    texts = [item.text for item in examples]
+    raw_predictions = model["pipeline"].predict(texts).tolist()
+    predicted = adjust_predictions(model["pipeline"], texts, raw_predictions)
     if len(predicted) != len(actual) or not set(predicted).issubset(LABELS):
         raise ValueError("Model predictions do not match the three-label evaluation contract")
-    cases = [{**item.model_dump(), "predicted": guess, "correct": item.label == guess} for item, guess in zip(examples, predicted)]
+    cases = [{**item.model_dump(), "raw_predicted": raw, "predicted": guess, "correct": item.label == guess} for item, raw, guess in zip(examples, raw_predictions, predicted)]
     categories = sorted({item.category for item in examples})
     return {
-        "model_version": model["version"],
+        "model_version": inference_version(model["version"]),
+        "raw_classifier": {"version": model["version"], "accuracy": accuracy_score(actual, raw_predictions), "macro_f1": f1_score(actual, raw_predictions, labels=LABELS, average="macro", zero_division=0)},
         "dataset": dataset.name,
         "provenance": dataset.provenance,
         "labeling_policy": dataset.labeling_policy,
@@ -80,7 +84,7 @@ def evaluate(dataset, model):
         "confusion_matrix": {"labels": LABELS, "rows_actual_columns_predicted": confusion_matrix(actual, predicted, labels=LABELS).tolist()},
         "categories": {category: {"examples": sum(item["category"] == category for item in cases), "correct": sum(item["category"] == category and item["correct"] for item in cases)} for category in categories},
         "predictions": cases,
-        "limitations": ["Small authored diagnostic set; not real submissions or an independently human-labeled benchmark.", "Label choices for mixed feedback are subjective; review the labeling policy.", "No training or tuning uses this dataset in this script. If it is used to tune a model later, obtain a new untouched test set.", "Scores do not estimate production accuracy."],
+        "limitations": ["Small authored development set; not real submissions or an independently human-labeled benchmark.", "Label choices for mixed feedback are subjective; review the labeling policy.", "The classifier is frozen, but mixed-feedback inference was developed after reviewing this set. These are development results; an untouched test set is needed for final evaluation.", "The contrast policy combines ML clause predictions with explicit transaction-failure rules; it does not establish general language understanding.", "Scores do not estimate production accuracy."],
     }
 
 
@@ -92,6 +96,7 @@ def markdown_report(report):
         f"- Correct: {sum(item['correct'] for item in report['predictions'])}/{report['examples']}",
         f"- Accuracy: {report['accuracy']:.1%}", f"- Macro F1: {report['macro_f1']:.3f}",
         f"- Always-neutral baseline macro F1: {report['baseline']['macro_f1']:.3f}", "",
+        f"Unadjusted classifier accuracy: {report['raw_classifier']['accuracy']:.1%}. The mixed-complaint policy is included in the results above.", "",
         "Accuracy counts correct predictions. Macro F1 gives each sentiment equal importance.", "",
         "## Per Sentiment", "", "| Sentiment | Precision | Recall | F1 | Examples |", "|---|---:|---:|---:|---:|",
     ]

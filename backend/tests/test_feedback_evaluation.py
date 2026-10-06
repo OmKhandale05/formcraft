@@ -90,7 +90,7 @@ def test_cli_writes_reports_without_changing_model(tmp_path):
     assert result.returncode == 0, result.stderr
     assert "Overlap check unavailable" in result.stdout
     report = json.loads((output / "form_feedback_evaluation.json").read_text())
-    assert report["model_version"] == "cli-test"
+    assert report["model_version"] == "cli-test+contrast-v1"
     assert report["model_sha256"] == original
     assert hashlib.sha256(model_path.read_bytes()).hexdigest() == original
     assert (output / "form_feedback_evaluation.md").is_file()

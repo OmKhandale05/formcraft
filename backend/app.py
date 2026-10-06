@@ -9,6 +9,7 @@ import joblib
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, StringConstraints, model_validator
+from backend.sentiment import inference_version, predict_feedback
 
 MODEL_PATH = Path(os.getenv("FORMCRAFT_MODEL_PATH", Path(__file__).parent / "artifacts" / "sentiment.joblib"))
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
@@ -55,7 +56,7 @@ app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["POST",
 @app.get("/health")
 def health():
     model = app.state.model
-    return {"ready": model is not None, "model_version": model["version"] if model else None}
+    return {"ready": model is not None, "model_version": inference_version(model["version"]) if model else None}
 
 
 @app.post("/analyze", response_model=AnalyzeResponse)
@@ -63,8 +64,8 @@ def analyze(request: AnalyzeRequest):
     model = app.state.model
     if model is None:
         raise HTTPException(status_code=503, detail="Train the sentiment model before starting the analysis service.")
-    predictions = model["pipeline"].predict([item.text for item in request.items])
+    predictions = predict_feedback(model["pipeline"], [item.text for item in request.items])
     return AnalyzeResponse(
-        model_version=model["version"],
+        model_version=inference_version(model["version"]),
         results=[Prediction(id=item.id, sentiment=str(label)) for item, label in zip(request.items, predictions)],
     )
