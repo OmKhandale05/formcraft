@@ -70,6 +70,7 @@ def test_deployment_config_keeps_main_disabled_and_model_included():
 def test_runtime_dependencies_do_not_include_training_tools():
     runtime = (ROOT / "requirements.txt").read_text()
     assert "scikit-learn==1.6.1" in runtime
+    assert "numpy==2.0.2" in runtime and "scipy==1.13.1" in runtime
     assert not any(package in runtime for package in ("pandas", "pytest", "httpx"))
     assert "-r requirements.txt" in (ROOT / "requirements-dev.txt").read_text()
 
