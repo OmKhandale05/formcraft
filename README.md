@@ -44,6 +44,9 @@ The submissions page works like a lightweight response operations dashboard.
 - Export CSV and JSON
 - Download captured signatures when available
 - Bottom-right action toasts for review, flag, unflag, and archive actions
+- Analyze a selected text field with a Python sentiment model
+- Positive, neutral and negative badges, sentiment filters and response counts
+- Persist analysis locally and include results in CSV/JSON exports
 
 ### Templates
 
@@ -117,6 +120,10 @@ FormCraft includes common fields and advanced product-style fields:
 - **Framer Motion** for subtle UI motion
 - **lucide-react** for icons
 - **localStorage** for local persistence
+- **Python + FastAPI + Uvicorn** for the optional feedback analysis service
+- **scikit-learn** for TF-IDF text features and Logistic Regression
+- **pandas + joblib** for training data preparation and saved model artifacts
+- **pytest + Playwright** for API and feedback workflow checks
 
 ## Project Structure
 
@@ -144,6 +151,13 @@ src/
     form-store      Zustand store and local persistence
   types/
     form            Typed form schema, field, submission, and version models
+backend/
+  train.py          Reproducible sentiment training and evaluation
+  app.py            Validated batch inference API
+  artifacts/        Evaluation report and locally generated model
+  tests/            Training and API tests
+tests/
+  feedback-analysis.mjs  Live browser integration checks
 ```
 
 ## Getting Started
@@ -177,6 +191,44 @@ Run lint:
 ```bash
 npm run lint
 ```
+
+## Smart Feedback Analysis
+
+The optional Python service classifies English feedback as positive, neutral or negative. FormCraft sends only the selected field's text and response identifiers. The service performs inference without storing responses or retraining. Results stay in this browser alongside the existing workspace.
+
+From the repository root:
+
+```bash
+python3 -m venv backend/.venv
+backend/.venv/bin/python -m pip install -r backend/requirements.txt
+backend/.venv/bin/python -m backend.train
+backend/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
+
+Keep that terminal running and start `npm run dev` in another terminal. The frontend connects to `http://localhost:8000` by default. For another API address, set `NEXT_PUBLIC_FEEDBACK_API_URL` using `.env.example` and restart Next.js. The Python service has a separate runtime; deploying the frontend alone does not start it.
+
+To try it:
+
+1. Add a long-answer field to a form and collect a few responses through Preview.
+2. Open Submissions and select that field under Feedback analysis.
+3. Click Analyze feedback, then filter or open responses to review predicted sentiment.
+
+Blank answers are skipped. New responses require another analysis run. Switching fields shows the results for that field; saved results are ignored if the answer text changes. Clearing local submissions also clears the analysis cache. The builder works without the Python service; analysis shows an actionable error when the service is unavailable.
+
+The TF-IDF + Logistic Regression baseline is trained on the licensed TweetEval sentiment subset. On its unseen, deduplicated test split it achieved **59.6% accuracy** and **0.572 macro F1**, compared with a **0.217 macro F1** majority-label baseline. These are tweet benchmark scores, not customer-feedback accuracy. Predictions can be incorrect, especially for sarcasm, mixed sentiment and non-English text.
+
+Read the [Python service guide](backend/README.md) for the ML concepts, dataset attribution and limitations. Full measured results are in [evaluation.json](backend/artifacts/evaluation.json). Training data and binary model artifacts are excluded from Git; train locally before running the service.
+
+### Feedback Checks
+
+```bash
+backend/.venv/bin/python -m pytest backend/tests -q
+npx playwright install chromium
+# Run with both Next.js and the trained Python service already started:
+npm run test:feedback
+```
+
+The browser test uses an isolated workspace, exercises live predictions, filters, persistence, failure handling and mobile layout, and writes local screenshots into ignored `test-results/`.
 
 ## Local Persistence
 
