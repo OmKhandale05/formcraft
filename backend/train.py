@@ -1,7 +1,8 @@
-"""Train a reproducible sentiment baseline on TweetEval's official splits."""
+"""Train the feedback-adapted model, or reproduce the original tweet baseline."""
 
 import hashlib
 import json
+import argparse
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import urlopen
@@ -48,7 +49,7 @@ def build_pipeline():
     ])
 
 
-def main():
+def train_baseline():
     train, train_hashes = load_split("train")
     test, test_hashes = load_split("test")
     # Remove exact overlap so an unseen evaluation text cannot be memorized.
@@ -85,6 +86,17 @@ def main():
     (artifacts / "evaluation.json").write_text(json.dumps(report, indent=2) + "\n")
     print(f"Trained on {len(train):,} examples; evaluated on {len(test):,} unseen examples.")
     print(f"Accuracy: {report['accuracy']:.3f}; macro F1: {report['macro_f1']:.3f}; baseline F1: {report['baseline_macro_f1']:.3f}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--baseline", action="store_true", help="Reproduce the original TweetEval-only model")
+    args = parser.parse_args()
+    if args.baseline:
+        train_baseline()
+    else:
+        from backend.adapt import main as train_adapted
+        train_adapted()
 
 
 if __name__ == "__main__":

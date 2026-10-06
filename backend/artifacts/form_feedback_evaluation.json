@@ -1,56 +1,56 @@
 {
-  "model_version": "tweeteval-tfidf-lr-v1+contrast-v1",
+  "model_version": "feedback-tfidf-lr-v2+contrast-v1",
   "raw_classifier": {
-    "version": "tweeteval-tfidf-lr-v1",
-    "accuracy": 0.7666666666666667,
-    "macro_f1": 0.770427681065979
+    "version": "feedback-tfidf-lr-v2",
+    "accuracy": 0.8666666666666667,
+    "macro_f1": 0.8666145507608922
   },
   "dataset": "FormCraft authored feedback diagnostic v1",
   "provenance": "Synthetic examples authored and labeled by the coding assistant before running predictions. Not collected from users or independently reviewed by human annotators.",
   "labeling_policy": "Positive means explicit satisfaction or praise. Negative means explicit dissatisfaction or an unresolved failure. Neutral means factual information, a request without expressed dissatisfaction, or balanced mixed feedback without a dominant sentiment. Mixed feedback with an unresolved blocking failure is negative. These conventions should be reviewed by humans before a real benchmark is created.",
-  "evaluated_at": "2026-10-06T12:11:14.767762+00:00",
+  "evaluated_at": "2026-10-06T18:47:04.375927+00:00",
   "examples": 60,
   "label_counts": {
     "positive": 20,
     "negative": 20,
     "neutral": 20
   },
-  "accuracy": 0.7833333333333333,
-  "macro_f1": 0.7891488291988917,
+  "accuracy": 0.8833333333333333,
+  "macro_f1": 0.8833333333333333,
   "baseline": {
     "strategy": "Always neutral (fixed before evaluation)",
     "macro_f1": 0.16666666666666666
   },
   "classification_report": {
     "negative": {
-      "precision": 1.0,
-      "recall": 0.7,
-      "f1-score": 0.8235294117647058,
+      "precision": 0.9,
+      "recall": 0.9,
+      "f1-score": 0.9,
       "support": 20.0
     },
     "neutral": {
-      "precision": 0.6296296296296297,
+      "precision": 0.85,
       "recall": 0.85,
-      "f1-score": 0.723404255319149,
+      "f1-score": 0.85,
       "support": 20.0
     },
     "positive": {
-      "precision": 0.8421052631578947,
-      "recall": 0.8,
-      "f1-score": 0.8205128205128205,
+      "precision": 0.9,
+      "recall": 0.9,
+      "f1-score": 0.9,
       "support": 20.0
     },
-    "accuracy": 0.7833333333333333,
+    "accuracy": 0.8833333333333333,
     "macro avg": {
-      "precision": 0.8239116309291749,
-      "recall": 0.7833333333333332,
-      "f1-score": 0.7891488291988917,
+      "precision": 0.8833333333333333,
+      "recall": 0.8833333333333333,
+      "f1-score": 0.8833333333333333,
       "support": 60.0
     },
     "weighted avg": {
-      "precision": 0.8239116309291747,
-      "recall": 0.7833333333333333,
-      "f1-score": 0.7891488291988917,
+      "precision": 0.8833333333333333,
+      "recall": 0.8833333333333333,
+      "f1-score": 0.8833333333333333,
       "support": 60.0
     }
   },
@@ -62,19 +62,19 @@
     ],
     "rows_actual_columns_predicted": [
       [
-        14,
-        6,
+        18,
+        2,
         0
       ],
       [
-        0,
+        1,
         17,
-        3
+        2
       ],
       [
-        0,
-        4,
-        16
+        1,
+        1,
+        18
       ]
     ]
   },
@@ -85,7 +85,7 @@
     },
     "application": {
       "examples": 6,
-      "correct": 4
+      "correct": 6
     },
     "contact": {
       "examples": 5,
@@ -109,7 +109,7 @@
     },
     "payment": {
       "examples": 6,
-      "correct": 5
+      "correct": 6
     },
     "product": {
       "examples": 6,
@@ -121,11 +121,11 @@
     },
     "short": {
       "examples": 4,
-      "correct": 3
+      "correct": 4
     },
     "survey": {
       "examples": 3,
-      "correct": 0
+      "correct": 2
     }
   },
   "predictions": [
@@ -195,9 +195,9 @@
       "label": "positive",
       "category": "application",
       "note": "Satisfied with upload.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "positive",
+      "predicted": "positive",
+      "correct": true
     },
     {
       "id": "p08",
@@ -265,8 +265,8 @@
       "label": "positive",
       "category": "negation",
       "note": "Negated criticism with praise.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
+      "raw_predicted": "negative",
+      "predicted": "negative",
       "correct": false
     },
     {
@@ -325,9 +325,9 @@
       "label": "positive",
       "category": "payment",
       "note": "Explicit appreciation.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "positive",
+      "predicted": "positive",
+      "correct": true
     },
     {
       "id": "n01",
@@ -345,9 +345,9 @@
       "label": "negative",
       "category": "application",
       "note": "Failure and explicit frustration.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "negative",
+      "predicted": "negative",
+      "correct": true
     },
     {
       "id": "n03",
@@ -375,9 +375,9 @@
       "label": "negative",
       "category": "survey",
       "note": "Explicit criticism.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "negative",
+      "predicted": "negative",
+      "correct": true
     },
     {
       "id": "n06",
@@ -485,9 +485,9 @@
       "label": "negative",
       "category": "survey",
       "note": "Explicit annoyance.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "negative",
+      "predicted": "negative",
+      "correct": true
     },
     {
       "id": "n17",
@@ -495,9 +495,9 @@
       "label": "negative",
       "category": "short",
       "note": "Short explicit criticism.",
-      "raw_predicted": "neutral",
-      "predicted": "neutral",
-      "correct": false
+      "raw_predicted": "negative",
+      "predicted": "negative",
+      "correct": true
     },
     {
       "id": "n18",
@@ -685,8 +685,8 @@
       "label": "neutral",
       "category": "mixed",
       "note": "Balanced mixed opinion without dominant sentiment.",
-      "raw_predicted": "positive",
-      "predicted": "positive",
+      "raw_predicted": "negative",
+      "predicted": "negative",
       "correct": false
     },
     {
@@ -740,8 +740,8 @@
   "training_overlap_check": {
     "checked": true,
     "overlap_count": 0,
-    "training_text_sha256": "368f01052ea6fd8ffc408a2a2e6ac9669e31542581a0396ef16591ea26eb98a6"
+    "training_text_sha256": "3331aa2372e6d2c76fd469628058367cea84a81d58a7db38d086dfd1a04bf64a"
   },
   "dataset_sha256": "408ec39b49407f1d84a5a3dc20953d54315d58f8fe410dd29915a54fab472704",
-  "model_sha256": "6c37051bbc1296174b7519bd682c430cd1ca9ff3656747e968adb8b8265b0f79"
+  "model_sha256": "68f0898948fb0b8455fa7e22a539b6f5f42e83c78943f4ca09ad85a883d0cced"
 }

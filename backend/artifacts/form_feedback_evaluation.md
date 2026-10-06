@@ -1,18 +1,18 @@
 # Form Feedback Evaluation
 
-Model: `tweeteval-tfidf-lr-v1+contrast-v1`
+Model: `feedback-tfidf-lr-v2+contrast-v1`
 
 Synthetic examples authored and labeled by the coding assistant before running predictions. Not collected from users or independently reviewed by human annotators.
 
 ## Results
 
 - Examples: 60
-- Correct: 47/60
-- Accuracy: 78.3%
-- Macro F1: 0.789
+- Correct: 53/60
+- Accuracy: 88.3%
+- Macro F1: 0.883
 - Always-neutral baseline macro F1: 0.167
 
-Unadjusted classifier accuracy: 76.7%. The mixed-complaint policy is included in the results above.
+Unadjusted classifier accuracy: 86.7%. The mixed-complaint policy is included in the results above.
 
 Accuracy counts correct predictions. Macro F1 gives each sentiment equal importance.
 
@@ -20,9 +20,9 @@ Accuracy counts correct predictions. Macro F1 gives each sentiment equal importa
 
 | Sentiment | Precision | Recall | F1 | Examples |
 |---|---:|---:|---:|---:|
-| negative | 1.000 | 0.700 | 0.824 | 20 |
-| neutral | 0.630 | 0.850 | 0.723 | 20 |
-| positive | 0.842 | 0.800 | 0.821 | 20 |
+| negative | 0.900 | 0.900 | 0.900 | 20 |
+| neutral | 0.850 | 0.850 | 0.850 | 20 |
+| positive | 0.900 | 0.900 | 0.900 | 20 |
 
 ## Confusion Matrix
 
@@ -30,9 +30,9 @@ Rows are expected labels; columns are model predictions.
 
 | Expected / Predicted | Negative | Neutral | Positive |
 |---|---:|---:|---:|
-| negative | 14 | 6 | 0 |
-| neutral | 0 | 17 | 3 |
-| positive | 0 | 4 | 16 |
+| negative | 18 | 2 | 0 |
+| neutral | 1 | 17 | 2 |
+| positive | 1 | 1 | 18 |
 
 ## By Category
 
@@ -41,17 +41,17 @@ Small category counts are diagnostic, not reliable performance estimates.
 | Category | Correct | Examples |
 |---|---:|---:|
 | accessibility | 3 | 4 |
-| application | 4 | 6 |
+| application | 6 | 6 |
 | contact | 5 | 5 |
 | event | 7 | 8 |
 | mixed | 4 | 6 |
 | mobile | 2 | 3 |
 | negation | 6 | 7 |
-| payment | 5 | 6 |
+| payment | 6 | 6 |
 | product | 6 | 6 |
 | request | 2 | 2 |
-| short | 3 | 4 |
-| survey | 0 | 3 |
+| short | 4 | 4 |
+| survey | 2 | 3 |
 
 ## Mistakes To Review
 
@@ -63,45 +63,13 @@ Expected: **positive**. Predicted: **neutral**.
 
 Label reason: Positive assessment of questions.
 
-### p07: application
-
-> Uploading my resume was smooth and fast.
-
-Expected: **positive**. Predicted: **neutral**.
-
-Label reason: Satisfied with upload.
-
 ### p14: negation
 
 > The process was not confusing at all. Very clear instructions.
 
-Expected: **positive**. Predicted: **neutral**.
+Expected: **positive**. Predicted: **negative**.
 
 Label reason: Negated criticism with praise.
-
-### p20: payment
-
-> The payment receipt was accurate and I appreciate the clear breakdown.
-
-Expected: **positive**. Predicted: **neutral**.
-
-Label reason: Explicit appreciation.
-
-### n02: application
-
-> My resume upload keeps failing. This is frustrating.
-
-Expected: **negative**. Predicted: **neutral**.
-
-Label reason: Failure and explicit frustration.
-
-### n05: survey
-
-> The survey is far too long and the questions are confusing.
-
-Expected: **negative**. Predicted: **neutral**.
-
-Label reason: Explicit criticism.
 
 ### n07: mobile
 
@@ -118,22 +86,6 @@ Label reason: Broken mobile experience.
 Expected: **negative**. Predicted: **neutral**.
 
 Label reason: Explicit confusion.
-
-### n16: survey
-
-> The required questions ask for information that is irrelevant. Very annoying.
-
-Expected: **negative**. Predicted: **neutral**.
-
-Label reason: Explicit annoyance.
-
-### n17: short
-
-> Awful experience.
-
-Expected: **negative**. Predicted: **neutral**.
-
-Label reason: Short explicit criticism.
 
 ### u01: event
 
@@ -155,7 +107,7 @@ Label reason: Explicitly balanced mixed opinion.
 
 > Some parts were good and some were bad. I do not have an overall preference.
 
-Expected: **neutral**. Predicted: **positive**.
+Expected: **neutral**. Predicted: **negative**.
 
 Label reason: Balanced mixed opinion without dominant sentiment.
 

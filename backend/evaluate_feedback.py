@@ -124,15 +124,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, default=ROOT / "evaluation" / "form_feedback.json")
     parser.add_argument("--model", type=Path, default=ROOT / "artifacts" / "sentiment.joblib")
-    parser.add_argument("--training-text", type=Path, default=ROOT / "data" / "train_text.txt")
+    parser.add_argument("--training-text", type=Path, help="Defaults to the training text recorded in model metadata")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "artifacts")
     args = parser.parse_args()
     try:
         dataset = Dataset.model_validate_json(args.dataset.read_text(encoding="utf-8"))
-        overlap = check_overlap(dataset, args.training_text)
         if not args.model.is_file():
             parser.error("Model not found. Run python -m backend.train first.")
-        report = evaluate(dataset, joblib.load(args.model))
+        model = joblib.load(args.model)
+        training_path = args.training_text or ROOT / "data" / model.get("training_text_file", "train_text.txt")
+        overlap = check_overlap(dataset, training_path)
+        report = evaluate(dataset, model)
         report["training_overlap_check"] = overlap
         report["dataset_sha256"] = hashlib.sha256(args.dataset.read_bytes()).hexdigest()
         report["model_sha256"] = hashlib.sha256(args.model.read_bytes()).hexdigest()

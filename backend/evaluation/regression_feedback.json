@@ -1,0 +1,13 @@
+{
+  "name": "Reported feedback regression checks v1",
+  "provenance": "Assistant-labeled development checks based on reported errors and related factual/praise examples. Used for model selection, never an independent accuracy benchmark.",
+  "labeling_policy": "Explicit criticism is negative, explicit praise is positive, and factual statements without expressed opinion are neutral.",
+  "examples": [
+    {"id":"survey-complaint","text":"The survey is far too long and the questions are confusing.","label":"negative","category":"reported-error","note":"Explicit complaints about length and confusing questions."},
+    {"id":"survey-fact","text":"The survey contains 20 questions.","label":"neutral","category":"factual","note":"A count of questions does not express dissatisfaction."},
+    {"id":"survey-praise","text":"The survey is clear and easy to complete.","label":"positive","category":"praise","note":"Explicit praise for clarity and ease."},
+    {"id":"short-fact","text":"this is it","label":"neutral","category":"reported-error","note":"No explicit positive or negative opinion."},
+    {"id":"not-used","text":"I have not used the service yet.","label":"neutral","category":"negation","note":"Not having used the service is factual, not a complaint."},
+    {"id":"resume-failure","text":"My resume upload keeps failing. This is frustrating.","label":"negative","category":"failure","note":"Unresolved failure and explicit frustration."}
+  ]
+}

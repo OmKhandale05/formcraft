@@ -58,3 +58,14 @@ def test_live_artifact_handles_reported_examples():
     model = joblib.load(path)
     texts = ["this is bad", "this is excellent but payment not done", "this is excellent but payemnt not done", "this is excellent and payment was successful"]
     assert predict_feedback(model["pipeline"], texts) == ["negative", "negative", "negative", "positive"]
+
+
+def test_adapted_artifact_handles_survey_complaints_and_neutral_statements():
+    path = ROOT / "artifacts" / "sentiment.joblib"
+    if not path.exists():
+        pytest.skip("Train the model to run this artifact integration check")
+    model = joblib.load(path)
+    if model["version"] != "feedback-tfidf-lr-v2":
+        pytest.skip("This integration check requires the feedback-adapted model")
+    texts = ["The survey is far too long and the questions are confusing.", "The survey contains 20 questions.", "The survey is clear and easy to complete.", "this is it", "I have not used the service yet."]
+    assert predict_feedback(model["pipeline"], texts) == ["negative", "neutral", "positive", "neutral", "neutral"]
