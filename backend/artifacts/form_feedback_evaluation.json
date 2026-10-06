@@ -1,0 +1,681 @@
+{
+  "model_version": "tweeteval-tfidf-lr-v1",
+  "dataset": "FormCraft authored feedback diagnostic v1",
+  "provenance": "Synthetic examples authored and labeled by the coding assistant before running predictions. Not collected from users or independently reviewed by human annotators.",
+  "labeling_policy": "Positive means explicit satisfaction or praise. Negative means explicit dissatisfaction or an unresolved failure. Neutral means factual information, a request without expressed dissatisfaction, or balanced mixed feedback without a dominant sentiment. Mixed feedback with an unresolved blocking failure is negative. These conventions should be reviewed by humans before a real benchmark is created.",
+  "evaluated_at": "2026-10-06T11:36:40.955751+00:00",
+  "examples": 60,
+  "label_counts": {
+    "positive": 20,
+    "negative": 20,
+    "neutral": 20
+  },
+  "accuracy": 0.7666666666666667,
+  "macro_f1": 0.770427681065979,
+  "baseline": {
+    "strategy": "Always neutral (fixed before evaluation)",
+    "macro_f1": 0.16666666666666666
+  },
+  "classification_report": {
+    "negative": {
+      "precision": 1.0,
+      "recall": 0.65,
+      "f1-score": 0.7878787878787878,
+      "support": 20.0
+    },
+    "neutral": {
+      "precision": 0.6296296296296297,
+      "recall": 0.85,
+      "f1-score": 0.723404255319149,
+      "support": 20.0
+    },
+    "positive": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1-score": 0.8,
+      "support": 20.0
+    },
+    "accuracy": 0.7666666666666667,
+    "macro avg": {
+      "precision": 0.8098765432098766,
+      "recall": 0.7666666666666666,
+      "f1-score": 0.770427681065979,
+      "support": 60.0
+    },
+    "weighted avg": {
+      "precision": 0.8098765432098766,
+      "recall": 0.7666666666666667,
+      "f1-score": 0.7704276810659789,
+      "support": 60.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "rows_actual_columns_predicted": [
+      [
+        13,
+        6,
+        1
+      ],
+      [
+        0,
+        17,
+        3
+      ],
+      [
+        0,
+        4,
+        16
+      ]
+    ]
+  },
+  "categories": {
+    "accessibility": {
+      "examples": 4,
+      "correct": 3
+    },
+    "application": {
+      "examples": 6,
+      "correct": 4
+    },
+    "contact": {
+      "examples": 5,
+      "correct": 5
+    },
+    "event": {
+      "examples": 8,
+      "correct": 7
+    },
+    "mixed": {
+      "examples": 6,
+      "correct": 3
+    },
+    "mobile": {
+      "examples": 3,
+      "correct": 2
+    },
+    "negation": {
+      "examples": 7,
+      "correct": 6
+    },
+    "payment": {
+      "examples": 6,
+      "correct": 5
+    },
+    "product": {
+      "examples": 6,
+      "correct": 6
+    },
+    "request": {
+      "examples": 2,
+      "correct": 2
+    },
+    "short": {
+      "examples": 4,
+      "correct": 3
+    },
+    "survey": {
+      "examples": 3,
+      "correct": 0
+    }
+  },
+  "predictions": [
+    {
+      "id": "p01",
+      "text": "The registration form was clear and easy to complete.",
+      "label": "positive",
+      "category": "event",
+      "note": "Explicit praise for registration.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p02",
+      "text": "I loved how quickly I could send my application.",
+      "label": "positive",
+      "category": "application",
+      "note": "Explicit satisfaction.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p03",
+      "text": "Your support team was helpful and solved my problem.",
+      "label": "positive",
+      "category": "contact",
+      "note": "Helpful support with resolved issue.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p04",
+      "text": "The checkout experience was excellent. Everything worked perfectly.",
+      "label": "positive",
+      "category": "payment",
+      "note": "Explicit praise.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p05",
+      "text": "The questions were relevant and the survey was enjoyable.",
+      "label": "positive",
+      "category": "survey",
+      "note": "Positive assessment of questions.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "p06",
+      "text": "Thank you for making the booking process so simple.",
+      "label": "positive",
+      "category": "event",
+      "note": "Gratitude for a simple process.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p07",
+      "text": "Uploading my resume was smooth and fast.",
+      "label": "positive",
+      "category": "application",
+      "note": "Satisfied with upload.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "p08",
+      "text": "I am really happy with the service I received.",
+      "label": "positive",
+      "category": "contact",
+      "note": "Explicit happiness.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p09",
+      "text": "The confirmation arrived immediately, which was great.",
+      "label": "positive",
+      "category": "event",
+      "note": "Positive assessment of confirmation.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p10",
+      "text": "This product has been fantastic for our team.",
+      "label": "positive",
+      "category": "product",
+      "note": "Explicit product praise.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p11",
+      "text": "I would happily recommend this service to a friend.",
+      "label": "positive",
+      "category": "product",
+      "note": "Positive recommendation.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p12",
+      "text": "The form looks professional and works beautifully on my phone.",
+      "label": "positive",
+      "category": "mobile",
+      "note": "Positive mobile experience.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p13",
+      "text": "I had no trouble submitting the form. It worked well.",
+      "label": "positive",
+      "category": "negation",
+      "note": "Negated trouble with explicit success.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p14",
+      "text": "The process was not confusing at all. Very clear instructions.",
+      "label": "positive",
+      "category": "negation",
+      "note": "Negated criticism with praise.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "p15",
+      "text": "The page was a little slow, but overall I am very satisfied.",
+      "label": "positive",
+      "category": "mixed",
+      "note": "Overall satisfaction dominates mild criticism.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p16",
+      "text": "Customer support fixed the earlier issue and now everything is great.",
+      "label": "positive",
+      "category": "mixed",
+      "note": "Past issue resolved; current sentiment positive.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p17",
+      "text": "Wonderful experience! I finished in less than a minute.",
+      "label": "positive",
+      "category": "short",
+      "note": "Explicit praise.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p18",
+      "text": "Excellent service.",
+      "label": "positive",
+      "category": "short",
+      "note": "Short explicit praise.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p19",
+      "text": "The accessible labels made this form much easier for me. Thank you.",
+      "label": "positive",
+      "category": "accessibility",
+      "note": "Explicit gratitude and improvement.",
+      "predicted": "positive",
+      "correct": true
+    },
+    {
+      "id": "p20",
+      "text": "The payment receipt was accurate and I appreciate the clear breakdown.",
+      "label": "positive",
+      "category": "payment",
+      "note": "Explicit appreciation.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n01",
+      "text": "The submit button does not work and I cannot complete my registration.",
+      "label": "negative",
+      "category": "event",
+      "note": "Unresolved blocking failure.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n02",
+      "text": "My resume upload keeps failing. This is frustrating.",
+      "label": "negative",
+      "category": "application",
+      "note": "Failure and explicit frustration.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n03",
+      "text": "Support has ignored my messages and I am disappointed.",
+      "label": "negative",
+      "category": "contact",
+      "note": "Explicit disappointment.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n04",
+      "text": "I was charged twice and still have not received a refund.",
+      "label": "negative",
+      "category": "payment",
+      "note": "Unresolved payment failure.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n05",
+      "text": "The survey is far too long and the questions are confusing.",
+      "label": "negative",
+      "category": "survey",
+      "note": "Explicit criticism.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n06",
+      "text": "I lost all my answers when the page refreshed. Terrible experience.",
+      "label": "negative",
+      "category": "product",
+      "note": "Data loss and explicit criticism.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n07",
+      "text": "The form is broken on my phone and the fields overlap.",
+      "label": "negative",
+      "category": "mobile",
+      "note": "Broken mobile experience.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n08",
+      "text": "I hate having to enter the same information over and over.",
+      "label": "negative",
+      "category": "product",
+      "note": "Explicit dissatisfaction.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n09",
+      "text": "The instructions are unclear and I do not know what to do next.",
+      "label": "negative",
+      "category": "accessibility",
+      "note": "Explicit confusion.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n10",
+      "text": "This service has been awful for our team.",
+      "label": "negative",
+      "category": "product",
+      "note": "Explicit negative assessment.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n11",
+      "text": "I would not recommend this service after such a bad experience.",
+      "label": "negative",
+      "category": "negation",
+      "note": "Negative recommendation.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n12",
+      "text": "I am not happy with the response I received.",
+      "label": "negative",
+      "category": "negation",
+      "note": "Negated happiness.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n13",
+      "text": "The form is not easy to use.",
+      "label": "negative",
+      "category": "negation",
+      "note": "Negated ease of use.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n14",
+      "text": "The design is attractive, but payment fails every time and I cannot book.",
+      "label": "negative",
+      "category": "mixed",
+      "note": "Blocking payment failure dominates praise.",
+      "predicted": "positive",
+      "correct": false
+    },
+    {
+      "id": "n15",
+      "text": "Support was polite, but my issue is still unresolved and I am unhappy.",
+      "label": "negative",
+      "category": "mixed",
+      "note": "Unresolved issue and explicit unhappiness.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n16",
+      "text": "The required questions ask for information that is irrelevant. Very annoying.",
+      "label": "negative",
+      "category": "survey",
+      "note": "Explicit annoyance.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n17",
+      "text": "Awful experience.",
+      "label": "negative",
+      "category": "short",
+      "note": "Short explicit criticism.",
+      "predicted": "neutral",
+      "correct": false
+    },
+    {
+      "id": "n18",
+      "text": "The confirmation email never arrived and I missed the event.",
+      "label": "negative",
+      "category": "event",
+      "note": "Failure with negative consequence.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n19",
+      "text": "I cannot read the pale text. This form is inaccessible to me.",
+      "label": "negative",
+      "category": "accessibility",
+      "note": "Accessibility failure.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "n20",
+      "text": "The application timed out and deleted my work. I am really upset.",
+      "label": "negative",
+      "category": "application",
+      "note": "Data loss and explicit distress.",
+      "predicted": "negative",
+      "correct": true
+    },
+    {
+      "id": "u01",
+      "text": "My preferred appointment date is Monday.",
+      "label": "neutral",
+      "category": "event",
+      "note": "Factual preference.",
+      "predicted": "positive",
+      "correct": false
+    },
+    {
+      "id": "u02",
+      "text": "Our company has twelve employees.",
+      "label": "neutral",
+      "category": "contact",
+      "note": "Factual information.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u03",
+      "text": "I am applying for the frontend developer position.",
+      "label": "neutral",
+      "category": "application",
+      "note": "Factual application intent.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u04",
+      "text": "Please send the receipt to my work email address.",
+      "label": "neutral",
+      "category": "payment",
+      "note": "Request without expressed dissatisfaction.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u05",
+      "text": "I use the product twice a week.",
+      "label": "neutral",
+      "category": "product",
+      "note": "Usage frequency.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u06",
+      "text": "Could you add an option to select multiple dates?",
+      "label": "neutral",
+      "category": "request",
+      "note": "Feature request without sentiment.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u07",
+      "text": "What time does registration close?",
+      "label": "neutral",
+      "category": "event",
+      "note": "Information request.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u08",
+      "text": "I have attached my resume and cover letter.",
+      "label": "neutral",
+      "category": "application",
+      "note": "Factual upload statement.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u09",
+      "text": "The invoice number is 2048.",
+      "label": "neutral",
+      "category": "payment",
+      "note": "Factual identifier.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u10",
+      "text": "Please contact me after three in the afternoon.",
+      "label": "neutral",
+      "category": "contact",
+      "note": "Scheduling request.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u11",
+      "text": "I completed the survey on a mobile device.",
+      "label": "neutral",
+      "category": "mobile",
+      "note": "Factual device information.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u12",
+      "text": "We need five tickets for the workshop.",
+      "label": "neutral",
+      "category": "event",
+      "note": "Factual quantity request.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u13",
+      "text": "I have not used the service yet.",
+      "label": "neutral",
+      "category": "negation",
+      "note": "Negation without a negative opinion.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u14",
+      "text": "There is no additional information to provide.",
+      "label": "neutral",
+      "category": "negation",
+      "note": "Factual absence of information.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u15",
+      "text": "I liked the design and disliked the navigation equally. My overall opinion is neutral.",
+      "label": "neutral",
+      "category": "mixed",
+      "note": "Explicitly balanced mixed opinion.",
+      "predicted": "positive",
+      "correct": false
+    },
+    {
+      "id": "u16",
+      "text": "Some parts were good and some were bad. I do not have an overall preference.",
+      "label": "neutral",
+      "category": "mixed",
+      "note": "Balanced mixed opinion without dominant sentiment.",
+      "predicted": "positive",
+      "correct": false
+    },
+    {
+      "id": "u17",
+      "text": "Tuesday afternoon.",
+      "label": "neutral",
+      "category": "short",
+      "note": "Short factual response.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u18",
+      "text": "I would like pricing information for the team plan.",
+      "label": "neutral",
+      "category": "request",
+      "note": "Information request without sentiment.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u19",
+      "text": "Does the form support keyboard navigation?",
+      "label": "neutral",
+      "category": "accessibility",
+      "note": "Capability question without judgment.",
+      "predicted": "neutral",
+      "correct": true
+    },
+    {
+      "id": "u20",
+      "text": "The payment method I selected was bank transfer.",
+      "label": "neutral",
+      "category": "payment",
+      "note": "Factual method selection.",
+      "predicted": "neutral",
+      "correct": true
+    }
+  ],
+  "limitations": [
+    "Small authored diagnostic set; not real submissions or an independently human-labeled benchmark.",
+    "Label choices for mixed feedback are subjective; review the labeling policy.",
+    "No training or tuning uses this dataset in this script. If it is used to tune a model later, obtain a new untouched test set.",
+    "Scores do not estimate production accuracy."
+  ],
+  "training_overlap_check": {
+    "checked": true,
+    "overlap_count": 0,
+    "training_text_sha256": "368f01052ea6fd8ffc408a2a2e6ac9669e31542581a0396ef16591ea26eb98a6"
+  },
+  "dataset_sha256": "408ec39b49407f1d84a5a3dc20953d54315d58f8fe410dd29915a54fab472704",
+  "model_sha256": "6c37051bbc1296174b7519bd682c430cd1ca9ff3656747e968adb8b8265b0f79"
+}
