@@ -6,6 +6,10 @@ const base = process.env.FORMCRAFT_TEST_URL || "http://localhost:3000";
 const browser = await chromium.launch({ headless: true, channel: "chromium" });
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
 const page = await context.newPage();
+if (process.env.FORMCRAFT_TEST_VERCEL_BYPASS) {
+  const host = new URL(base).host;
+  await page.route((url) => url.host === host, (route) => route.continue({ headers: { ...route.request().headers(), "x-vercel-protection-bypass": process.env.FORMCRAFT_TEST_VERCEL_BYPASS } }));
+}
 const errors = [];
 page.on("pageerror", (error) => errors.push(error.message));
 const stamp = "2026-10-06T09:00:00.000Z";
