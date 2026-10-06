@@ -8,8 +8,10 @@ from typing import Annotated, Literal
 import joblib
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StringConstraints, model_validator
 from backend.sentiment import inference_version, predict_feedback
+from backend.config import allowed_origins
 
 MODEL_PATH = Path(os.getenv("FORMCRAFT_MODEL_PATH", Path(__file__).parent / "artifacts" / "sentiment.joblib"))
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
@@ -49,14 +51,14 @@ async def lifespan(app):
 
 
 app = FastAPI(title="FormCraft Feedback Analysis", version="1.0.0", lifespan=lifespan)
-origins = [origin.strip() for origin in os.getenv("FORMCRAFT_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",") if origin.strip()]
+origins = allowed_origins(os.getenv("FORMCRAFT_ALLOWED_ORIGINS"), production=os.getenv("FORMCRAFT_ENV") == "production")
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["POST", "GET"], allow_headers=["Content-Type"])
 
 
 @app.get("/health")
 def health():
     model = app.state.model
-    return {"ready": model is not None, "model_version": inference_version(model["version"]) if model else None}
+    return JSONResponse(status_code=200 if model else 503, content={"ready": model is not None, "model_version": inference_version(model["version"]) if model else None})
 
 
 @app.post("/analyze", response_model=AnalyzeResponse)

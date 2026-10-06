@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: formcraft-feedback-api
+    runtime: python
+    plan: free
+    branch: ml_feedback
+    autoDeployTrigger: "off"
+    buildCommand: bash backend/scripts/build.sh
+    startCommand: python -m backend.serve
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: FORMCRAFT_ENV
+        value: production
+      - key: FORMCRAFT_ALLOWED_ORIGINS
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"

@@ -34,6 +34,7 @@ def test_invalid_requests_are_rejected(client, items):
 def test_missing_model_returns_actionable_error(tmp_path, monkeypatch):
     monkeypatch.setattr(service, "MODEL_PATH", tmp_path / "missing.joblib")
     with TestClient(service.app) as client:
+        assert client.get("/health").status_code == 503
         assert client.get("/health").json()["ready"] is False
         assert client.post("/analyze", json={"items": [{"id": "a", "text": "hello"}]}).status_code == 503
 

@@ -49,7 +49,7 @@ export function useFeedbackAnalysis() {
     try {
       for (let offset = 0; offset < eligible.length; offset += 100) {
         const batch = eligible.slice(offset, offset + 100);
-        const timeout = setTimeout(() => controller.abort(), 30000);
+        const timeout = setTimeout(() => controller.abort(), 120000);
         let result;
         try {
           result = await analyzeBatch(batch.map((item) => ({ id: item.id, text: feedbackText(item, fieldId) })), controller.signal);
