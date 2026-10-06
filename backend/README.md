@@ -31,3 +31,27 @@ Dataset: [TweetEval](https://github.com/cardiffnlp/tweeteval), by Francesco Barb
 The [dataset card](https://huggingface.co/datasets/cardiffnlp/tweet_eval) lists the sentiment subset as **CC BY 3.0** and describes source Twitter terms. Downloaded texts are not committed or displayed in FormCraft.
 
 This is an English tweet-domain baseline. Benchmark scores are not evidence of accuracy on customer feedback. A future improvement is evaluating on independently labeled form feedback. Sarcasm, mixed sentiment, unfamiliar vocabulary and other languages may produce incorrect results. Model probabilities are not calibrated confidence estimates.
+
+## Run The API
+
+After training, run from the repository root:
+
+```bash
+backend/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
+
+Interactive API documentation: `http://localhost:8000/docs`. `GET /health` reports whether the model is ready. `POST /analyze` accepts up to 100 `{id, text}` objects and returns sentiment labels alongside the same identifiers and a model version. Text is limited to 5,000 characters per item. Blank text and duplicate IDs are rejected.
+
+```json
+{"items": [{"id": "response-1", "text": "The registration was easy."}]}
+```
+
+The service does not save submitted text or train on it. Inference uses the artifact loaded once at startup. If it is missing, analysis returns HTTP 503 with a training instruction.
+
+Set `FORMCRAFT_ALLOWED_ORIGINS` to a comma-separated list of frontend origins for another environment. Local ports 3000 and 3001 are allowed by default. Set `FORMCRAFT_MODEL_PATH` only to a trusted model artifact you trained.
+
+Run tests:
+
+```bash
+backend/.venv/bin/python -m pytest backend/tests -q
+```
