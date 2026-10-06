@@ -219,6 +219,16 @@ The TF-IDF + Logistic Regression baseline is trained on the licensed TweetEval s
 
 Read the [Python service guide](backend/README.md) for the ML concepts, dataset attribution and limitations. Full measured results are in [evaluation.json](backend/artifacts/evaluation.json). Training data and binary model artifacts are excluded from Git; train locally before running the service.
 
+### Form Feedback Evaluation
+
+Evaluate the frozen model against 60 authored form-style examples:
+
+```bash
+backend/.venv/bin/python -m backend.evaluate_feedback
+```
+
+The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **46/60 correct (76.7%)**, per-sentiment metrics and every mistake. These are synthetic examples with assistant-authored labels, not a real customer benchmark. Negative recall is **65%**, highlighting missed complaints. The model is not retrained by this evaluation. See the Python guide to evaluate your own separately labeled examples.
+
 ### Feedback Checks
 
 ```bash
