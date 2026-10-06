@@ -8,3 +8,8 @@ coverage
 !.env.example
 *.log
 .DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+backend/data/
+backend/artifacts/*.joblib
