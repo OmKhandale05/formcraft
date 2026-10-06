@@ -96,6 +96,8 @@ export function Select({ className, children, id, value, defaultValue, onChange,
       </select>
       <button
         type="button"
+        aria-label={props["aria-label"]}
+        aria-labelledby={props["aria-labelledby"]}
         aria-controls={`${selectId}-menu`}
         aria-expanded={open}
         aria-haspopup="listbox"

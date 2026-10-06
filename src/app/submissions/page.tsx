@@ -23,10 +23,13 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppShell } from "@/components/app-shell";
+import { FeedbackAnalysis, SentimentBadge } from "@/components/submissions/feedback-analysis";
+import { useFeedbackAnalysis } from "@/components/submissions/use-feedback-analysis";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { downloadFile, formatTimestamp, toCsv } from "@/lib/utils";
 import { useFormStore } from "@/store/form-store";
+import { currentAnalysis, feedbackText, type SentimentFilter } from "@/lib/sentiment";
 import type { FieldType, FormField, Submission } from "@/types/form";
 
 type SubmissionStatus = "new" | "reviewed" | "archived";
@@ -284,6 +287,18 @@ export default function SubmissionsPage() {
   const [toastReady, setToastReady] = useState(false);
   const [submissionToast, setSubmissionToast] = useState<SubmissionToast | null>(null);
   const answerMeta = useMemo(() => answerMetaFor(form.fields), [form.fields]);
+  const feedback = useFeedbackAnalysis();
+  const [feedbackFieldId, setFeedbackFieldId] = useState("");
+  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>("all");
+  const feedbackFields = form.fields.filter((field) => field.type === "text" || field.type === "textarea");
+  const activeFeedbackField = feedbackFields.find((field) => field.id === feedbackFieldId)?.id ?? feedbackFields.find((field) => field.type === "textarea")?.id ?? feedbackFields[0]?.id ?? "";
+  const feedbackSubmissions = submissions.filter((submission) => submission.formId === form.id);
+  const eligibleFeedback = feedbackSubmissions.filter((submission) => feedbackText(submission, activeFeedbackField));
+  const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+  eligibleFeedback.forEach((submission) => {
+    const analysis = currentAnalysis(feedback.saved, submission, activeFeedbackField);
+    if (analysis) sentimentCounts[analysis.sentiment]++;
+  });
 
   useEffect(() => {
     window.requestAnimationFrame(() => setToastReady(true));
@@ -369,11 +384,13 @@ export default function SubmissionsPage() {
           (view === "flagged" && itemMeta?.flagged) ||
           (view !== "flagged" && status === view);
         const matchesDate = withinDateFilter(submission, dateFilter);
+        const analysis = currentAnalysis(feedback.saved, submission, activeFeedbackField);
+        const matchesSentiment = sentimentFilter === "all" || (submission.formId === form.id && (sentimentFilter === "unanalyzed" ? !analysis : analysis?.sentiment === sentimentFilter));
         const submissionType = submissionTypeFor(submission, answerMeta, form.title);
         const searchable = `${submission.id} ${submission.submittedAt} ${status} ${itemMeta?.note ?? ""} ${Object.entries(submission.values)
           .map(([key, value]) => `${answerMeta[key]?.label ?? key} ${valueToText(value)}`)
           .join(" ")} ${submissionType.label} ${submissionType.reason}`.toLowerCase();
-        return matchesView && matchesDate && searchable.includes(normalizedQuery);
+        return matchesView && matchesDate && matchesSentiment && searchable.includes(normalizedQuery);
       })
       .sort((a, b) => {
         if (sortMode === "filled") return filledCount(b) - filledCount(a);
@@ -381,7 +398,7 @@ export default function SubmissionsPage() {
         const dateB = new Date(b.submittedAt).getTime();
         return sortMode === "oldest" ? dateA - dateB : dateB - dateA;
       });
-  }, [answerMeta, dateFilter, form.title, meta, query, sortMode, submissions, view]);
+  }, [activeFeedbackField, answerMeta, dateFilter, feedback.saved, form.id, form.title, meta, query, sentimentFilter, sortMode, submissions, view]);
 
   const selectedRows = rows.filter((submission) => selectedIds.includes(submission.id));
   const newCount = submissions.filter((submission) => statusFor(meta[submission.id]) === "new").length;
@@ -398,8 +415,12 @@ export default function SubmissionsPage() {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
   };
 
-  const exportCsv = (items: Submission[]) => downloadFile("formcraft-submissions.csv", toCsv(exportRows(items, meta)), "text/csv");
-  const exportJson = (items: Submission[]) => downloadFile("formcraft-submissions.json", JSON.stringify(exportRows(items, meta), null, 2), "application/json");
+  const rowsWithAnalysis = (items: Submission[]) => exportRows(items, meta).map((row, index) => {
+    const analysis = currentAnalysis(feedback.saved, items[index], activeFeedbackField);
+    return { ...row, feedback_sentiment: analysis?.sentiment ?? "", feedback_field: activeFeedbackField, feedback_model: analysis?.modelVersion ?? "", feedback_analyzed_at: analysis?.analyzedAt ?? "" };
+  });
+  const exportCsv = (items: Submission[]) => downloadFile("formcraft-submissions.csv", toCsv(rowsWithAnalysis(items)), "text/csv");
+  const exportJson = (items: Submission[]) => downloadFile("formcraft-submissions.json", JSON.stringify(rowsWithAnalysis(items), null, 2), "application/json");
 
   const copySelectedJson = async (submission: Submission) => {
     await navigator.clipboard.writeText(JSON.stringify({ ...submission, meta: meta[submission.id] ?? { status: "new" } }, null, 2));
@@ -456,6 +477,21 @@ export default function SubmissionsPage() {
               );
             })}
           </div>
+          <FeedbackAnalysis
+            fields={feedbackFields}
+            fieldId={activeFeedbackField}
+            onFieldChange={(id) => { feedback.cancel(); setFeedbackFieldId(id); setSentimentFilter("all"); setSelectedIds([]); }}
+            filter={sentimentFilter}
+            onFilterChange={(filter) => { setSentimentFilter(filter); setSelectedIds([]); }}
+            counts={sentimentCounts}
+            eligible={eligibleFeedback.length}
+            busy={feedback.busy}
+            ready={feedback.ready}
+            progress={feedback.progress}
+            error={feedback.error}
+            notice={feedback.notice}
+            onAnalyze={() => void feedback.analyze(feedbackSubmissions, activeFeedbackField)}
+          />
         </section>
 
         <section className="mx-auto mt-6 grid max-w-7xl gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -552,6 +588,7 @@ export default function SubmissionsPage() {
                         <th className="px-4 py-3">Submitted</th>
                         <th className="px-4 py-3">Status</th>
                         <th className="px-4 py-3">Submission type</th>
+                        <th className="px-4 py-3">Sentiment</th>
                         <th className="px-4 py-3">Completeness</th>
                         <th className="px-4 py-3 text-right">Action</th>
                       </tr>
@@ -596,6 +633,9 @@ export default function SubmissionsPage() {
                               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${submissionType.tone}`}>{submissionType.label}</span>
                               <p className="mt-2 text-sm leading-5 text-[#667085]">{submissionType.reason}</p>
                               {itemMeta?.note && <p className="mt-2 text-xs font-medium text-[#667085]">Note: {itemMeta.note}</p>}
+                            </td>
+                            <td className="px-4 py-4">
+                              <SentimentBadge sentiment={submission.formId === form.id ? currentAnalysis(feedback.saved, submission, activeFeedbackField)?.sentiment : undefined} />
                             </td>
                             <td className="px-4 py-4">
                               <div className="flex items-center gap-2">
@@ -699,7 +739,7 @@ export default function SubmissionsPage() {
                   <FileJson size={16} />
                   Export current JSON
                 </Button>
-                <Button variant="danger" onClick={clearSubmissions} disabled={!submissions.length}>
+                <Button variant="danger" onClick={() => { feedback.clear(); clearSubmissions(); setSelectedIds([]); setSentimentFilter("all"); }} disabled={!submissions.length}>
                   <Trash2 size={16} />
                   Clear local submissions
                 </Button>
@@ -813,6 +853,12 @@ export default function SubmissionsPage() {
                             </span>
                           </div>
                           <AnswerValue label={itemMeta.label} type={itemMeta.type} value={value} />
+                          {key === activeFeedbackField && selected.formId === form.id && currentAnalysis(feedback.saved, selected, key) && (
+                            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#eef2f7] pt-3">
+                              <SentimentBadge sentiment={currentAnalysis(feedback.saved, selected, key)?.sentiment} />
+                              <span className="text-xs text-[#667085]">Predicted sentiment</span>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
