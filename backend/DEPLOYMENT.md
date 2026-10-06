@@ -70,7 +70,7 @@ After the branch preview and hosted API pass final testing, merge `ml_feedback` 
 
 | Symptom | What to check |
 |---|---|
-| Build fails downloading data | Retry the build; training requires access to the pinned public TweetEval files. |
+| Build fails downloading data | Retry the build; training requires access to pinned public TweetEval files and the CRSD review CSV. |
 | Missing model / unhealthy service | Confirm the build ran `python -m backend.train` and the root directory is empty. |
 | Startup fails on origins | Set exact frontend URLs in `FORMCRAFT_ALLOWED_ORIGINS`; production requires this value. |
 | Browser cannot reach analysis | Check HTTPS API URL, allowed frontend origin, service readiness and any host access restrictions. |

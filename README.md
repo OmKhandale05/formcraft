@@ -215,9 +215,9 @@ To try it:
 
 Blank answers are skipped. New responses require another analysis run. Switching fields shows the results for that field; saved results are ignored if the answer text changes. Clearing local submissions also clears the analysis cache. The builder works without the Python service; analysis shows an actionable error when the service is unavailable.
 
-The TF-IDF + Logistic Regression baseline is trained on the licensed TweetEval sentiment subset. On its unseen, deduplicated test split it achieved **59.6% accuracy** and **0.572 macro F1**, compared with a **0.217 macro F1** majority-label baseline. These are tweet benchmark scores, not customer-feedback accuracy. Predictions can be incorrect, especially for sarcasm, mixed sentiment and non-English text.
+The current TF-IDF + Logistic Regression model combines TweetEval with lightly weighted CRSD synthetic customer reviews. Validation and known regression checks choose between five weights, preserving neutral examples while improving complaint detection. On held-out tweet examples, it achieves **59.7% accuracy** and **0.580 macro F1**; on held-out synthetic review-generator groups it achieves **51.2% accuracy** and **0.494 macro F1**. These are not customer-feedback production accuracy claims. Predictions can be incorrect, especially for sarcasm, negation, mixed sentiment and non-English text.
 
-Read the [Python service guide](backend/README.md) for the ML concepts, dataset attribution and limitations. Full measured results are in [evaluation.json](backend/artifacts/evaluation.json). Training data and binary model artifacts are excluded from Git; train locally before running the service.
+Read the [Python service guide](backend/README.md) for the ML concepts and [dataset attribution](backend/DATASETS.md) for sources and limitations. Current comparisons are in [adaptation_evaluation.json](backend/artifacts/adaptation_evaluation.json); [evaluation.json](backend/artifacts/evaluation.json) preserves the original tweet-only baseline. Training data and binary model artifacts are excluded from Git; train locally before running the service.
 
 ### Form Feedback Evaluation
 
@@ -227,7 +227,7 @@ Evaluate the frozen model against 60 authored form-style examples:
 backend/.venv/bin/python -m backend.evaluate_feedback
 ```
 
-The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **47/60 correct (78.3%)** with the mixed-complaint policy, versus **46/60** for the unadjusted classifier. Negative recall is **70%**, so complaints are still missed. These synthetic examples have assistant-authored labels and were used to develop the policy; they are not an untouched customer benchmark. The classifier is not retrained by evaluation. See the Python guide to evaluate your own separately labeled examples.
+The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **53/60 correct (88.3%)** with the adapted model and mixed-complaint policy, up from 47/60 for the previous service. Negative recall is **90%** in this small set, so complaints are still missed. These synthetic examples have assistant-authored labels and were inspected during development; they are not an untouched customer benchmark. The classifier is not retrained by evaluation. See the Python guide to evaluate your own separately labeled examples.
 
 Inference combines ML with a narrow product rule: praise followed by an explicit unresolved payment complaint, such as "excellent but payment not done", takes priority as Negative. This does not guarantee correct interpretation of all mixed feedback. Click Analyze feedback again to refresh previously saved results after a service update.
 
