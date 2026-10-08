@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:feedback": "node tests/feedback-analysis.mjs",
+    "test:feedback-proxy": "node --experimental-strip-types tests/feedback-proxy.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "latest",
@@ -32,6 +34,7 @@
     "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
+    "playwright": "^1.62.1",
     "tailwindcss": "latest",
     "typescript": "latest"
   }

@@ -1,0 +1,84 @@
+{
+  "model_version": "tweeteval-tfidf-lr-v1",
+  "trained_at": "2026-10-06T10:56:16.108182+00:00",
+  "dataset": "TweetEval sentiment",
+  "dataset_revision": "4fbd22cd78421f05b1ecdb4fc5725bc7a7bd8f66",
+  "source": "https://github.com/cardiffnlp/tweeteval",
+  "license": "CC BY 3.0 (sentiment subset); see dataset card for source terms",
+  "language": "English",
+  "sklearn_version": "1.6.1",
+  "train_examples": 45587,
+  "test_examples": 12284,
+  "split": "Official train/test; duplicate texts and train/test overlap removed",
+  "accuracy": 0.5957342885053728,
+  "macro_f1": 0.571889977282246,
+  "baseline_macro_f1": 0.217221886833873,
+  "classification_report": {
+    "negative": {
+      "precision": 0.6706948640483383,
+      "recall": 0.39123867069486407,
+      "f1-score": 0.4941962156145651,
+      "support": 3972.0
+    },
+    "neutral": {
+      "precision": 0.5981697171381032,
+      "recall": 0.7266296109146033,
+      "f1-score": 0.6561715719826603,
+      "support": 5937.0
+    },
+    "positive": {
+      "precision": 0.5263157894736842,
+      "recall": 0.6105263157894737,
+      "f1-score": 0.5653021442495126,
+      "support": 2375.0
+    },
+    "accuracy": 0.5957342885053728,
+    "macro avg": {
+      "precision": 0.5983934568867085,
+      "recall": 0.5761315324663138,
+      "f1-score": 0.571889977282246,
+      "support": 12284.0
+    },
+    "weighted avg": {
+      "precision": 0.6077282327131975,
+      "recall": 0.5957342885053728,
+      "f1-score": 0.5862284747537203,
+      "support": 12284.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "rows_actual_columns_predicted": [
+      [
+        1554,
+        2060,
+        358
+      ],
+      [
+        676,
+        4314,
+        947
+      ],
+      [
+        87,
+        838,
+        1450
+      ]
+    ]
+  },
+  "dataset_sha256": {
+    "train_text.txt": "368f01052ea6fd8ffc408a2a2e6ac9669e31542581a0396ef16591ea26eb98a6",
+    "train_labels.txt": "122bfb1732fb6995b0e5c5f726c0ba457c469c3b6e60513007ce5037f23e65d4",
+    "test_text.txt": "09a93a55c63fd93f97485ef7302889d7edb4091cd49733aa37da094f0bfa0675",
+    "test_labels.txt": "6afb4afe9374d1f983bcf9a7c79b108d0f37fdf020a83f30488309bed215db9d"
+  },
+  "limitations": [
+    "Tweet data differs from form feedback; these scores do not measure customer-feedback accuracy.",
+    "English only; sarcasm, mixed sentiment and short messages can be misclassified.",
+    "Model probabilities are not calibrated confidence scores."
+  ]
+}

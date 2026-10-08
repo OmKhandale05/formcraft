@@ -1,0 +1,1146 @@
+{
+  "model_version": "feedback-tfidf-lr-v2",
+  "trained_at": "2026-10-06T18:46:33.798692+00:00",
+  "selection": "Highest mean tweet/review validation macro F1 among review weights 0, 0.5, 1, 2, 6, subject to passing six known development regressions and keeping tweet validation neutral recall within 3 percentage points of baseline. Neither test set nor the original 60-example diagnostic score determines selection.",
+  "regression_dataset_sha256": "05c7bfd76804eb142e60c8e784343425dfde08ec4ab93c1fd167727cde5b0e2e",
+  "selected_review_weight": 0.5,
+  "candidates": [
+    {
+      "review_weight": 0,
+      "validation_score": 0.6338482168446075,
+      "tweet_validation": {
+        "examples": 2000,
+        "accuracy": 0.684,
+        "macro_f1": 0.641333139908418,
+        "negative_recall": 0.4230769230769231,
+        "neutral_recall": 0.7468354430379747,
+        "classification_report": {
+          "negative": {
+            "precision": 0.5945945945945946,
+            "recall": 0.4230769230769231,
+            "f1-score": 0.4943820224719101,
+            "support": 312.0
+          },
+          "neutral": {
+            "precision": 0.649,
+            "recall": 0.7468354430379747,
+            "f1-score": 0.6944890315676833,
+            "support": 869.0
+          },
+          "positive": {
+            "precision": 0.7544987146529563,
+            "recall": 0.7167277167277167,
+            "f1-score": 0.7351283656856606,
+            "support": 819.0
+          },
+          "accuracy": 0.684,
+          "macro avg": {
+            "precision": 0.666031103082517,
+            "recall": 0.6288800276142048,
+            "f1-score": 0.641333139908418,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 0.6837144804071423,
+            "recall": 0.684,
+            "f1-score": 0.6799141454700544,
+            "support": 2000.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              132,
+              145,
+              35
+            ],
+            [
+              64,
+              649,
+              156
+            ],
+            [
+              26,
+              206,
+              587
+            ]
+          ]
+        }
+      },
+      "review_validation": {
+        "examples": 1761,
+        "accuracy": 0.6422487223168655,
+        "macro_f1": 0.6263632937807969,
+        "negative_recall": 0.5676126878130217,
+        "neutral_recall": 0.4708171206225681,
+        "classification_report": {
+          "negative": {
+            "precision": 0.776255707762557,
+            "recall": 0.5676126878130217,
+            "f1-score": 0.6557377049180327,
+            "support": 599.0
+          },
+          "neutral": {
+            "precision": 0.5116279069767442,
+            "recall": 0.4708171206225681,
+            "f1-score": 0.49037487335359675,
+            "support": 514.0
+          },
+          "positive": {
+            "precision": 0.6458823529411765,
+            "recall": 0.8472222222222222,
+            "f1-score": 0.732977303070761,
+            "support": 648.0
+          },
+          "accuracy": 0.6422487223168655,
+          "macro avg": {
+            "precision": 0.6445886558934926,
+            "recall": 0.6285506768859374,
+            "f1-score": 0.6263632937807969,
+            "support": 1761.0
+          },
+          "weighted avg": {
+            "precision": 0.6510424064972746,
+            "recall": 0.6422487223168655,
+            "f1-score": 0.6358937322768333,
+            "support": 1761.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              340,
+              160,
+              99
+            ],
+            [
+              70,
+              242,
+              202
+            ],
+            [
+              28,
+              71,
+              549
+            ]
+          ]
+        }
+      },
+      "regressions": [
+        {
+          "id": "survey-complaint",
+          "expected": "negative",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-praise",
+          "expected": "positive",
+          "predicted": "positive"
+        },
+        {
+          "id": "short-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "not-used",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "resume-failure",
+          "expected": "negative",
+          "predicted": "neutral"
+        }
+      ],
+      "regressions_passed": false,
+      "eligible": false
+    },
+    {
+      "review_weight": 0.5,
+      "validation_score": 0.7195287338999241,
+      "tweet_validation": {
+        "examples": 2000,
+        "accuracy": 0.675,
+        "macro_f1": 0.6324715463458995,
+        "negative_recall": 0.4166666666666667,
+        "neutral_recall": 0.7433831990794016,
+        "classification_report": {
+          "negative": {
+            "precision": 0.5829596412556054,
+            "recall": 0.4166666666666667,
+            "f1-score": 0.48598130841121495,
+            "support": 312.0
+          },
+          "neutral": {
+            "precision": 0.6396039603960396,
+            "recall": 0.7433831990794016,
+            "f1-score": 0.6875997871208089,
+            "support": 869.0
+          },
+          "positive": {
+            "precision": 0.7483702737940026,
+            "recall": 0.7008547008547008,
+            "f1-score": 0.7238335435056746,
+            "support": 819.0
+          },
+          "accuracy": 0.675,
+          "macro avg": {
+            "precision": 0.6569779584818826,
+            "recall": 0.6203015222002564,
+            "f1-score": 0.6324715463458995,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 0.6753072519465977,
+            "recall": 0.675,
+            "f1-score": 0.6709850276817149,
+            "support": 2000.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              130,
+              144,
+              38
+            ],
+            [
+              68,
+              646,
+              155
+            ],
+            [
+              25,
+              220,
+              574
+            ]
+          ]
+        }
+      },
+      "review_validation": {
+        "examples": 1761,
+        "accuracy": 0.8131743327654741,
+        "macro_f1": 0.8065859214539488,
+        "negative_recall": 0.8647746243739566,
+        "neutral_recall": 0.6809338521400778,
+        "classification_report": {
+          "negative": {
+            "precision": 0.8590381426202321,
+            "recall": 0.8647746243739566,
+            "f1-score": 0.8618968386023295,
+            "support": 599.0
+          },
+          "neutral": {
+            "precision": 0.7760532150776053,
+            "recall": 0.6809338521400778,
+            "f1-score": 0.7253886010362695,
+            "support": 514.0
+          },
+          "positive": {
+            "precision": 0.7977369165487977,
+            "recall": 0.8703703703703703,
+            "f1-score": 0.8324723247232473,
+            "support": 648.0
+          },
+          "accuracy": 0.8131743327654741,
+          "macro avg": {
+            "precision": 0.8109427580822116,
+            "recall": 0.8053596156281349,
+            "f1-score": 0.8065859214539488,
+            "support": 1761.0
+          },
+          "weighted avg": {
+            "precision": 0.8122593537211975,
+            "recall": 0.8131743327654741,
+            "f1-score": 0.8112254478569575,
+            "support": 1761.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              518,
+              51,
+              30
+            ],
+            [
+              51,
+              350,
+              113
+            ],
+            [
+              34,
+              50,
+              564
+            ]
+          ]
+        }
+      },
+      "regressions": [
+        {
+          "id": "survey-complaint",
+          "expected": "negative",
+          "predicted": "negative"
+        },
+        {
+          "id": "survey-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-praise",
+          "expected": "positive",
+          "predicted": "positive"
+        },
+        {
+          "id": "short-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "not-used",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "resume-failure",
+          "expected": "negative",
+          "predicted": "negative"
+        }
+      ],
+      "regressions_passed": true,
+      "eligible": true
+    },
+    {
+      "review_weight": 1,
+      "validation_score": 0.7313169912078499,
+      "tweet_validation": {
+        "examples": 2000,
+        "accuracy": 0.674,
+        "macro_f1": 0.6311236365845967,
+        "negative_recall": 0.4166666666666667,
+        "neutral_recall": 0.7364787111622555,
+        "classification_report": {
+          "negative": {
+            "precision": 0.5752212389380531,
+            "recall": 0.4166666666666667,
+            "f1-score": 0.483271375464684,
+            "support": 312.0
+          },
+          "neutral": {
+            "precision": 0.6432160804020101,
+            "recall": 0.7364787111622555,
+            "f1-score": 0.6866952789699571,
+            "support": 869.0
+          },
+          "positive": {
+            "precision": 0.7419768934531451,
+            "recall": 0.7057387057387058,
+            "f1-score": 0.723404255319149,
+            "support": 819.0
+          },
+          "accuracy": 0.674,
+          "macro avg": {
+            "precision": 0.6534714042644026,
+            "recall": 0.619628027855876,
+            "f1-score": 0.6311236365845967,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 0.6730514380780726,
+            "recall": 0.674,
+            "f1-score": 0.6699934758381286,
+            "support": 2000.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              130,
+              140,
+              42
+            ],
+            [
+              70,
+              640,
+              159
+            ],
+            [
+              26,
+              215,
+              578
+            ]
+          ]
+        }
+      },
+      "review_validation": {
+        "examples": 1761,
+        "accuracy": 0.8364565587734242,
+        "macro_f1": 0.8315103458311031,
+        "negative_recall": 0.8781302170283807,
+        "neutral_recall": 0.7276264591439688,
+        "classification_report": {
+          "negative": {
+            "precision": 0.8665568369028006,
+            "recall": 0.8781302170283807,
+            "f1-score": 0.8723051409618574,
+            "support": 599.0
+          },
+          "neutral": {
+            "precision": 0.8165938864628821,
+            "recall": 0.7276264591439688,
+            "f1-score": 0.7695473251028807,
+            "support": 514.0
+          },
+          "positive": {
+            "precision": 0.8232758620689655,
+            "recall": 0.8842592592592593,
+            "f1-score": 0.8526785714285714,
+            "support": 648.0
+          },
+          "accuracy": 0.8364565587734242,
+          "macro avg": {
+            "precision": 0.8354755284782162,
+            "recall": 0.8300053118105364,
+            "f1-score": 0.8315103458311031,
+            "support": 1761.0
+          },
+          "weighted avg": {
+            "precision": 0.8360474512023786,
+            "recall": 0.8364565587734242,
+            "f1-score": 0.8350901867261484,
+            "support": 1761.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              526,
+              40,
+              33
+            ],
+            [
+              50,
+              374,
+              90
+            ],
+            [
+              31,
+              44,
+              573
+            ]
+          ]
+        }
+      },
+      "regressions": [
+        {
+          "id": "survey-complaint",
+          "expected": "negative",
+          "predicted": "negative"
+        },
+        {
+          "id": "survey-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-praise",
+          "expected": "positive",
+          "predicted": "positive"
+        },
+        {
+          "id": "short-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "not-used",
+          "expected": "neutral",
+          "predicted": "negative"
+        },
+        {
+          "id": "resume-failure",
+          "expected": "negative",
+          "predicted": "negative"
+        }
+      ],
+      "regressions_passed": false,
+      "eligible": false
+    },
+    {
+      "review_weight": 2,
+      "validation_score": 0.7376892799875611,
+      "tweet_validation": {
+        "examples": 2000,
+        "accuracy": 0.671,
+        "macro_f1": 0.6280962102559594,
+        "negative_recall": 0.41346153846153844,
+        "neutral_recall": 0.7307249712313003,
+        "classification_report": {
+          "negative": {
+            "precision": 0.5707964601769911,
+            "recall": 0.41346153846153844,
+            "f1-score": 0.4795539033457249,
+            "support": 312.0
+          },
+          "neutral": {
+            "precision": 0.6381909547738693,
+            "recall": 0.7307249712313003,
+            "f1-score": 0.6813304721030042,
+            "support": 869.0
+          },
+          "positive": {
+            "precision": 0.7419768934531451,
+            "recall": 0.7057387057387058,
+            "f1-score": 0.723404255319149,
+            "support": 819.0
+          },
+          "accuracy": 0.671,
+          "macro avg": {
+            "precision": 0.6503214361346684,
+            "recall": 0.6166417384771815,
+            "f1-score": 0.6280962102559594,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 0.6701777555059197,
+            "recall": 0.671,
+            "f1-score": 0.6670825416038799,
+            "support": 2000.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              129,
+              144,
+              39
+            ],
+            [
+              72,
+              635,
+              162
+            ],
+            [
+              25,
+              216,
+              578
+            ]
+          ]
+        }
+      },
+      "review_validation": {
+        "examples": 1761,
+        "accuracy": 0.8517887563884157,
+        "macro_f1": 0.8472823497191627,
+        "negative_recall": 0.8914858096828047,
+        "neutral_recall": 0.7470817120622568,
+        "classification_report": {
+          "negative": {
+            "precision": 0.8782894736842105,
+            "recall": 0.8914858096828047,
+            "f1-score": 0.8848384424192212,
+            "support": 599.0
+          },
+          "neutral": {
+            "precision": 0.8402625820568927,
+            "recall": 0.7470817120622568,
+            "f1-score": 0.7909371781668383,
+            "support": 514.0
+          },
+          "positive": {
+            "precision": 0.8362068965517241,
+            "recall": 0.8981481481481481,
+            "f1-score": 0.8660714285714286,
+            "support": 648.0
+          },
+          "accuracy": 0.8517887563884157,
+          "macro avg": {
+            "precision": 0.8515863174309425,
+            "recall": 0.8455718899644031,
+            "f1-score": 0.8472823497191627,
+            "support": 1761.0
+          },
+          "weighted avg": {
+            "precision": 0.8517049579100524,
+            "recall": 0.8517887563884157,
+            "f1-score": 0.8505248281096843,
+            "support": 1761.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              534,
+              33,
+              32
+            ],
+            [
+              48,
+              384,
+              82
+            ],
+            [
+              26,
+              40,
+              582
+            ]
+          ]
+        }
+      },
+      "regressions": [
+        {
+          "id": "survey-complaint",
+          "expected": "negative",
+          "predicted": "negative"
+        },
+        {
+          "id": "survey-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-praise",
+          "expected": "positive",
+          "predicted": "positive"
+        },
+        {
+          "id": "short-fact",
+          "expected": "neutral",
+          "predicted": "positive"
+        },
+        {
+          "id": "not-used",
+          "expected": "neutral",
+          "predicted": "negative"
+        },
+        {
+          "id": "resume-failure",
+          "expected": "negative",
+          "predicted": "negative"
+        }
+      ],
+      "regressions_passed": false,
+      "eligible": false
+    },
+    {
+      "review_weight": 6,
+      "validation_score": 0.7461628711247515,
+      "tweet_validation": {
+        "examples": 2000,
+        "accuracy": 0.6695,
+        "macro_f1": 0.6286193085430695,
+        "negative_recall": 0.4230769230769231,
+        "neutral_recall": 0.7272727272727273,
+        "classification_report": {
+          "negative": {
+            "precision": 0.5714285714285714,
+            "recall": 0.4230769230769231,
+            "f1-score": 0.4861878453038674,
+            "support": 312.0
+          },
+          "neutral": {
+            "precision": 0.6377396569122099,
+            "recall": 0.7272727272727273,
+            "f1-score": 0.6795698924731183,
+            "support": 869.0
+          },
+          "positive": {
+            "precision": 0.7390745501285347,
+            "recall": 0.702075702075702,
+            "f1-score": 0.720100187852223,
+            "support": 819.0
+          },
+          "accuracy": 0.6695,
+          "macro avg": {
+            "precision": 0.649414259489772,
+            "recall": 0.6174751174751175,
+            "f1-score": 0.6286193085430695,
+            "support": 2000.0
+          },
+          "weighted avg": {
+            "precision": 0.6688917663488474,
+            "recall": 0.6695,
+            "f1-score": 0.6659994490724584,
+            "support": 2000.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              132,
+              139,
+              41
+            ],
+            [
+              75,
+              632,
+              162
+            ],
+            [
+              24,
+              220,
+              575
+            ]
+          ]
+        }
+      },
+      "review_validation": {
+        "examples": 1761,
+        "accuracy": 0.8665530948324816,
+        "macro_f1": 0.8637064337064336,
+        "negative_recall": 0.8914858096828047,
+        "neutral_recall": 0.7937743190661478,
+        "classification_report": {
+          "negative": {
+            "precision": 0.8885191347753744,
+            "recall": 0.8914858096828047,
+            "f1-score": 0.89,
+            "support": 599.0
+          },
+          "neutral": {
+            "precision": 0.8571428571428571,
+            "recall": 0.7937743190661478,
+            "f1-score": 0.8242424242424242,
+            "support": 514.0
+          },
+          "positive": {
+            "precision": 0.8538011695906432,
+            "recall": 0.9012345679012346,
+            "f1-score": 0.8768768768768769,
+            "support": 648.0
+          },
+          "accuracy": 0.8665530948324816,
+          "macro avg": {
+            "precision": 0.8664877205029583,
+            "recall": 0.8621648988833956,
+            "f1-score": 0.8637064337064336,
+            "support": 1761.0
+          },
+          "weighted avg": {
+            "precision": 0.8665857741036993,
+            "recall": 0.8665530948324816,
+            "f1-score": 0.8659777525705975,
+            "support": 1761.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_actual_columns_predicted": [
+            [
+              534,
+              32,
+              33
+            ],
+            [
+              39,
+              408,
+              67
+            ],
+            [
+              28,
+              36,
+              584
+            ]
+          ]
+        }
+      },
+      "regressions": [
+        {
+          "id": "survey-complaint",
+          "expected": "negative",
+          "predicted": "negative"
+        },
+        {
+          "id": "survey-fact",
+          "expected": "neutral",
+          "predicted": "neutral"
+        },
+        {
+          "id": "survey-praise",
+          "expected": "positive",
+          "predicted": "positive"
+        },
+        {
+          "id": "short-fact",
+          "expected": "neutral",
+          "predicted": "positive"
+        },
+        {
+          "id": "not-used",
+          "expected": "neutral",
+          "predicted": "negative"
+        },
+        {
+          "id": "resume-failure",
+          "expected": "negative",
+          "predicted": "negative"
+        }
+      ],
+      "regressions_passed": false,
+      "eligible": false
+    }
+  ],
+  "tweet_test": {
+    "examples": 12284,
+    "accuracy": 0.5970367958319766,
+    "macro_f1": 0.5796578995727101,
+    "negative_recall": 0.4340382678751259,
+    "neutral_recall": 0.6929425635843018,
+    "classification_report": {
+      "negative": {
+        "precision": 0.65426944971537,
+        "recall": 0.4340382678751259,
+        "f1-score": 0.5218707431512033,
+        "support": 3972.0
+      },
+      "neutral": {
+        "precision": 0.6075014766686355,
+        "recall": 0.6929425635843018,
+        "f1-score": 0.6474152175623574,
+        "support": 5937.0
+      },
+      "positive": {
+        "precision": 0.5199860966284324,
+        "recall": 0.6298947368421053,
+        "f1-score": 0.5696877380045697,
+        "support": 2375.0
+      },
+      "accuracy": 0.5970367958319766,
+      "macro avg": {
+        "precision": 0.5939190076708126,
+        "recall": 0.5856251894338443,
+        "f1-score": 0.5796578995727101,
+        "support": 12284.0
+      },
+      "weighted avg": {
+        "precision": 0.6057034761269673,
+        "recall": 0.5970367958319766,
+        "f1-score": 0.5917928293898689,
+        "support": 12284.0
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "rows_actual_columns_predicted": [
+        [
+          1724,
+          1878,
+          370
+        ],
+        [
+          812,
+          4114,
+          1011
+        ],
+        [
+          99,
+          780,
+          1496
+        ]
+      ]
+    }
+  },
+  "review_test": {
+    "examples": 1771,
+    "accuracy": 0.5115753811405985,
+    "macro_f1": 0.49409130208086083,
+    "negative_recall": 0.5683453237410072,
+    "neutral_recall": 0.6729323308270677,
+    "classification_report": {
+      "negative": {
+        "precision": 0.5249169435215947,
+        "recall": 0.5683453237410072,
+        "f1-score": 0.5457685664939551,
+        "support": 278.0
+      },
+      "neutral": {
+        "precision": 0.2130952380952381,
+        "recall": 0.6729323308270677,
+        "f1-score": 0.32368896925858953,
+        "support": 266.0
+      },
+      "positive": {
+        "precision": 0.9031746031746032,
+        "recall": 0.46373268133659334,
+        "f1-score": 0.6128163704900377,
+        "support": 1227.0
+      },
+      "accuracy": 0.5115753811405985,
+      "macro avg": {
+        "precision": 0.5470622615971453,
+        "recall": 0.5683367786348895,
+        "f1-score": 0.49409130208086083,
+        "support": 1771.0
+      },
+      "weighted avg": {
+        "precision": 0.7401499049845144,
+        "recall": 0.5115753811405985,
+        "f1-score": 0.5588653946354493,
+        "support": 1771.0
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "rows_actual_columns_predicted": [
+        [
+          158,
+          117,
+          3
+        ],
+        [
+          29,
+          179,
+          58
+        ],
+        [
+          114,
+          544,
+          569
+        ]
+      ]
+    }
+  },
+  "baseline_tweet_test": {
+    "examples": 12284,
+    "accuracy": 0.5957342885053728,
+    "macro_f1": 0.571889977282246,
+    "negative_recall": 0.39123867069486407,
+    "neutral_recall": 0.7266296109146033,
+    "classification_report": {
+      "negative": {
+        "precision": 0.6706948640483383,
+        "recall": 0.39123867069486407,
+        "f1-score": 0.4941962156145651,
+        "support": 3972.0
+      },
+      "neutral": {
+        "precision": 0.5981697171381032,
+        "recall": 0.7266296109146033,
+        "f1-score": 0.6561715719826603,
+        "support": 5937.0
+      },
+      "positive": {
+        "precision": 0.5263157894736842,
+        "recall": 0.6105263157894737,
+        "f1-score": 0.5653021442495126,
+        "support": 2375.0
+      },
+      "accuracy": 0.5957342885053728,
+      "macro avg": {
+        "precision": 0.5983934568867085,
+        "recall": 0.5761315324663138,
+        "f1-score": 0.571889977282246,
+        "support": 12284.0
+      },
+      "weighted avg": {
+        "precision": 0.6077282327131975,
+        "recall": 0.5957342885053728,
+        "f1-score": 0.5862284747537203,
+        "support": 12284.0
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "rows_actual_columns_predicted": [
+        [
+          1554,
+          2060,
+          358
+        ],
+        [
+          676,
+          4314,
+          947
+        ],
+        [
+          87,
+          838,
+          1450
+        ]
+      ]
+    }
+  },
+  "baseline_review_test": {
+    "examples": 1771,
+    "accuracy": 0.4522868435911914,
+    "macro_f1": 0.4078573362137332,
+    "negative_recall": 0.2589928057553957,
+    "neutral_recall": 0.7255639097744361,
+    "classification_report": {
+      "negative": {
+        "precision": 0.4931506849315068,
+        "recall": 0.2589928057553957,
+        "f1-score": 0.33962264150943394,
+        "support": 278.0
+      },
+      "neutral": {
+        "precision": 0.19242273180458624,
+        "recall": 0.7255639097744361,
+        "f1-score": 0.3041765169424744,
+        "support": 266.0
+      },
+      "positive": {
+        "precision": 0.8617363344051447,
+        "recall": 0.43683781581092096,
+        "f1-score": 0.5797728501892915,
+        "support": 1227.0
+      },
+      "accuracy": 0.4522868435911914,
+      "macro avg": {
+        "precision": 0.5157699170470793,
+        "recall": 0.47379817711358424,
+        "f1-score": 0.4078573362137332,
+        "support": 1771.0
+      },
+      "weighted avg": {
+        "precision": 0.7033488534082957,
+        "recall": 0.4522868435911914,
+        "f1-score": 0.5006817250302549,
+        "support": 1771.0
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "rows_actual_columns_predicted": [
+        [
+          72,
+          184,
+          22
+        ],
+        [
+          9,
+          193,
+          64
+        ],
+        [
+          65,
+          626,
+          536
+        ]
+      ]
+    }
+  },
+  "review_groups": {
+    "train": [
+      "GPT-4o-Mini",
+      "GPT-5.2-Instant",
+      "Gemini-1.5-Flash",
+      "Grok-4.1-Fast-Non-Reasoning",
+      "Mixtral-8x7b"
+    ],
+    "validation": [
+      "Gemini-2.0-Flash-Lite",
+      "Gemini-3-Flash"
+    ],
+    "test": [
+      "GPT-5-mini",
+      "Llama-3-8b-T"
+    ]
+  },
+  "training_examples": {
+    "tweets": 45587,
+    "reviews": 4050
+  },
+  "datasets": [
+    {
+      "name": "TweetEval sentiment",
+      "revision": "4fbd22cd78421f05b1ecdb4fc5725bc7a7bd8f66",
+      "license": "CC BY 3.0 (sentiment subset); source Twitter terms apply",
+      "sha256": {
+        "train_text.txt": "368f01052ea6fd8ffc408a2a2e6ac9669e31542581a0396ef16591ea26eb98a6",
+        "train_labels.txt": "122bfb1732fb6995b0e5c5f726c0ba457c469c3b6e60513007ce5037f23e65d4",
+        "val_text.txt": "e5b021e6fc45064c260b09814b803d8f56cada519c4d952d72f43d48a350a964",
+        "val_labels.txt": "b4566926c72e2e4e2916c864def94e76c4cdde52446af2c7ba4fc2006e057e51",
+        "test_text.txt": "09a93a55c63fd93f97485ef7302889d7edb4091cd49733aa37da094f0bfa0675",
+        "test_labels.txt": "6afb4afe9374d1f983bcf9a7c79b108d0f37fdf020a83f30488309bed215db9d"
+      }
+    },
+    {
+      "name": "InfinitodeLTD/CRSD",
+      "revision": "6010dd8f1af5cb0bb2537e91bc05ff207497ae34",
+      "license": "MIT according to dataset card",
+      "synthetic": true,
+      "source": "https://huggingface.co/datasets/InfinitodeLTD/CRSD",
+      "sha256": "e5ceefd4138e429cc49887139858c31b99f37c93eba25cc207a667d0f094e57c"
+    }
+  ],
+  "limitations": [
+    "Customer-review examples are AI-generated and do not prove accuracy on real customer feedback.",
+    "Generator-group holdouts reduce style leakage but cannot eliminate shared templates or semantic overlap.",
+    "The original authored form set and six regression checks are development data, not independent accuracy estimates.",
+    "The same held-out benchmark sets have been inspected during experimentation; a fresh human-labeled form test set is still needed.",
+    "Mixed-feedback product rules are separate from the classifier and are not included in these classifier metrics."
+  ]
+}

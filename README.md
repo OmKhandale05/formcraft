@@ -44,6 +44,9 @@ The submissions page works like a lightweight response operations dashboard.
 - Export CSV and JSON
 - Download captured signatures when available
 - Bottom-right action toasts for review, flag, unflag, and archive actions
+- Analyze a selected text field with a Python sentiment model
+- Positive, neutral and negative badges, sentiment filters and response counts
+- Persist analysis locally and include results in CSV/JSON exports
 
 ### Templates
 
@@ -117,6 +120,10 @@ FormCraft includes common fields and advanced product-style fields:
 - **Framer Motion** for subtle UI motion
 - **lucide-react** for icons
 - **localStorage** for local persistence
+- **Python + FastAPI + Uvicorn** for the optional feedback analysis service
+- **scikit-learn** for TF-IDF text features and Logistic Regression
+- **pandas + joblib** for training data preparation and saved model artifacts
+- **pytest + Playwright** for API and feedback workflow checks
 
 ## Project Structure
 
@@ -144,6 +151,13 @@ src/
     form-store      Zustand store and local persistence
   types/
     form            Typed form schema, field, submission, and version models
+backend/
+  train.py          Reproducible sentiment training and evaluation
+  app.py            Validated batch inference API
+  artifacts/        Evaluation report and locally generated model
+  tests/            Training and API tests
+tests/
+  feedback-analysis.mjs  Live browser integration checks
 ```
 
 ## Getting Started
@@ -177,6 +191,61 @@ Run lint:
 ```bash
 npm run lint
 ```
+
+## Smart Feedback Analysis
+
+The optional Python service classifies English feedback as positive, neutral or negative. FormCraft sends only the selected field's text and response identifiers. The service performs inference without storing responses or retraining. Results stay in this browser alongside the existing workspace.
+
+From the repository root:
+
+```bash
+python3 -m venv backend/.venv
+backend/.venv/bin/python -m pip install -r backend/requirements-dev.txt
+backend/.venv/bin/python backend/scripts/build_vercel.py
+backend/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
+
+Keep that terminal running and start `npm run dev` in another terminal. The browser calls the same-origin Next.js route, which forwards requests to `http://localhost:8000` by default. For another address, set the server-only `FEEDBACK_API_URL` using `.env.example`. Hosted deployments require the same server-only `FORMCRAFT_API_KEY` on Next.js and Python. Never expose it through `NEXT_PUBLIC_`. The Python service runs separately; deploying the frontend alone does not start it.
+
+To try it:
+
+1. Add a long-answer field to a form and collect a few responses through Preview.
+2. Open Submissions and select that field under Feedback analysis.
+3. Click Analyze feedback, then filter or open responses to review predicted sentiment.
+
+Blank answers are skipped. New responses require another analysis run. Switching fields shows the results for that field; saved results are ignored if the answer text changes. Clearing local submissions also clears the analysis cache. The builder works without the Python service; analysis shows an actionable error when the service is unavailable.
+
+The current TF-IDF + Logistic Regression model combines TweetEval with lightly weighted CRSD synthetic customer reviews. Validation and known regression checks choose between five weights, preserving neutral examples while improving complaint detection. On held-out tweet examples, it achieves **59.7% accuracy** and **0.580 macro F1**; on held-out synthetic review-generator groups it achieves **51.2% accuracy** and **0.494 macro F1**. These are not customer-feedback production accuracy claims. Predictions can be incorrect, especially for sarcasm, negation, mixed sentiment and non-English text.
+
+Read the [Python service guide](backend/README.md) for the ML concepts and [dataset attribution](backend/DATASETS.md) for sources and limitations. Current comparisons are in [adaptation_evaluation.json](backend/artifacts/adaptation_evaluation.json); [evaluation.json](backend/artifacts/evaluation.json) preserves the original tweet-only baseline. Training data and experimental artifacts are ignored by Git. The tested release is committed in `backend/releases` with a SHA-256 manifest; deployment verifies its bytes instead of retraining.
+
+### Form Feedback Evaluation
+
+Evaluate the frozen model against 60 authored form-style examples:
+
+```bash
+backend/.venv/bin/python -m backend.evaluate_feedback
+```
+
+The [diagnostic report](backend/artifacts/form_feedback_evaluation.md) shows **53/60 correct (88.3%)** with the adapted model and mixed-complaint policy, up from 47/60 for the previous service. Negative recall is **90%** in this small set, so complaints are still missed. These synthetic examples have assistant-authored labels and were inspected during development; they are not an untouched customer benchmark. The classifier is not retrained by evaluation. See the Python guide to evaluate your own separately labeled examples.
+
+Inference combines ML with a narrow product rule: praise followed by an explicit unresolved payment complaint, such as "excellent but payment not done", takes priority as Negative. This does not guarantee correct interpretation of all mixed feedback. Click Analyze feedback again to refresh previously saved results after a service update.
+
+### Feedback Checks
+
+```bash
+backend/.venv/bin/python -m pytest backend/tests -q
+npx playwright install chromium
+# Run with both Next.js and the trained Python service already started:
+npm run test:feedback
+npm run test:feedback-proxy
+```
+
+The browser test uses an isolated workspace, exercises live predictions, filters, persistence, failure handling and mobile layout, and writes local screenshots into ignored `test-results/`. Evaluation overlap checks require the local training corpus: reproduce it with `python -m backend.train`, run evaluation, then restore the frozen release before serving.
+
+### Host The Python API
+
+The [Vercel API guide](backend/VERCEL.md) covers the frozen release, server-only key, Next.js proxy and preview firewall rate limit. The [Render guide](backend/DEPLOYMENT.md) remains available as an alternative. Hosting configuration does not deploy the service by itself. The current sign-in screen is UI, not real user-account authentication; service authentication is a separate safeguard.
 
 ## Local Persistence
 
