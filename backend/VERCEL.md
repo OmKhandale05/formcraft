@@ -1,10 +1,10 @@
 # Vercel Feedback Deployment
 
-## Test URLs
+## Deployment URLs
 
 - [Frontend preview](https://formcraft-ml-feedback.vercel.app): requires an authorized Vercel account.
 - [API health](https://formcraft-feedback-api.vercel.app/health): public readiness, version and release checksum.
-- Live website: `https://formcraft.omverse.in`, unchanged until deliberate production rollout.
+- [Production website](https://formcraft.omverse.in): feedback analysis enabled after the tested branch rollout.
 
 Two projects are used: `formcraft` for Next.js and `formcraft-feedback-api` for FastAPI. No new database or Render account is needed.
 
@@ -30,8 +30,8 @@ This is **service authentication**, not user-account authentication. The current
 
 | Project | Variable | Value |
 | --- | --- | --- |
-| Next.js Preview, branch `ml_feedback` only | `FEEDBACK_API_URL` | `https://formcraft-feedback-api.vercel.app` |
-| Next.js Preview, branch `ml_feedback` only | `FORMCRAFT_API_KEY` | Server secret shared with Python |
+| Next.js Production and `ml_feedback` Preview | `FEEDBACK_API_URL` | `https://formcraft-feedback-api.vercel.app` |
+| Next.js Production and `ml_feedback` Preview | `FORMCRAFT_API_KEY` | Server secret shared with Python |
 | Python Production/Preview | `FORMCRAFT_API_KEY` | Same server secret |
 | Python Production/Preview | `FORMCRAFT_ENV` | `production` |
 | Python Production/Preview | `FORMCRAFT_ALLOWED_ORIGINS` | Exact allowed origins, without paths |
@@ -40,20 +40,20 @@ The legacy `NEXT_PUBLIC_FEEDBACK_API_URL` is no longer read. Both applications n
 
 ## Rate Limiting
 
-Vercel Firewall rule `formcraft-feedback-preview` allows 20 requests per 60-second fixed window per IP for `/api/feedback/analyze` on `formcraft-ml-feedback.vercel.app`. It runs at the provider edge, not in one serverless instance's memory. Excess requests receive 429; the UI asks the user to wait and retry.
+Vercel Firewall rule `formcraft-feedback-analysis` allows 20 requests per 60-second fixed window per IP for `/api/feedback/analyze` across all website production and preview hosts. It runs at the provider edge, not in one serverless instance's memory. Excess requests receive 429; the UI asks the user to wait and retry.
 
-This rule is deliberately scoped to the stable preview alias. Other preview URLs retain Vercel account protection but are not covered by this hostname-specific limit. Production traffic is unaffected. Extend the rule before production rollout. Shared-IP users share the quota; fixed-window limits are not complete protection against distributed abuse.
+Only the analysis endpoint is affected. Preview URLs retain Vercel account protection. Shared-IP users share the quota; fixed-window limits are not complete protection against distributed abuse. This does not create real user accounts or prevent all misuse of the public Next.js proxy.
 
 ## Deploy And Verify
 
-The API project is CLI-deployed, not Git-connected. If connecting Git, set its Root Directory to `backend` and tracked branch to `ml_feedback`. Backend config disables automatic `main` deployments during testing.
+The API project is CLI-deployed, not Git-connected. If connecting Git, set its Root Directory to `backend` and tracked production branch to `main`. Backend configuration enables both main and feature-branch deployments. The existing website project deploys its main branch through Git.
 
 ```bash
 npx vercel deploy --cwd backend --prod
 npx vercel deploy
 ```
 
-The first command uses `backend/.vercel` to target the separate API. The second uses the root project link and creates a frontend **preview**. Do not use `--prod` on the website yet. Update the stable preview alias after deploying. Never commit project metadata or bypass tokens.
+The first command uses `backend/.vercel` to target the separate API. The second uses the root project link and creates a frontend **preview**. Merging and pushing main deploys the website through its Git integration; `npx vercel deploy --prod` is the manual production alternative. Update the stable preview alias after preview deployments. Never commit project metadata or bypass tokens.
 
 ```bash
 backend/.venv/bin/python backend/scripts/build_vercel.py --check
@@ -70,6 +70,6 @@ The browser suite accepts `FORMCRAFT_TEST_URL` and an authorized `FORMCRAFT_TEST
 
 The current release passed 72 Python tests, proxy checks, lint, the production build, hosted authorized/unauthorized checks and the deployed browser workflow. The hosted checksum matched the manifest. A burst of invalid preview requests returned HTTP 429 above the firewall quota without running inference. These checks validate deployment behavior, not general sentiment accuracy.
 
-After acceptance, merge deliberately, configure the website's Production server variables, extend the firewall rule and enable the API project's main branch. Hosting does not improve accuracy and remains subject to account usage limits.
+Production rollout merges the accepted branch, configures Production server variables and extends the firewall rule. The frozen API release remains unchanged. Verify the hosted workflow after every release. Hosting does not improve accuracy and remains subject to account usage limits.
 
 References: [FastAPI on Vercel](https://vercel.com/docs/frameworks/backend/fastapi), [Python runtime](https://vercel.com/docs/functions/runtimes/python), [Rate limiting](https://vercel.com/kb/guide/add-rate-limiting-vercel).

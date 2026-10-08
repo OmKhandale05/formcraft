@@ -2,13 +2,13 @@
 
 This is the alternative Render setup; the active deployment is documented in [VERCEL.md](VERCEL.md). No database or persistent disk is required. The build installs the checksum-verified frozen release, and inference loads it at startup without retraining.
 
-This repository includes a [Render Blueprint](../render.yaml) targeting `ml_feedback` on the free plan with automatic deployments turned off. Pushing a Git commit does not trigger a deploy of this configured Render service. Vercel's separate preview deployment settings are unchanged.
+This repository includes a [Render Blueprint](../render.yaml) targeting `main` on the free plan with automatic deployments turned off. Pushing a Git commit does not trigger a deploy of this configured Render service. Vercel's separate preview deployment settings are unchanged.
 
 ## 1. Create The Render Service
 
 1. Sign in at [Render](https://dashboard.render.com/) and connect your GitHub account.
 2. Choose **New > Blueprint** and select `OmKhandale05/formcraft`.
-3. Select branch **ml_feedback** and Blueprint path **render.yaml**.
+3. Select branch **main** and Blueprint path **render.yaml**.
 4. Enter `FORMCRAFT_ALLOWED_ORIGINS` when prompted. Use the exact Vercel preview URL you will test, such as `https://your-preview.vercel.app`. Do not include `/builder`, wildcard domains or credentials. Multiple allowed URLs can be comma-separated.
 5. Confirm the **Free** compute plan, then create the service.
 6. Set a random server-only `FORMCRAFT_API_KEY` of at least 32 characters, shared with the Next.js server. Wait for the build to install the frozen model and finish. Save the service's actual HTTPS URL.
@@ -22,7 +22,7 @@ If you create a Web Service instead of a Blueprint, use these settings:
 | Setting | Value |
 |---|---|
 | Repository | `OmKhandale05/formcraft` |
-| Branch | `ml_feedback` |
+| Branch | `main` |
 | Runtime | Python |
 | Root directory | Leave empty (repository root) |
 | Build command | `bash backend/scripts/build.sh` |

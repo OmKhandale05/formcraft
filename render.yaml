@@ -3,7 +3,7 @@ services:
     name: formcraft-feedback-api
     runtime: python
     plan: free
-    branch: ml_feedback
+    branch: main
     autoDeployTrigger: "off"
     buildCommand: bash backend/scripts/build.sh
     startCommand: python -m backend.serve

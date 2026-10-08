@@ -57,11 +57,11 @@ def test_build_check_without_repository_parent(deployment_root):
     assert result.returncode == 0, result.stderr
 
 
-def test_deployment_config_keeps_main_disabled_and_model_included():
+def test_deployment_config_enables_main_and_keeps_model_included():
     config = json.loads((ROOT / "vercel.json").read_text())
     assert config["framework"] == "fastapi"
     assert config["buildCommand"] == "python scripts/build_vercel.py"
-    assert config["git"]["deploymentEnabled"] == {"main": False, "ml_feedback": True}
+    assert config["git"]["deploymentEnabled"] == {"main": True, "ml_feedback": True}
     excludes = config["functions"]["app.py"]["excludeFiles"]
     assert "data/**" in excludes and "tests/**" in excludes
     assert "artifacts/**" not in excludes and "*.joblib" not in excludes
