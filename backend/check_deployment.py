@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -25,7 +26,10 @@ def check(api_url, origin=None):
         {"id": "neutral", "text": "The meeting is on Monday"},
         {"id": "mixed", "text": "this is excellent but payment not done"},
     ]
-    request = Request(f"{base}/analyze", method="POST", data=json.dumps({"items": examples}).encode(), headers={"Content-Type": "application/json"})
+    headers = {"Content-Type": "application/json"}
+    if os.getenv("FORMCRAFT_API_KEY"):
+        headers["X-FormCraft-Key"] = os.environ["FORMCRAFT_API_KEY"]
+    request = Request(f"{base}/analyze", method="POST", data=json.dumps({"items": examples}).encode(), headers=headers)
     with urlopen(request, timeout=120) as response:
         data = json.load(response)
     results = data.get("results", [])

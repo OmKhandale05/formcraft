@@ -65,7 +65,7 @@ def test_adapted_artifact_handles_survey_complaints_and_neutral_statements():
     if not path.exists():
         pytest.skip("Train the model to run this artifact integration check")
     model = joblib.load(path)
-    if model["version"] != "feedback-tfidf-lr-v2":
+    if not model["version"].startswith("feedback-tfidf-lr-v2"):
         pytest.skip("This integration check requires the feedback-adapted model")
     texts = ["The survey is far too long and the questions are confusing.", "The survey contains 20 questions.", "The survey is clear and easy to complete.", "this is it", "I have not used the service yet."]
     assert predict_feedback(model["pipeline"], texts) == ["negative", "neutral", "positive", "neutral", "neutral"]

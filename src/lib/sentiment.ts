@@ -33,10 +33,9 @@ export function currentAnalysis(saved: SavedAnalysis, submission: Submission, fi
 }
 
 export async function analyzeBatch(items: { id: string; text: string }[], signal: AbortSignal) {
-  const base = (process.env.NEXT_PUBLIC_FEEDBACK_API_URL || "http://localhost:8000").replace(/\/$/, "");
   let response: Response;
   try {
-    response = await fetch(`${base}/analyze`, {
+    response = await fetch("/api/feedback/analyze", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }), signal,
     });
   } catch (error) {
@@ -44,6 +43,7 @@ export async function analyzeBatch(items: { id: string; text: string }[], signal
     throw new Error("Feedback analysis is unavailable. Please try again when the analysis service is running.");
   }
   if (!response.ok) {
+    if (response.status === 429) throw new Error("Too many analysis requests. Please wait a minute and try again.");
     if (response.status === 503) throw new Error("The analysis model is not ready yet. Please try again later.");
     throw new Error("Feedback could not be analyzed. Please try again.");
   }

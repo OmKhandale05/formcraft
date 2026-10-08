@@ -1,13 +1,9 @@
-"""Train in an isolated build environment; ship only the inference artifact."""
+"""Install and validate the frozen release; never train during deployment."""
 
 import argparse
 import importlib.util
-import os
 from pathlib import Path
-import subprocess
 import sys
-import tempfile
-import venv
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,21 +32,14 @@ def check_model():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--train", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--check", action="store_true", help="Validate an existing deployment artifact without retraining")
     args = parser.parse_args()
     register_backend()
-    if args.train:
-        from backend.adapt import main as train
-        train()
-        return
     if not args.check:
-        environment = dict(os.environ, OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1", MKL_NUM_THREADS="1")
-        with tempfile.TemporaryDirectory(prefix="formcraft-training-") as directory:
-            venv.EnvBuilder(with_pip=True).create(directory)
-            python = str(Path(directory) / "bin" / "python")
-            subprocess.run([python, "-m", "pip", "install", "-r", str(ROOT / "requirements-dev.txt")], check=True, env=environment)
-            subprocess.run([python, str(Path(__file__).resolve()), "--train"], check=True, env=environment)
+        from backend.release import install
+        install()
+    from backend.release import verify
+    verify(ROOT / "artifacts" / "sentiment.joblib")
     check_model()
 
 

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:feedback": "node tests/feedback-analysis.mjs"
+    "test:feedback": "node tests/feedback-analysis.mjs",
+    "test:feedback-proxy": "node --experimental-strip-types tests/feedback-proxy.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "latest",

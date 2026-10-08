@@ -14,13 +14,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def deployment_root(tmp_path):
     root = tmp_path / "service"
     root.mkdir()
-    for name in ("app.py", "config.py", "sentiment.py", "__init__.py"):
+    for name in ("app.py", "config.py", "sentiment.py", "release.py", "__init__.py"):
         shutil.copy2(ROOT / name, root / name)
+    shutil.copytree(ROOT / "releases", root / "releases")
     return root
 
 
 def run_deployment(root, code, origins="https://forms.example"):
-    environment = dict(os.environ, VERCEL="1")
+    environment = dict(os.environ, VERCEL="1", FORMCRAFT_API_KEY="test-server-key-" + "x" * 32)
     environment.pop("PYTHONPATH", None)
     environment.pop("FORMCRAFT_MODEL_PATH", None)
     if origins is None:
@@ -52,7 +53,7 @@ def test_build_check_without_repository_parent(deployment_root):
     result = subprocess.run([sys.executable, "scripts/build_vercel.py", "--check"], cwd=deployment_root, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     assert "Deployment artifact ready" in result.stdout
-    result = run_deployment(deployment_root, "from app import app; from fastapi.testclient import TestClient\nwith TestClient(app) as client:\n assert client.get('/health').status_code == 200\n assert client.post('/analyze', json={'items': [{'id': 'survey', 'text': 'The survey is far too long and the questions are confusing.'}]}).json()['results'][0]['sentiment'] == 'negative'")
+    result = run_deployment(deployment_root, "import os; from app import app; from fastapi.testclient import TestClient\nwith TestClient(app) as client:\n assert client.get('/health').status_code == 200\n assert client.post('/analyze', headers={'X-FormCraft-Key': os.environ['FORMCRAFT_API_KEY']}, json={'items': [{'id': 'survey', 'text': 'The survey is far too long and the questions are confusing.'}]}).json()['results'][0]['sentiment'] == 'negative'")
     assert result.returncode == 0, result.stderr
 
 
@@ -75,14 +76,10 @@ def test_runtime_dependencies_do_not_include_training_tools():
     assert "-r requirements.txt" in (ROOT / "requirements-dev.txt").read_text()
 
 
-@pytest.mark.skipif(os.getenv("FORMCRAFT_TEST_VERCEL_BUILD") != "1", reason="Opt-in build installs training dependencies and retrains all candidates")
 def test_full_isolated_build(deployment_root):
-    for name in ("train.py", "adapt.py", "evaluate_feedback.py", "requirements.txt", "requirements-dev.txt"):
-        shutil.copy2(ROOT / name, deployment_root / name)
-    for name in ("scripts", "evaluation", "data"):
-        if (ROOT / name).exists():
-            shutil.copytree(ROOT / name, deployment_root / name)
+    shutil.copytree(ROOT / "scripts", deployment_root / "scripts")
     result = subprocess.run([sys.executable, "scripts/build_vercel.py"], cwd=deployment_root, capture_output=True, text=True, timeout=900)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "Deployment artifact ready" in result.stdout
     assert (deployment_root / "artifacts" / "sentiment.joblib").is_file()
+    assert not (deployment_root / "data").exists()

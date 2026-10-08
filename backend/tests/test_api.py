@@ -50,3 +50,12 @@ def test_api_prioritizes_unresolved_payment_over_praise(client):
     response = client.post("/analyze", json={"items": [{"id": "mixed", "text": "excellent helpful but payemnt not done"}]})
     assert response.status_code == 200
     assert response.json()["results"] == [{"id": "mixed", "sentiment": "negative"}]
+
+
+def test_analysis_requires_the_server_key_when_configured(client, monkeypatch):
+    monkeypatch.setattr(service, "API_KEY", "test-secret-" + "x" * 32)
+    payload = {"items": [{"id": "a", "text": "excellent helpful"}]}
+    assert client.post("/analyze", json=payload).status_code == 401
+    assert client.post("/analyze", json=payload, headers={"X-FormCraft-Key": "incorrect"}).status_code == 401
+    assert client.post("/analyze", json=payload, headers={"X-FormCraft-Key": service.API_KEY}).status_code == 200
+    assert client.get("/health").status_code == 200

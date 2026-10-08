@@ -1,0 +1,12 @@
+{
+  "file": "sentiment-v2-release1.joblib",
+  "sha256": "cd83158d71e49ce7de25a41632d4cee07a691ba8e89899dfecb916db6198aa96",
+  "model_version": "feedback-tfidf-lr-v2-release1",
+  "source": "Locally tested feedback-adapted model; review weight 0.5",
+  "dependencies": {
+    "scikit-learn": "1.6.1",
+    "numpy": "2.0.2",
+    "scipy": "1.13.1",
+    "joblib": "1.4.2"
+  }
+}
