@@ -9,12 +9,12 @@ Run from the repository root with Python 3.9 or newer:
 ```bash
 python3 -m venv backend/.venv
 backend/.venv/bin/python -m pip install -r backend/requirements-dev.txt
-backend/.venv/bin/python -m backend.train
+backend/.venv/bin/python backend/scripts/build_vercel.py
 ```
 
-Training downloads pinned TweetEval sentiment splits and CRSD customer-review data, compares five review-data weights, and writes the selected TF-IDF + Logistic Regression pipeline to `backend/artifacts/sentiment.joblib`. Data and binary models are ignored by Git. Re-run training in a fresh environment before starting the service.
+Setup installs the tested frozen release after verifying its SHA-256 checksum. Deployments do not retrain or download datasets. The committed release is `feedback-tfidf-lr-v2-release1`; raw data and experimental artifacts remain ignored by Git.
 
-The default model is `feedback-tfidf-lr-v2`. To reproduce the original tweet-only model instead, use `python -m backend.train --baseline`; this replaces the local artifact, so restart the API afterwards. Training the current model again restores it.
+For experiments, `python -m backend.train` downloads pinned TweetEval and CRSD data and compares five review-data weights. `--baseline` reproduces the tweet-only model. These replace the local experimental artifact, not the committed release. Restore the release with `python backend/scripts/build_vercel.py` before serving. New releases require a new artifact name, testing and an explicit manifest update; the generator refuses to overwrite the existing release.
 
 ## How the ML works
 
@@ -132,7 +132,7 @@ Set `FORMCRAFT_ALLOWED_ORIGINS` to a comma-separated list of frontend origins fo
 
 ## Hosting
 
-Follow the [Vercel API guide](VERCEL.md) to host FastAPI as a separate Vercel project and connect a frontend branch preview. Deployment configuration lives inside `backend`, so it does not replace the Next.js site's settings. Runtime dependencies stay in `requirements.txt`; training and tests use `requirements-dev.txt`. The build trains in an isolated temporary environment, then bundles the saved model for prediction at startup. The API requires explicit frontend origins on Vercel, including previews, and `/health` returns HTTP 503 if the model is not ready.
+Follow the [Vercel API guide](VERCEL.md) to host FastAPI separately. Runtime dependencies stay in `requirements.txt`; training and tests use `requirements-dev.txt`. The build verifies the frozen release. Hosted `/analyze` requires a server-only `FORMCRAFT_API_KEY`, supplied by the Next.js proxy, never the browser. Hosted configuration also requires explicit frontend origins. `/health` stays public and reports release version and checksum; a missing model returns 503. Corrupt release bytes stop startup before deserialization.
 
 The [Render guide](DEPLOYMENT.md) and Blueprint remain supported as an alternative.
 

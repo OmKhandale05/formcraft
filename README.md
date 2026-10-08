@@ -201,11 +201,11 @@ From the repository root:
 ```bash
 python3 -m venv backend/.venv
 backend/.venv/bin/python -m pip install -r backend/requirements-dev.txt
-backend/.venv/bin/python -m backend.train
+backend/.venv/bin/python backend/scripts/build_vercel.py
 backend/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
 
-Keep that terminal running and start `npm run dev` in another terminal. The frontend connects to `http://localhost:8000` by default. For another API address, set `NEXT_PUBLIC_FEEDBACK_API_URL` using `.env.example` and restart Next.js. The Python service has a separate runtime; deploying the frontend alone does not start it.
+Keep that terminal running and start `npm run dev` in another terminal. The browser calls the same-origin Next.js route, which forwards requests to `http://localhost:8000` by default. For another address, set the server-only `FEEDBACK_API_URL` using `.env.example`. Hosted deployments require the same server-only `FORMCRAFT_API_KEY` on Next.js and Python. Never expose it through `NEXT_PUBLIC_`. The Python service runs separately; deploying the frontend alone does not start it.
 
 To try it:
 
@@ -217,7 +217,7 @@ Blank answers are skipped. New responses require another analysis run. Switching
 
 The current TF-IDF + Logistic Regression model combines TweetEval with lightly weighted CRSD synthetic customer reviews. Validation and known regression checks choose between five weights, preserving neutral examples while improving complaint detection. On held-out tweet examples, it achieves **59.7% accuracy** and **0.580 macro F1**; on held-out synthetic review-generator groups it achieves **51.2% accuracy** and **0.494 macro F1**. These are not customer-feedback production accuracy claims. Predictions can be incorrect, especially for sarcasm, negation, mixed sentiment and non-English text.
 
-Read the [Python service guide](backend/README.md) for the ML concepts and [dataset attribution](backend/DATASETS.md) for sources and limitations. Current comparisons are in [adaptation_evaluation.json](backend/artifacts/adaptation_evaluation.json); [evaluation.json](backend/artifacts/evaluation.json) preserves the original tweet-only baseline. Training data and binary model artifacts are excluded from Git; train locally before running the service.
+Read the [Python service guide](backend/README.md) for the ML concepts and [dataset attribution](backend/DATASETS.md) for sources and limitations. Current comparisons are in [adaptation_evaluation.json](backend/artifacts/adaptation_evaluation.json); [evaluation.json](backend/artifacts/evaluation.json) preserves the original tweet-only baseline. Training data and experimental artifacts are ignored by Git. The tested release is committed in `backend/releases` with a SHA-256 manifest; deployment verifies its bytes instead of retraining.
 
 ### Form Feedback Evaluation
 
@@ -238,13 +238,14 @@ backend/.venv/bin/python -m pytest backend/tests -q
 npx playwright install chromium
 # Run with both Next.js and the trained Python service already started:
 npm run test:feedback
+npm run test:feedback-proxy
 ```
 
-The browser test uses an isolated workspace, exercises live predictions, filters, persistence, failure handling and mobile layout, and writes local screenshots into ignored `test-results/`.
+The browser test uses an isolated workspace, exercises live predictions, filters, persistence, failure handling and mobile layout, and writes local screenshots into ignored `test-results/`. Evaluation overlap checks require the local training corpus: reproduce it with `python -m backend.train`, run evaluation, then restore the frozen release before serving.
 
 ### Host The Python API
 
-The [Vercel API guide](backend/VERCEL.md) covers a separate FastAPI project in the same Vercel account, isolated build-time training, exact frontend origins and testing a branch preview before production. The [Render guide](backend/DEPLOYMENT.md) remains available as an alternative. Hosting configuration does not deploy the service by itself.
+The [Vercel API guide](backend/VERCEL.md) covers the frozen release, server-only key, Next.js proxy and preview firewall rate limit. The [Render guide](backend/DEPLOYMENT.md) remains available as an alternative. Hosting configuration does not deploy the service by itself. The current sign-in screen is UI, not real user-account authentication; service authentication is a separate safeguard.
 
 ## Local Persistence
 

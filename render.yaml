@@ -15,6 +15,8 @@ services:
         value: production
       - key: FORMCRAFT_ALLOWED_ORIGINS
         sync: false
+      - key: FORMCRAFT_API_KEY
+        sync: false
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: OPENBLAS_NUM_THREADS
